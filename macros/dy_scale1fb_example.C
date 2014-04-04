@@ -22,7 +22,7 @@ void dy_scale1fb_example(const double lumi = 0.082/*fb^-1*/)
 
     // information from twiki: http://www.t2.ucsd.edu/tastwiki/bin/view/CMS/Summer12MonteCarlo53X_Slim_Winter13#Drell_Yan
     const double xsec       = 3532.81; // pb
-    const double kfactor    = 1.0;     // kinematically depdendent factor to scale to a higher order calc -- not really used as much
+    const double kfactor    = 1.0;     // kinematically dependent factor to scale to a higher order calc -- not really used as much
     const double filt_eff   = 1.0;     // Filter efficiency for the generator level (done during MC generation at the CMSSW level)
     const double nevts_file = chain.GetEntries();
 
@@ -41,8 +41,8 @@ void dy_scale1fb_example(const double lumi = 0.082/*fb^-1*/)
     // -------------------------------------- //
 
     // information from twiki: http://www.t2.ucsd.edu/tastwiki/bin/view/CMS/Summer12MonteCarlo53X_Slim_Winter13#Drell_Yan
-    const double nevts_aod        = 30459503; 
-    const double nevts_cms2       = 27137253;
+    const double nevts_aod       = 30459503; 
+    const double nevts_cms2      = 27137253;
     const double cms2_filter_eff = nevts_cms2/nevts_aod;
     std::cout << "properly scale count = lumi * scale1fb * raw_count * cms2_filter_eff = " << lumi*scale1fb*raw_count*cms2_filter_eff << "\n\n";
 
@@ -54,14 +54,13 @@ void dy_scale1fb_example(const double lumi = 0.082/*fb^-1*/)
     const double scale = nevts_cms2/nevts_file; 
 
     // get the scaled entries
-    const TCut scaled_selection = Form("%f*%f*evt_scale1fb*(Sum$(genps_status==3 && genps_id==11)>=1 && Sum$(genps_status==3 && genps_id==-11)>=1)", lumi, scale);
-    TH1D* h_scale1fb_count = new TH1D("h_scale1fb_count", "h_scale1fb_count", 3, -0.5, 2.5);
+    const TCut scaled_selection  = Form("%f*%f*evt_scale1fb*(Sum$(genps_status==3 && genps_id==11)>=1 && Sum$(genps_status==3 && genps_id==-11)>=1)", lumi, scale);
+    TH1D* h_scale1fb_count const = new TH1D("h_scale1fb_count", "h_scale1fb_count", 3, -0.5, 2.5);
     chain.Draw("1>>h_scale1fb_count", scaled_selection, "goff");
-    const double scale1fb_count = h_scale1fb_count->Integral();
 
-    std::cout << "hist entries    = " << h_scale1fb_count->GetEntries() << "\n";
+    std::cout << "hist entries    = " << h_scale1fb_count->GetEntries()   << "\n";
     std::cout << "scale1fb        = " << chain.GetMaximum("evt_scale1fb") << "\n";
-    std::cout << "applying weight = " << scaled_selection.GetTitle() << "\n";
-    std::cout << "scale1fb_count  = " << scale1fb_count << "\n";
+    std::cout << "applying weight = " << scaled_selection.GetTitle()      << "\n";
+    std::cout << "scale1fb_count  = " << h_scale1fb_count->Integral()     << "\n";
 }
 
