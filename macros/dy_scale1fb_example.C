@@ -55,7 +55,7 @@ void dy_scale1fb_example(const double lumi = 0.082/*fb^-1*/)
 
     // get the scaled entries
     const TCut scaled_selection  = Form("%f*%f*evt_scale1fb*(Sum$(genps_status==3 && genps_id==11)>=1 && Sum$(genps_status==3 && genps_id==-11)>=1)", lumi, scale);
-    TH1D* h_scale1fb_count const = new TH1D("h_scale1fb_count", "h_scale1fb_count", 3, -0.5, 2.5);
+    TH1D* const h_scale1fb_count = new TH1D("h_scale1fb_count", "h_scale1fb_count", 3, -0.5, 2.5);
     chain.Draw("1>>h_scale1fb_count", scaled_selection, "goff");
 
     std::cout << "hist entries    = " << h_scale1fb_count->GetEntries()   << "\n";
