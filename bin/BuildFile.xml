@@ -1,0 +1,13 @@
+<flags CPPDEFINES="CMS2_USE_CMSSW=1"/>
+<use name="AnalysisTools/RootTools"/>
+<use name="AnalysisTools/LanguageTools"/>
+<use name="AnalysisTools/CMS2Tools"/>
+<use name="CMS2/NtupleMacrosHeader"/>
+<use name="CMS2/NtupleMacrosCore"/>
+<use name="Analysis/DrellYan"/>
+<environment>
+  <bin name="dy_scale1fb_example" file="dy_scale1fb_example.cc"/>
+</environment>
+<environment>
+  <bin name="dy_plots" file="dy_plots.cc"/>
+</environment>
