@@ -228,7 +228,7 @@ namespace dy
         Sample::value_type sample = Sample::static_size;
         for (int i = 0; i < Sample::static_size; ++i)
         {
-            if (std::string(s_SampleInfos[i].name) == sample_name)
+            if (s_SampleInfos[i].name == sample_name)
             {
                 sample = static_cast<Sample::value_type>(i);
                 break;
@@ -261,7 +261,7 @@ namespace dy
     {
         for (int i = 0; i < Sample::static_size; ++i)
         {
-            if (std::string(s_SampleInfos[i].name) == sample_name)
+            if (s_SampleInfos[i].name == sample_name)
             {
                 return true; 
             }
