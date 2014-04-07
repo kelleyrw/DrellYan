@@ -4,8 +4,8 @@ Goal is the reproduce the result for DY --> ee/µµ xsec measurement using cms2 
 
 To checkout and compile:
 
-scramv1 p -n CMSSW_5_3_2_patch4_cms2example CMSSW CMSSW_5_3_2_patch4
-cd CMSSW_5_3_2_patch4_cms2example/src
+scramv1 p -n CMSSW_5_3_2_patch4_drellyan CMSSW CMSSW_5_3_2_patch4
+cd CMSSW_5_3_2_patch4_drellyan/src
 cmsenv
 
 git clone https://github.com/kelleyrw/DrellYan.git Analysis/DrellYan
