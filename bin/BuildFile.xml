@@ -9,5 +9,7 @@
   <bin name="dy_scale1fb_example" file="dy_scale1fb_example.cc"/>
 </environment>
 <environment>
+  <use name="FWCore/PythonParameterSet"/>
+  <use name="boost_program_options"/>
   <bin name="dy_plots" file="dy_plots.cc"/>
 </environment>

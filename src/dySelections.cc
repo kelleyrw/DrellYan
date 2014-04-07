@@ -437,3 +437,24 @@ int dy::ChooseBetterHypothesis(const int hyp1_idx, const int hyp2_idx)
     // if we're here, give bogus value
     return -99999;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////     
+// disambiguate between two passing hypotheses 
+// 1 mumu; 2 emu; 3 ee; -1 other;
+////////////////////////////////////////////////////////////////////////////////////////////     
+int dy::GenDileptonType()
+{
+    unsigned int nmus = 0;
+    unsigned int nels = 0;
+    for (size_t genps_idx = 0; genps_idx < tas::genps_id().size(); ++genps_idx)
+    {
+        if (tas::genps_status().at(genps_idx)  != 3 ) {continue;}
+        if (abs(tas::genps_id().at(genps_idx)) == 11) {nels++;}
+        if (abs(tas::genps_id().at(genps_idx)) == 13) {nmus++;}
+    }
+    if ((nels + nmus) != 2    ) {return -1;}
+    if (nmus == 2             ) {return 1;}
+    if (nels == 2             ) {return 3;}
+    if (nels == 1 && nmus == 1) {return 2;} 
+    return -1;
+}
