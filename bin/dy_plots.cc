@@ -106,20 +106,20 @@ void SetYieldAxisLabel(TH1* const hist)
 void DrellYanLooper::BeginJob()
 {
     // gen level plots
-    hc.Add(new TH1D("h_gen_yield" , "Yield count of gen  level l^{+}l^{-}"         ,   4, 0,   4));
+    hc.Add(new TH1D("h_gen_" , "Yield count of gen  level l^{+}l^{-}"         ,   4, 0,   4));
     hc.Add(new TH1D("h_gen_mee"   , "Generator level dielectron mass;m_{ee} (GeV)" , 150, 0, 150));
     hc.Add(new TH1D("h_gen_mmm"   , "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
 
     // reco level plots
-    hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}",   4,  0,   4));
+    hc.Add(new TH1D("h_reco_", "Yield count of reco level l^{+}l^{-}",   4,  0,   4));
     hc.Add(new TH1D("h_reco_mee"  , "Final dielectron mass;m_{ee} (GeV)"  ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mmm"  , "Final dilmuon mass;m_{#mu#mu} (GeV)" ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mll"  , "Final dilepton mass;m_{ll} (GeV)"    ,  60, 60, 120));
 
     // change axis labels
-    SetYieldAxisLabel(hc["h_gen_yield" ]);
-    SetYieldAxisLabel(hc["h_reco_yield"]);
+    SetYieldAxisLabel(hc["h_gen_" ]);
+    SetYieldAxisLabel(hc["h_reco_"]);
 
     // sumw2()
     hc.Sumw2();
@@ -166,15 +166,15 @@ void DrellYanLooper::Analyze(const long event)
         // flavor
         if (gen_flavor_type > -1)
         {
-            hc["h_gen_yield"]->Fill(gen_flavor_type, event_scale);
-            hc["h_gen_yield"]->Fill(0.0            , event_scale);
+            hc["h_gen_"]->Fill(gen_flavor_type, event_scale);
+            hc["h_gen_"]->Fill(0.0            , event_scale);
         }
 
         // kinematics
         //         if (gen_flavor_type > -1)
         //         {
-        //             hc["h_gen_yield"]->Fill(gen_flavor_type, event_scale);
-        //             hc["h_gen_yield"]->Fill(0.0            , event_scale);
+        //             hc["h_gen_"]->Fill(gen_flavor_type, event_scale);
+        //             hc["h_gen_"]->Fill(0.0            , event_scale);
         //         }
     }
 
@@ -237,8 +237,8 @@ void DrellYanLooper::Analyze(const long event)
     const bool is_mm = (reco_flavor_type == at::DileptonHypType::MUMU);
 
     // fill hist
-    hc["h_reco_yield"]->Fill(reco_flavor_type, event_scale);
-    hc["h_reco_yield"]->Fill(0.0             , event_scale);
+    hc["h_reco_"]->Fill(reco_flavor_type, event_scale);
+    hc["h_reco_"]->Fill(0.0             , event_scale);
 
     if (is_mm) {rt::Fill1D(hc["h_reco_mmm"], hyp_p4.mass(), event_scale);}
     if (is_ee) {rt::Fill1D(hc["h_reco_mee"], hyp_p4.mass(), event_scale);}
@@ -263,11 +263,11 @@ void DrellYanLooper::Analyze(const long event)
 void DrellYanLooper::EndJob()
 {
     // output counts
-    dy::Yield gen_yield = dy::GetYieldFromHist(*hc["h_gen_yield" ]);
-    std::cout << dy::GetYieldString(gen_yield, "Gen level Yields") << std::endl;
+    dy::Yield gen_ = dy::GetYieldFromHist(*hc["h_gen_yield" ]);
+    std::cout << dy::GetYieldString(gen_, "Gen level Yields") << std::endl;
 
-    dy::Yield reco_yield = dy::GetYieldFromHist(*hc["h_reco_yield" ]);
-    std::cout << dy::GetYieldString(reco_yield, "Reco level Yields") << std::endl;
+    dy::Yield reco_ = dy::GetYieldFromHist(*hc["h_reco_yield" ]);
+    std::cout << dy::GetYieldString(reco_, "Reco level Yields") << std::endl;
 
     std::cout << "[DrellYanLooper] Saving hists to output file: " << m_output_filename << std::endl;
     hc.Write(m_output_filename);
@@ -314,18 +314,18 @@ try
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help"     , "print this menu")
-        ("pset"     , po::value<std::string>(&pset_filename)->required() , "REQUIRED: python configuration file"               )
-        ("nevts"    , po::value<long long>(&number_of_events)            , "maximum number of events to skim"                  )
-        ("sample"   , po::value<std::string>(&sample_name)               , "Sample name to run on (from Sample.h)"             )
-        ("input"    , po::value<std::string>(&input_file)                , "input ROOT file (or csv)"                          )
-        ("output"   , po::value<std::string>(&output_file)               , "output ROOT file"                                  )
-        ("label"    , po::value<std::string>(&label)                     , "unique output label"                               )
-        ("run_list" , po::value<std::string>(&run_list)                  , "good run list (empty == none)"                     )
-        ("lumi"     , po::value<double>(&lumi)                           , "luminosity (default -1)"                           )
-        ("verbose"  , po::value<bool>(&verbose)                          , "Regexpression for aliases to keep"                 )
-        ("event"    , po::value<int>(&event)                             , "specific event to run on (-1 == all events)"       )
-        ("run"      , po::value<int>(&run)                               , "specific run to run on (-1 == all events)"         )
-        ("ls"       , po::value<int>(&ls)                                , "specific lumi section to run on (-1 == all events)")
+        ("pset"     , po::value<std::string>(&pset_filename)->required() , "REQUIRED: python configuration file"                )
+        ("nevts"    , po::value<long long>(&number_of_events)            , "maximum number of events to skim"                   )
+        ("sample"   , po::value<std::string>(&sample_name)               , "Sample name to run on (from Sample.h)"              )
+        ("input"    , po::value<std::string>(&input_file)                , "input ROOT file (or csv)"                           )
+        ("output"   , po::value<std::string>(&output_file)               , "output ROOT file"                                   )
+        ("label"    , po::value<std::string>(&label)                     , "unique output label to keep differnet jobs straight")
+        ("run_list" , po::value<std::string>(&run_list)                  , "good run list (empty == none)"                      )
+        ("lumi"     , po::value<double>(&lumi)                           , "luminosity (default -1)"                            )
+        ("verbose"  , po::value<bool>(&verbose)                          , "verbosity toggle"                                   )
+        ("event"    , po::value<int>(&event)                             , "specific event to run on (-1 == all events)"        )
+        ("run"      , po::value<int>(&run)                               , "specific run to run on (-1 == all events)"          )
+        ("ls"       , po::value<int>(&ls)                                , "specific lumi section to run on (-1 == all events)" )
         ;
     try
     {
@@ -399,12 +399,6 @@ try
 
     // sample info
     dy::Sample::Info sample_info = dy::GetSampleInfo(sample_name);
-
-    // check run list
-    if (!lt::file_exists(run_list))
-    {
-        throw std::runtime_error(Form("[dy_plots] Error: %s does not exist!", run_list.c_str()));
-    }
 
     // get the chain
     at::LoadFWLite();
