@@ -112,7 +112,10 @@ void DrellYanLooper::BeginJob()
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
 
     // reco level plots
-    hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}", 4, 0, 4));
+    hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}",   4,  0,   4));
+    hc.Add(new TH1D("h_reco_mee"  , "Final dielectron mass;m_{ee} (GeV)"  ,  60, 60, 120));
+    hc.Add(new TH1D("h_reco_mmm"  , "Final dilmuon mass;m_{#mu#mu} (GeV)" ,  60, 60, 120));
+    hc.Add(new TH1D("h_reco_mll"  , "Final dilepton mass;m_{ll} (GeV)"    ,  60, 60, 120));
 
     // change axis labels
     SetYieldAxisLabel(hc["h_gen_yield" ]);
@@ -219,10 +222,27 @@ void DrellYanLooper::Analyze(const long event)
 
     // observables
     const at::DileptonHypType::value_type reco_flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
+//     const LorentzVector& lt_p4  = tas::hyp_lt_p4().at(hyp_idx);
+//     const LorentzVector& ll_p4  = tas::hyp_ll_p4().at(hyp_idx);
+    const LorentzVector& hyp_p4 = tas::hyp_p4().at(hyp_idx);
+//     const LorentzVector& l1_p4  = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_lt_p4().at(hyp_idx)    : tas::hyp_ll_p4().at(hyp_idx)   );
+//     const LorentzVector& l2_p4  = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_ll_p4().at(hyp_idx)    : tas::hyp_lt_p4().at(hyp_idx)   );
+//     const int l1_idx            = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_lt_index().at(hyp_idx) : tas::hyp_ll_index().at(hyp_idx));
+//     const int l2_idx            = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_ll_index().at(hyp_idx) : tas::hyp_lt_index().at(hyp_idx));
+//     const int l1_id             = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_lt_id().at(hyp_idx)    : tas::hyp_ll_id().at(hyp_idx)   );
+//     const int l2_id             = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_ll_id().at(hyp_idx)    : tas::hyp_lt_id().at(hyp_idx)   );
+
+    // flavor bools
+    const bool is_ee = (reco_flavor_type == at::DileptonHypType::EE);
+    const bool is_mm = (reco_flavor_type == at::DileptonHypType::MUMU);
 
     // fill hist
     hc["h_reco_yield"]->Fill(reco_flavor_type, event_scale);
     hc["h_reco_yield"]->Fill(0.0             , event_scale);
+
+    if (is_mm) {rt::Fill1D(hc["h_reco_mmm"], hyp_p4.mass(), event_scale);}
+    if (is_ee) {rt::Fill1D(hc["h_reco_mee"], hyp_p4.mass(), event_scale);}
+    rt::Fill1D(hc["h_reco_mll"], hyp_p4.mass(), event_scale);
 
     // done with event
     // ---------------------- // 
@@ -299,7 +319,7 @@ try
         ("sample"   , po::value<std::string>(&sample_name)               , "Sample name to run on (from Sample.h)"             )
         ("input"    , po::value<std::string>(&input_file)                , "input ROOT file (or csv)"                          )
         ("output"   , po::value<std::string>(&output_file)               , "output ROOT file"                                  )
-        ("label"    , po::value<std::string>(&label)                     , "output ROOT file"                                  )
+        ("label"    , po::value<std::string>(&label)                     , "unique output label"                               )
         ("run_list" , po::value<std::string>(&run_list)                  , "good run list (empty == none)"                     )
         ("lumi"     , po::value<double>(&lumi)                           , "luminosity (default -1)"                           )
         ("verbose"  , po::value<bool>(&verbose)                          , "Regexpression for aliases to keep"                 )
