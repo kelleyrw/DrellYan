@@ -444,13 +444,22 @@ int dy::ChooseBetterHypothesis(const int hyp1_idx, const int hyp2_idx)
 ////////////////////////////////////////////////////////////////////////////////////////////     
 int dy::GenDileptonType()
 {
-    unsigned int nmus = 0;
-    unsigned int nels = 0;
+    unsigned int nmus  = 0;
+    unsigned int nels  = 0;
     for (size_t genps_idx = 0; genps_idx < tas::genps_id().size(); ++genps_idx)
     {
         if (tas::genps_status().at(genps_idx)  != 3 ) {continue;}
         if (abs(tas::genps_id().at(genps_idx)) == 11) {nels++;}
         if (abs(tas::genps_id().at(genps_idx)) == 13) {nmus++;}
+        if (abs(tas::genps_id().at(genps_idx)) == 13)
+        {
+            for(size_t d_idx = 0; d_idx < tas::genps_lepdaughter_id().at(genps_idx).size(); ++d_idx)
+            {
+	            const int daughter = abs(tas::genps_lepdaughter_id().at(genps_idx).at(d_idx));
+                if (daughter == 12) {nels++;}
+                if (daughter == 14) {nmus++;}
+            }
+        }
     }
     if ((nels + nmus) != 2    ) {return -1;}
     if (nmus == 2             ) {return 1;}

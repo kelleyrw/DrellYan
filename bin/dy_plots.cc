@@ -20,6 +20,7 @@
 
 // tools 
 #include "Analysis/DrellYan/interface/Sample.h"
+#include "Analysis/DrellYan/interface/Yield.h"
 #include "Analysis/DrellYan/interface/dySelections.h"
 #include "AnalysisTools/RootTools/interface/RootTools.h"
 #include "AnalysisTools/LanguageTools/interface/LanguageTools.h"
@@ -95,7 +96,7 @@ DrellYanLooper::~DrellYanLooper()
 
 void SetYieldAxisLabel(TH1* const hist)
 {
-    hist->GetXaxis()->GetXaxis()->SetLabelSize(0.05);
+    hist->GetXaxis()->SetLabelSize(0.05);
     hist->GetXaxis()->SetBinLabel(1, "ll"    );
     hist->GetXaxis()->SetBinLabel(2, "#mu#mu");
     hist->GetXaxis()->SetBinLabel(3, "e#mu"  );
@@ -105,7 +106,7 @@ void SetYieldAxisLabel(TH1* const hist)
 void DrellYanLooper::BeginJob()
 {
     // gen level plots
-    hc.Add(new TH1D("h_gen_yield" , "Yield count of gen  level l^{+}l^{-}", 4, 0, 4));
+    hc.Add(new TH1D("h_gen_yield" , "Yield count of gen  level l^{+}l^{-}"         ,   4, 0,   4));
     hc.Add(new TH1D("h_gen_mee"   , "Generator level dielectron mass;m_{ee} (GeV)" , 150, 0, 150));
     hc.Add(new TH1D("h_gen_mmm"   , "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
@@ -130,13 +131,15 @@ void DrellYanLooper::Analyze(const long event)
     if (m_verbose)
     {
         std::cout << "[DrellYanLooper] Running on run, ls, event: " 
-                  << tas::evt_run()       << ", "
-                  << tas::evt_lumiBlock() << ", "
-                  << tas::evt_event()     << ", "
-                  << std::endl;
+            << tas::evt_run()       << ", "
+            << tas::evt_lumiBlock() << ", "
+            << tas::evt_event()     << ", "
+            << std::endl;
     }
 
     // event scale factors 
+    // ---------------------- // 
+
     double event_scale = 1.0;
     if (!tas::evt_isRealData())
     {
@@ -150,6 +153,8 @@ void DrellYanLooper::Analyze(const long event)
     if (m_verbose) {std::cout << "event_scale = " << event_scale << "\n";}
 
     // generator level plots
+    // ---------------------- // 
+
     if (!tas::evt_isRealData())
     {
         const int gen_flavor_type = dy::GenDileptonType(); 
@@ -163,65 +168,72 @@ void DrellYanLooper::Analyze(const long event)
         }
 
         // kinematics
-//         if (gen_flavor_type > -1)
-//         {
-//             hc["h_gen_yield"]->Fill(gen_flavor_type, event_scale);
-//             hc["h_gen_yield"]->Fill(0.0            , event_scale);
-//         }
+        //         if (gen_flavor_type > -1)
+        //         {
+        //             hc["h_gen_yield"]->Fill(gen_flavor_type, event_scale);
+        //             hc["h_gen_yield"]->Fill(0.0            , event_scale);
+        //         }
     }
 
-
-
-
     // reco level plots
+    // ---------------------- // 
 
-//     // loop over hypotheses
-//     int best_hyp = -1;
-//     for (size_t hyp_idx = 0; hyp_idx != tas::hyp_type().size(); hyp_idx++)
-//     {                
-//         // convenience variables
-//         const int lt_id                                   = tas::hyp_lt_id().at(hyp_idx);
-//         const int ll_id                                   = tas::hyp_ll_id().at(hyp_idx);
-//         const int lt_idx                                  = tas::hyp_lt_index().at(hyp_idx);
-//         const int ll_idx                                  = tas::hyp_ll_index().at(hyp_idx);
-//         const float dilep_mass                            = tas::hyp_p4().at(hyp_idx).mass();
-//         const at::DileptonHypType::value_type flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
-// 
-//         // apply selections
-//         if (tas::evt_isRealData() && !dy::passesTrigger(tas::hyp_type().at(hyp_idx)))                {continue;}
-//         if ((tas::hyp_lt_charge().at(hyp_idx) * tas::hyp_ll_charge().at(hyp_idx)) > 0)               {continue;}
-//         if (not(flavor_type == at::DileptonHypType::EE or flavor_type == at::DileptonHypType::MUMU)) {continue;}
-//         if (not (60 < dilep_mass && dilep_mass < 120.0))                                             {continue;}
-//         if (not dy::isSelectedLepton(lt_id, lt_idx))                                                 {continue;}
-//         if (not dy::isSelectedLepton(ll_id, ll_idx))                                                 {continue;}
-//         if (not hypsFromFirstGoodVertex(hyp_idx))                                                    {continue;}
-// 
-//         // if we're here, then good event :)
-//         selected = true; 
-//     } // end looper over hypothesis
-// 
-//     if (not selected) {return;}
-// 
-//     const double nevts_full     = tas::evt_nEvts();       // number of events run in CMSSW job to make ntuple
-//     const double nevts_file     = m_num_events;           // number of events in the current job
-//     const double nevts_scale    = nevts_full/nevts_file;  // scale up the weight to account fo lower stats
-//     const double  scale1fb      = tas::evt_scale1fb();
-//     const double  lumi          = 0.082;
-//     const double nevts_sdfilter = 27137253;            // number of events after the "SDFilter"
-//     const double sd_filter_eff  = nevts_sdfilter/nevts_full;
-//     const float scale_subset    = lumi * scale1fb * nevts_scale * sd_filter_eff;
-// 
-//     // fill hist
-//     hc["h_reco_yield"]->Fill(2, scale_subset);
+    // loop over hypotheses
+    int best_hyp = -1;
+    for (size_t hyp_idx = 0; hyp_idx != tas::hyp_type().size(); hyp_idx++)
+    {                
+        // convenience variables
+        const int lt_id                                   = tas::hyp_lt_id().at(hyp_idx);
+        const int ll_id                                   = tas::hyp_ll_id().at(hyp_idx);
+        const int lt_idx                                  = tas::hyp_lt_index().at(hyp_idx);
+        const int ll_idx                                  = tas::hyp_ll_index().at(hyp_idx);
+        const float dilep_mass                            = tas::hyp_p4().at(hyp_idx).mass();
+        const at::DileptonHypType::value_type flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
+
+        // apply selections
+        if (tas::evt_isRealData() && !dy::passesTrigger(tas::hyp_type().at(hyp_idx)))                {continue;}
+        if ((tas::hyp_lt_charge().at(hyp_idx) * tas::hyp_ll_charge().at(hyp_idx)) > 0)               {continue;}
+        if (not(flavor_type == at::DileptonHypType::EE or flavor_type == at::DileptonHypType::MUMU)) {continue;}
+        if (not (60 < dilep_mass && dilep_mass < 120.0))                                             {continue;}
+        if (not dy::isSelectedLepton(lt_id, lt_idx))                                                 {continue;}
+        if (not dy::isSelectedLepton(ll_id, ll_idx))                                                 {continue;}
+        if (not hypsFromFirstGoodVertex(hyp_idx))                                                    {continue;}
+
+        // if we're here, then good event :)
+        best_hyp = dy::ChooseBetterHypothesis(best_hyp, hyp_idx);
+
+    } // end looper over hypothesis
+
+    // only continue if hyp has been selected
+    // all: 0, mm: 1, em: 2, ee: 3
+    const int hyp_idx = best_hyp;
+    if (hyp_idx < 0)
+    {
+        if (m_verbose) {std::cout << "no good hypthesis chosen" << std::endl;}
+        return;
+    }
+    else
+    {
+        if (m_verbose) {std::cout << "hypthesis chosen: " << hyp_idx << " of " << tas::hyp_p4().size() << std::endl;}
+    }
+
+    // observables
+    const at::DileptonHypType::value_type reco_flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
+
+    // fill hist
+    hc["h_reco_yield"]->Fill(reco_flavor_type, event_scale);
+    hc["h_reco_yield"]->Fill(0.0             , event_scale);
 
     // done with event
+    // ---------------------- // 
+
     if (m_verbose)
     {
         std::cout << "[DrellYanLooper] Finished with run, ls, event: " 
-                  << tas::evt_run()       << ", "
-                  << tas::evt_lumiBlock() << ", "
-                  << tas::evt_event()     << ", "
-                  << "\n" << std::endl;
+            << tas::evt_run()       << ", "
+            << tas::evt_lumiBlock() << ", "
+            << tas::evt_event()     << ", "
+            << "\n" << std::endl;
     }
 }
 
@@ -231,9 +243,11 @@ void DrellYanLooper::Analyze(const long event)
 void DrellYanLooper::EndJob()
 {
     // output counts
-    std::cout << "gen  ll yield = " << rt::Integral(hc["h_gen_yield" ]) << std::endl;
-    std::cout << "reco ll yield = " << rt::Integral(hc["h_reco_yield"]) << std::endl;
-    std::cout << std::endl;
+    dy::Yield gen_yield = dy::GetYieldFromHist(*hc["h_gen_yield" ]);
+    std::cout << dy::GetYieldString(gen_yield, "Gen level Yields") << std::endl;
+
+    dy::Yield reco_yield = dy::GetYieldFromHist(*hc["h_reco_yield" ]);
+    std::cout << dy::GetYieldString(reco_yield, "Reco level Yields") << std::endl;
 
     std::cout << "[DrellYanLooper] Saving hists to output file: " << m_output_filename << std::endl;
     hc.Write(m_output_filename);
