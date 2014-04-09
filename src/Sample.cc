@@ -225,23 +225,16 @@ namespace dy
     // Get the Sample from a string
     Sample::value_type GetSampleFromName(const std::string& sample_name)
     {
-        Sample::value_type sample = Sample::static_size;
-        for (int i = 0; i < Sample::static_size; ++i)
+        for (const auto& sample_info : s_SampleInfos)
         {
-            if (s_SampleInfos[i].name == sample_name)
+            if (sample_info.name == sample_name)
             {
-                sample = static_cast<Sample::value_type>(i);
-                break;
+                return sample_info.sample; 
             }
         }
 
         // throw if not found
-        if (sample == Sample::static_size)
-        {
-            throw std::domain_error(Form("[dy::GetSampleInfo] Error: sample %s not found!", sample_name.c_str()));
-        }
-
-        return sample; 
+        throw std::domain_error(Form("[dy::GetSampleInfo] Error: sample %s not found!", sample_name.c_str()));
     }
 
     // Get the Sample from a number
@@ -259,9 +252,9 @@ namespace dy
     // test if a string is a sample name 
     bool IsSample(const std::string& sample_name)
     {
-        for (int i = 0; i < Sample::static_size; ++i)
+        for (const auto& sample_info : s_SampleInfos)
         {
-            if (s_SampleInfos[i].name == sample_name)
+            if (sample_info.name == sample_name)
             {
                 return true; 
             }
