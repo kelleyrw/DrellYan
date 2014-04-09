@@ -6,6 +6,32 @@
 #include "AnalysisTools/RootTools/interface/RootTools.h"
 #include "AnalysisTools/LanguageTools/interface/LanguageTools.h"
 
+std::string GetLatex(const std::string& title, const dy::Yield& yield)
+{
+    const std::string result = Form
+    (
+        "%35s & %5.2f $\\pm$ %5.2f & %5.2f $\\pm$ %5.2f & %5.2f $\\pm$ %5.2f", 
+        title.c_str(),
+        yield.ee.value,
+        yield.ee.error,
+        yield.mm.value,
+        yield.mm.error,
+        yield.ll.value,
+        yield.ll.error
+    );
+    return result;
+}
+
+std::string GetLatex
+(
+    const dy::Sample::value_type sample,
+    const dy::YieldMap&  ym,
+    const dy::SampleMap& sm
+)
+{
+    return GetLatex(sm.at(sample).latex, ym.at(sample));
+}
+
 // print the yields
 void CreateYieldTable 
 (
@@ -21,40 +47,43 @@ void CreateYieldTable
     dy::Yield pred;
     for (const auto& s : ym)
     {
-        if (s.first != dy::Sample::data) pred += s.second;
+        if (s.first != dy::Sample::data && s.first != dy::Sample::dyll)
+        {
+            pred += s.second;
+        }
     }
 
     std::string table;
     if (print_latex)
     {
-        string latex;
-/*         // before table */
-/*         string latex("\\begin{table}[ht!]\n"                                       );  */
-/*         latex.append("\\begin{center}\n"                                           );  */
-/*         latex.append("\\begin{tabular}{l|cccc} \\hline\\hline\n"                   );  */
-/*         latex.append(do_caption ? Form("\\caption{%s}\n", sr_info.latex.c_str()) : ""); */
-/*         latex.append("source & $ee$ & $\\mu\\mu$ & $\\ell\\ell $ \\\\\n" );  */
-/*         latex.append("\\hline\n"                                                   );  */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append("\\hline\\hline\n"); */
-/*         latex.append(Form("%s \\\\\n", ym[dy::Sample::data].GetLatexLine().c_str())); */
-/*         latex.append("\\hline\\hline\n" );  */
-/*         latex.append("\\end{tabular}\n" );  */
-/*         latex.append("\\end{center}\n"  );  */
-/*         latex.append("\\end{table}"     );  */
+        string latex("\\begin{table}[ht!]\n"                            );
+        latex.append("\\begin{center}\n"                                );
+        latex.append("\\begin{tabular}{l|cccc} \\hline\\hline\n"        );
+        //latex.append("\\caption{Drell-Yan Exercise Yields}\n"           );
+        latex.append("source & $ee$ & $\\mu\\mu$ & $\\ell\\ell $ \\\\\n");
+        latex.append("\\hline\n"                                                         );
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::dyll       , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wjets      , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttdil      , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttslq      , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::tthad      , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::qcdmu15    , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ww2l2nu    , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz2l2q     , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz3lnu     , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2nu    , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2q     , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz4l       , ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("Background Prediction", pred  ).c_str()));
+        latex.append("\\hline\\hline\n");
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::data, ym, sm).c_str()));
+        latex.append("\\hline\\hline\n" );
+        latex.append("\\end{tabular}\n" );
+        latex.append("\\end{center}\n"  );
+        latex.append("\\end{table}"     );
+
+        // print it
+        table = latex; 
     }
     else
     {

@@ -15,9 +15,9 @@ namespace dy
             // name
             "data", 
             // title
-            "Run2012A-recover-06Aug2012-v1",
+            "data",
             // latex
-            "Run2012A-recover-06Aug2012-v1",
+            "data",
             // ntuple_path
             "/hadoop/cms/store/group/snt/papers2012/Data2012/CMSSW_5_3_2_patch4_V05-03-24/SingleMu_Run2012A-recover-06Aug2012-v1_AOD/merged/*.root"
             ",/hadoop/cms/store/group/snt/papers2012/Data2012/CMSSW_5_3_2_patch4_V05-03-24/SingleElectron_Run2012A-recover-06Aug2012-v1_AOD/merged/*.root",
@@ -114,7 +114,7 @@ namespace dy
             // title
             "QCD (#mu15 enriched)", 
             // latex
-            "QCD (\\mu15 enriched)", 
+            "QCD ($\\mu$15 enriched)", 
             // ntuple_path
             "/hadoop/cms/store/group/snt/papers2012/Summer12_53X_MC/QCD_Pt_20_MuEnrichedPt_15_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v3/V05-03-18_slim/merged_ntuple_1[0-9].root",
             // color
@@ -130,7 +130,7 @@ namespace dy
             // title
             "WW #rightarrow 2l + 2#nu", 
             // latex
-            "WW \\rightarrow 2\\ell + 2\\nu", 
+            "$WW \\rightarrow 2\\ell + 2\\nu$", 
             // ntuple_path
             "/hadoop/cms/store/group/snt/papers2012/Summer12_53X_MC/WWJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1/V05-03-23/merged_ntuple_1[0-9].root",
             // color
@@ -146,7 +146,7 @@ namespace dy
             // title
             "WZ #rightarrow 2l + 2q", 
             // latex
-            "WZ \\rightarrow 2\\ell + 2q", 
+            "$WZ \\rightarrow 2\\ell + 2q$", 
             // ntuple_path
             "/hadoop/cms/store/group/snt/papers2012/Summer12_53X_MC/WZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1/V05-03-23/merged_ntuple_1[0-9].root",
             // color
@@ -162,7 +162,7 @@ namespace dy
             // title
             "WZ #rightarrow 3l + #nu", 
             // latex
-            "WZ \\rightarrow 3\\ell + \\nu", 
+            "$WZ \\rightarrow 3\\ell + \\nu$", 
             // ntuple_path
             "/hadoop/cms/store/group/snt/papers2012/Summer12_53X_MC/WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1/V05-03-23/merged_ntuple_1[0-9].root",
             // color
@@ -178,7 +178,7 @@ namespace dy
             // title
             "ZZ #rightarrow 2l + 2#nu", 
             // latex
-            "ZZ \\rightarrow 2\\ell + 2\\nu", 
+            "$ZZ \\rightarrow 2\\ell + 2\\nu$", 
             // ntuple_path
             "/hadoop/cms/store/group/snt/papers2012/Summer12_53X_MC/ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v3/V05-03-23/merged_ntuple_1[0-9].root",
             // color
@@ -194,7 +194,7 @@ namespace dy
             // title
             "ZZ #rightarrow 2l + 2q", 
             // latex
-            "ZZ \\rightarrow 2\\ell + 2q", 
+            "$ZZ \\rightarrow 2\\ell + 2q$", 
             // ntuple_path
             "/hadoop/cms/store/group/snt/papers2012/Summer12_53X_MC/ZZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1/V05-03-23/merged_ntuple_1[0-9].root",
             // color
@@ -210,7 +210,7 @@ namespace dy
             // title
             "ZZ #rightarrow 4l", 
             // latex
-            "ZZ \\rightarrow 4\\ell", 
+            "$ZZ \\rightarrow 4\\ell$", 
             // ntuple_path
             "/hadoop/cms/store/group/snt/papers2012/Summer12_53X_MC/ZZJetsTo4L_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1/V05-03-23/merged_ntuple_1[0-9].root",
             // color
