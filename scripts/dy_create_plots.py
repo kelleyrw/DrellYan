@@ -74,7 +74,7 @@ mac_sample_files = {
 	"wz2l2q"  : "%s/WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"                       % (mac_sample_path), 
 	"wz3lnu"  : "%s/WZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"                   % (mac_sample_path), 
 	"zz2l2nu" : "%s/ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v3.root"                  % (mac_sample_path), 
-	"zz2l2q"  : "%s/ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v3.root"                  % (mac_sample_path), 
+	"zz2l2q"  : "%s/ZZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"                   % (mac_sample_path), 
 	"zz4l"    : "%s/ZZJetsTo4L_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"                     % (mac_sample_path), 
 }
 
@@ -120,6 +120,9 @@ def MakeHists(sample):
 		os.system(cmd)
 
 	return	
+
+def MakeTable():
+	return
 
 # ------------------#
 # "main program" 

@@ -304,5 +304,17 @@ namespace dy
         return chain;
     }
 
+    // get map of Sample::Info's
+    std::map<Sample::value_type, Sample::Info> GetSampleMap()
+    {
+        std::map<Sample::value_type, Sample::Info> result; 
+        for (int sample_num = 0; sample_num < Sample::static_size; ++sample_num)
+        {
+            const Sample::Info sample_info = GetSampleInfo(sample_num);
+            result[sample_info.sample] = sample_info;
+        }
+        return result;
+    }
+
 } // namespace dy
  

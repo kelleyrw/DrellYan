@@ -58,6 +58,10 @@ namespace dy
     // get the chain from the Sample
     TChain* GetSampleTChain(const Sample::value_type& sample); 
 
+    // get map of Sample::Info's
+    typedef std::map<Sample::value_type, Sample::Info> SampleMap;
+    SampleMap GetSampleMap();
+
 } // namespace dy
 
 #endif //DY_SAMPLE_H
