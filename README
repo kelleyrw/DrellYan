@@ -17,6 +17,7 @@ git pull
 git checkout scram_compliant
 ./setup/setupCoreForSCRAM.sh setup/cms2_ntuple_postprocess_05.03.23.root 
 cd $CMSSW_BASE/src
+scram b -j20
 
 [1] http://www.t2.ucsd.edu/twiki2/pub/UCSDTier2/AnalysisTutorial/AN2012_067_v6.pdf 
 

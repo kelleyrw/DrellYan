@@ -186,21 +186,21 @@ void DrellYanLooper::Analyze(const long event)
     for (size_t hyp_idx = 0; hyp_idx != tas::hyp_type().size(); hyp_idx++)
     {                
         // convenience variables
-//         const int lt_id                                   = tas::hyp_lt_id().at(hyp_idx);
-//         const int ll_id                                   = tas::hyp_ll_id().at(hyp_idx);
-//         const int lt_idx                                  = tas::hyp_lt_index().at(hyp_idx);
-//         const int ll_idx                                  = tas::hyp_ll_index().at(hyp_idx);
-//         const float dilep_mass                            = tas::hyp_p4().at(hyp_idx).mass();
+        const int lt_id                                   = tas::hyp_lt_id().at(hyp_idx);
+        const int ll_id                                   = tas::hyp_ll_id().at(hyp_idx);
+        const int lt_idx                                  = tas::hyp_lt_index().at(hyp_idx);
+        const int ll_idx                                  = tas::hyp_ll_index().at(hyp_idx);
+        const float dilep_mass                            = tas::hyp_p4().at(hyp_idx).mass();
         const at::DileptonHypType::value_type flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
 
         // apply selections
-//         if (tas::evt_isRealData() && !dy::passesTrigger(tas::hyp_type().at(hyp_idx)))                {continue;}
+        if (!dy::passesTrigger(tas::hyp_type().at(hyp_idx)))                                         {continue;}
         if ((tas::hyp_lt_charge().at(hyp_idx) * tas::hyp_ll_charge().at(hyp_idx)) > 0)               {continue;}
         if (not(flavor_type == at::DileptonHypType::EE or flavor_type == at::DileptonHypType::MUMU)) {continue;}
-//         if (not (60 < dilep_mass && dilep_mass < 120.0))                                             {continue;}
-//         if (not dy::isSelectedLepton(lt_id, lt_idx))                                                 {continue;}
-//         if (not dy::isSelectedLepton(ll_id, ll_idx))                                                 {continue;}
-//         if (not hypsFromFirstGoodVertex(hyp_idx))                                                    {continue;}
+        if (not (60 < dilep_mass && dilep_mass < 120.0))                                             {continue;}
+        if (not dy::isSelectedLepton(lt_id, lt_idx))                                                 {continue;}
+        if (not dy::isSelectedLepton(ll_id, ll_idx))                                                 {continue;}
+        if (not hypsFromFirstGoodVertex(hyp_idx))                                                    {continue;}
 
         // if we're here, then good event :)
         best_hyp = dy::ChooseBetterHypothesis(best_hyp, hyp_idx);
@@ -263,11 +263,11 @@ void DrellYanLooper::Analyze(const long event)
 void DrellYanLooper::EndJob()
 {
     // output counts
-    dy::Yield gen_ = dy::GetYieldFromHist(*hc["h_gen_yield" ]);
-    std::cout << dy::GetYieldString(gen_, "Gen level Yields") << std::endl;
+    dy::Yield gen_yield = dy::GetYieldFromHist(*hc["h_gen_yield" ]);
+    std::cout << dy::GetYieldString(gen_yield, "Gen level Yields") << std::endl;
 
-    dy::Yield reco_ = dy::GetYieldFromHist(*hc["h_reco_yield" ]);
-    std::cout << dy::GetYieldString(reco_, "Reco level Yields") << std::endl;
+    dy::Yield reco_yield = dy::GetYieldFromHist(*hc["h_reco_yield" ]);
+    std::cout << dy::GetYieldString(reco_yield, "Reco level Yields") << std::endl;
 
     std::cout << "[DrellYanLooper] Saving hists to output file: " << m_output_filename << std::endl;
     hc.Write(m_output_filename);
