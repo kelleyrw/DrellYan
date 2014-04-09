@@ -106,20 +106,20 @@ void SetYieldAxisLabel(TH1* const hist)
 void DrellYanLooper::BeginJob()
 {
     // gen level plots
-    hc.Add(new TH1D("h_gen_" , "Yield count of gen  level l^{+}l^{-}"         ,   4, 0,   4));
+    hc.Add(new TH1D("h_gen_yield" , "Yield count of gen  level l^{+}l^{-}"         ,   4, 0,   4));
     hc.Add(new TH1D("h_gen_mee"   , "Generator level dielectron mass;m_{ee} (GeV)" , 150, 0, 150));
     hc.Add(new TH1D("h_gen_mmm"   , "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
 
     // reco level plots
-    hc.Add(new TH1D("h_reco_", "Yield count of reco level l^{+}l^{-}",   4,  0,   4));
+    hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}",   4,  0,   4));
     hc.Add(new TH1D("h_reco_mee"  , "Final dielectron mass;m_{ee} (GeV)"  ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mmm"  , "Final dilmuon mass;m_{#mu#mu} (GeV)" ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mll"  , "Final dilepton mass;m_{ll} (GeV)"    ,  60, 60, 120));
 
     // change axis labels
-    SetYieldAxisLabel(hc["h_gen_" ]);
-    SetYieldAxisLabel(hc["h_reco_"]);
+    SetYieldAxisLabel(hc["h_gen_yield" ]);
+    SetYieldAxisLabel(hc["h_reco_yield"]);
 
     // sumw2()
     hc.Sumw2();
@@ -166,8 +166,8 @@ void DrellYanLooper::Analyze(const long event)
         // flavor
         if (gen_flavor_type > -1)
         {
-            hc["h_gen_"]->Fill(gen_flavor_type, event_scale);
-            hc["h_gen_"]->Fill(0.0            , event_scale);
+            hc["h_gen_yield"]->Fill(gen_flavor_type, event_scale);
+            hc["h_gen_yield"]->Fill(0.0            , event_scale);
         }
 
         // kinematics
@@ -237,8 +237,8 @@ void DrellYanLooper::Analyze(const long event)
     const bool is_mm = (reco_flavor_type == at::DileptonHypType::MUMU);
 
     // fill hist
-    hc["h_reco_"]->Fill(reco_flavor_type, event_scale);
-    hc["h_reco_"]->Fill(0.0             , event_scale);
+    hc["h_reco_yield"]->Fill(reco_flavor_type, event_scale);
+    hc["h_reco_yield"]->Fill(0.0             , event_scale);
 
     if (is_mm) {rt::Fill1D(hc["h_reco_mmm"], hyp_p4.mass(), event_scale);}
     if (is_ee) {rt::Fill1D(hc["h_reco_mee"], hyp_p4.mass(), event_scale);}
