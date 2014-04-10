@@ -43,7 +43,7 @@ namespace dy
         };
     };
 
-    // operator
+    // operators:
     bool operator < (const Sample::Info& s1, const Sample::Info& s2);
 
     // Get the Sample from a string/number

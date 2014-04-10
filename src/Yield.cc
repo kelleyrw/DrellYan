@@ -79,7 +79,7 @@ namespace dy
     {
         auto ll = rt::IntegralAndError(&hist, 0.0, 1.0);
         auto mm = rt::IntegralAndError(&hist, 1.0, 2.0);
-        auto ee = rt::IntegralAndError(&hist, 3.0, 4.0);
+        auto ee = rt::IntegralAndError(&hist, 2.0, 3.0);
         Yield result = 
         {
             /*ee = */{ee.first, ee.second},
