@@ -99,27 +99,27 @@ DrellYanLooper::~DrellYanLooper()
 void SetYieldAxisLabel(TH1* const hist)
 {
     hist->GetXaxis()->SetLabelSize(0.05);
-    hist->GetXaxis()->SetBinLabel(1, "ll"    );
-    hist->GetXaxis()->SetBinLabel(2, "#mu#mu");
-    hist->GetXaxis()->SetBinLabel(3, "e#mu"  );
+    hist->GetXaxis()->SetBinLabel(1, ""      );
+    hist->GetXaxis()->SetBinLabel(2, "ll"    );
+    hist->GetXaxis()->SetBinLabel(3, "#mu#mu");
     hist->GetXaxis()->SetBinLabel(4, "ee"    );
 }
 
 void DrellYanLooper::BeginJob()
 {
     // gen level plots
-    hc.Add(new TH1D("h_gen_yield" , "Yield count of gen level l^{+}l^{-}"          ,   4, 0,   4));
+    hc.Add(new TH1D("h_gen_yield" , "Yield count of gen level l^{+}l^{-}"          ,   4, -1,  3));
     hc.Add(new TH1D("h_gen_mee"   , "Generator level dielectron mass;m_{ee} (GeV)" , 150, 0, 150));
     hc.Add(new TH1D("h_gen_mmm"   , "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
 
     // acceptance plots
-    hc.Add(new TH1D("h_acc_den"    , "Acceptence denominator;Channel;Event Count"          , 4, 0, 4));
-    hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count"  , 4, 0, 4));
-    hc.Add(new TH1D("h_acc_num"    , "Acceptence numerator;Channel;Event Count"            , 4, 0, 4));
+    hc.Add(new TH1D("h_acc_den"    , "Acceptence denominator;Channel;Event Count"          , 4, -1, 3));
+    hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count"  , 4, -1, 3));
+    hc.Add(new TH1D("h_acc_num"    , "Acceptence numerator;Channel;Event Count"            , 4, -1, 3));
 
     // reco level plots
-    hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}",   4,  0,   4));
+    hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}",   4, -1,   3));
     hc.Add(new TH1D("h_reco_mee"  , "Final dielectron mass;m_{ee} (GeV)"  ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mmm"  , "Final dilmuon mass;m_{#mu#mu} (GeV)" ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mll"  , "Final dilepton mass;m_{ll} (GeV)"    ,  60, 60, 120));
@@ -188,7 +188,7 @@ void DrellYanLooper::Analyze(const long event)
 
             // fill hists
             if (gen_hyp.IsMuMu_IncludeTaus()) {hc["h_gen_yield"]->Fill(1.0, event_scale);}
-            if (gen_hyp.IsEE_IncludeTaus()  ) {hc["h_gen_yield"]->Fill(3.0, event_scale);}
+            if (gen_hyp.IsEE_IncludeTaus()  ) {hc["h_gen_yield"]->Fill(2.0, event_scale);}
             hc["h_gen_yield"]->Fill(0.0, event_scale);
 
             // kinematics
@@ -214,7 +214,7 @@ void DrellYanLooper::Analyze(const long event)
 
             // fill hists 
             if (is_gen_mm) {hc["h_acc_den"]->Fill(1.0, event_scale);}
-            if (is_gen_ee) {hc["h_acc_den"]->Fill(3.0, event_scale);}
+            if (is_gen_ee) {hc["h_acc_den"]->Fill(2.0, event_scale);}
             hc["h_acc_den"]->Fill(0.0, event_scale);
         }
 
@@ -233,7 +233,7 @@ void DrellYanLooper::Analyze(const long event)
 
             // fill hists
             if (gen_hyp.IsMuMu_IncludeTaus()) {hc["h_acc_gen_num"]->Fill(1.0, event_scale);}
-            if (gen_hyp.IsEE_IncludeTaus()  ) {hc["h_acc_gen_num"]->Fill(3.0, event_scale);}
+            if (gen_hyp.IsEE_IncludeTaus()  ) {hc["h_acc_gen_num"]->Fill(2.0, event_scale);}
             hc["h_acc_gen_num"]->Fill(0.0, event_scale);
         }
     }
@@ -298,7 +298,8 @@ void DrellYanLooper::Analyze(const long event)
     const bool passes_acc_num = passes_acc_den and ((is_gen_ee and is_ee) or (is_gen_mm and is_mm));
 
     // fill hist
-    hc["h_reco_yield"]->Fill(reco_flavor_type, event_scale);
+    if (is_mm) {hc["h_reco_yield"]->Fill(1.0, event_scale);}
+    if (is_ee) {hc["h_reco_yield"]->Fill(2.0, event_scale);}
     hc["h_reco_yield"]->Fill(0.0             , event_scale);
 
     if (is_mm) {rt::Fill1D(hc["h_reco_mmm"], hyp_p4.mass(), event_scale);}
@@ -308,7 +309,8 @@ void DrellYanLooper::Analyze(const long event)
     // acceptance
     if (passes_acc_num)
     {
-        hc["h_acc_num"]->Fill(reco_flavor_type, event_scale);
+        if (is_mm) {hc["h_acc_num"]->Fill(1.0, event_scale);}
+        if (is_ee) {hc["h_acc_num"]->Fill(2.0, event_scale);}
         hc["h_acc_num"]->Fill(0.0             , event_scale);
     }
 

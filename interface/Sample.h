@@ -43,6 +43,9 @@ namespace dy
         };
     };
 
+    // operator
+    bool operator < (const Sample::Info& s1, const Sample::Info& s2);
+
     // Get the Sample from a string/number
     Sample::value_type GetSampleFromName(const std::string& sample_name);
     Sample::value_type GetSampleFromNumber(const int sample_num);

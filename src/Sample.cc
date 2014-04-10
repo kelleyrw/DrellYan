@@ -222,6 +222,12 @@ namespace dy
         },
     };
 
+    // operators:
+    bool operator < (const Sample::Info& s1, const Sample::Info& s2)
+    {
+        return (s1.sample < s2.sample);
+    }
+
     // Get the Sample from a string
     Sample::value_type GetSampleFromName(const std::string& sample_name)
     {
