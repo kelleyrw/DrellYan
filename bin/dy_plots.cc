@@ -115,7 +115,7 @@ void DrellYanLooper::BeginJob()
 
     // acceptance plots
     hc.Add(new TH1D("h_acc_den"    , "Acceptence denominator;Channel;Event Count"          , 4, 0, 4));
-//     hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count"  , 4, 0, 4));
+    hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count"  , 4, 0, 4));
     hc.Add(new TH1D("h_acc_num"    , "Acceptence numerator;Channel;Event Count"            , 4, 0, 4));
 
     // reco level plots
@@ -217,6 +217,25 @@ void DrellYanLooper::Analyze(const long event)
             if (is_gen_ee) {hc["h_acc_den"]->Fill(3.0, event_scale);}
             hc["h_acc_den"]->Fill(0.0, event_scale);
         }
+
+        // acceptence numerator
+        const std::vector<at::GenHyp> gen_hyps_acc_num = lt::filter_container(gen_hyps_acc_den,
+            [](const at::GenHyp& h)
+            {
+                return ((h.IsEE() or h.IsMuMu()) and h.IsAccepted(/*min_pt=*/25.0, /*max_eta=*/2.5));
+            }
+        );
+
+        if (passes_acc_den and !gen_hyps_acc_num.empty())
+        {
+            // observables:
+            const at::GenHyp& gen_hyp = gen_hyps_acc_num.front();
+
+            // fill hists
+            if (gen_hyp.IsMuMu_IncludeTaus()) {hc["h_acc_gen_num"]->Fill(1.0, event_scale);}
+            if (gen_hyp.IsEE_IncludeTaus()  ) {hc["h_acc_gen_num"]->Fill(3.0, event_scale);}
+            hc["h_acc_gen_num"]->Fill(0.0, event_scale);
+        }
     }
 
     // reco level plots
@@ -235,9 +254,9 @@ void DrellYanLooper::Analyze(const long event)
         const at::DileptonHypType::value_type flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
 
         // apply selections
-        if (!dy::passesTrigger(tas::hyp_type().at(hyp_idx)))                                         {continue;}
         if ((tas::hyp_lt_charge().at(hyp_idx) * tas::hyp_ll_charge().at(hyp_idx)) > 0)               {continue;}
         if (not(flavor_type == at::DileptonHypType::EE or flavor_type == at::DileptonHypType::MUMU)) {continue;}
+        if (!dy::passesTrigger(tas::hyp_type().at(hyp_idx)))                                         {continue;}
         if (not (60 < dilep_mass && dilep_mass < 120.0))                                             {continue;}
         if (not dy::isSelectedLepton(lt_id, lt_idx))                                                 {continue;}
         if (not dy::isSelectedLepton(ll_id, ll_idx))                                                 {continue;}
@@ -312,11 +331,14 @@ void DrellYanLooper::Analyze(const long event)
 void DrellYanLooper::EndJob()
 {
     // calculate accecptance
-    hc.Add(rt::DivideHists(hc["h_acc_num"], hc["h_acc_den"], "h_acc", "Reco Acceptence;Channel;Event Count"));
+    hc.Add(rt::DivideHists(hc["h_acc_num"    ], hc["h_acc_den"], "h_acc"    , "Reco Acceptence;Channel;Event Count"));
+    hc.Add(rt::DivideHists(hc["h_acc_gen_num"], hc["h_acc_den"], "h_acc_gen", "Gen Acceptence;Channel;Event Count" ));
 
     // output yields
-    //std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_den"    ]), "Acceptance Denominator"      , "1.1") << std::endl;
-    //std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_num"    ]), "Acceptance Numerator (reco)" , "1.1") << std::endl;
+    std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_den"    ]), "Acceptance Denominator"      , "1.1") << std::endl;
+    std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen_num"]), "Acceptance Numerator (gen)"  , "1.1") << std::endl;
+    std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_num"    ]), "Acceptance Numerator (reco)" , "1.1") << std::endl;
+    std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen"    ]), "Gen Acceptance"              , "1.3") << std::endl;
     std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc"        ]), "Reco Acceptance"             , "1.3") << std::endl;
     std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_gen_yield"  ]), "Gen level Yields"            , "4.1") << std::endl;
     std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_yield" ]), "Reco level Yields"           , "4.1") << std::endl;
