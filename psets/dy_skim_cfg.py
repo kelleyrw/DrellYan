@@ -28,7 +28,7 @@ process.cms2tools_drop_branches = cms.PSet(
 		"(Sum$(genps_status==3 && genps_id==11)>=1 && Sum$(genps_status==3 && genps_id==-11)>=1) || "
 		"(Sum$(genps_status==3 && genps_id==13)>=1 && Sum$(genps_status==3 && genps_id==-13)>=1) || "
 		"(Sum$(genps_status==3 && genps_id==15)>=1 && Sum$(genps_status==3 && genps_id==-15)>=1) || "
-		"!hyp_type@.empty()"
+		"(!hyp_type@.empty() && Sum$(hyp_lt_charge*hyp_ll_charge<0)>=1 && Sum$(hyp_type==3 || hyp_type==0)>=1)"
 	),
 
 	## aliases to branches to keep (overides anything in drop_alias_names)
