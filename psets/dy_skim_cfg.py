@@ -25,9 +25,9 @@ process.cms2tools_drop_branches = cms.PSet(
 
 	## selection (same as TTree::Draw)
 	selection = cms.string(
-		"(!evt_isRealData && Sum$(genps_status==3 && genps_id==11)>=1 && Sum$(genps_status==3 && genps_id==-11)>=1) || "
-		"(!evt_isRealData && Sum$(genps_status==3 && genps_id==13)>=1 && Sum$(genps_status==3 && genps_id==-13)>=1) || "
-		"(!evt_isRealData && Sum$(genps_status==3 && genps_id==15)>=1 && Sum$(genps_status==3 && genps_id==-15)>=1) || "
+		"(Sum$(genps_status==3 && genps_id==11)>=1 && Sum$(genps_status==3 && genps_id==-11)>=1) || "
+		"(Sum$(genps_status==3 && genps_id==13)>=1 && Sum$(genps_status==3 && genps_id==-13)>=1) || "
+		"(Sum$(genps_status==3 && genps_id==15)>=1 && Sum$(genps_status==3 && genps_id==-15)>=1) || "
 		"!hyp_type@.empty()"
 	),
 
@@ -36,8 +36,8 @@ process.cms2tools_drop_branches = cms.PSet(
 	## see: http://www.cplusplus.com/reference/regex/ECMAScript/
 	keep_alias_names = cms.vstring(
 		"evt_xsec_excl",
-# 		"evt_CMS2tag",
-# 		"evt_dataset",
+		"evt_CMS2tag",
+		"evt_dataset",
 		"evt_event",
 		"evt_filt_eff",
 		"evt_isRealData",

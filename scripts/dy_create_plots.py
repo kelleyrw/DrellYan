@@ -27,6 +27,7 @@ parser.add_option("--lumi"     , dest="lumi"      , default=default_lumi     , h
 # boolean options
 parser.add_option("--test"       , action="store_true"  , dest="test"        , default=False , help="test script -- print commands but do nothing")
 parser.add_option("--verbose"    , action="store_true"  , dest="verbose"     , default=False , help="verbose print out"                           )
+parser.add_option("--use_skim"   , action="store_true"  , dest="use_skim"    , default=False , help="use the skimmed ntuples"                     )
 # parser.add_option("--no_hist"    , action="store_true"  , dest="no_hist"     , default=False , help="do not create histograms, do everything else"   )
 
 (options, args) = parser.parse_args()
@@ -58,6 +59,24 @@ samples = [
 	"zz2l2q",
 	"zz4l",
 ]
+
+# skim paths
+skim_sample_path = "skim" 
+skim_sample_files = {
+	"data"    : "%s/data*.root"    % (skim_sample_path), 
+	"dyll"    : "%s/dyll*.root"    % (skim_sample_path), 
+	"wjets"   : "%s/wjets*.root"   % (skim_sample_path), 
+	"ttdil"   : "%s/ttdil*.root"   % (skim_sample_path), 
+	"ttslq"   : "%s/ttslq*.root"   % (skim_sample_path), 
+	"tthad"   : "%s/tthad*.root"   % (skim_sample_path), 
+	"qcdmu15" : "%s/qcdmu15*.root" % (skim_sample_path), 
+	"ww2l2nu" : "%s/ww2l2nu*.root" % (skim_sample_path), 
+	"wz2l2q"  : "%s/wz2l2q*.root"  % (skim_sample_path), 
+	"wz3lnu"  : "%s/wz3lnu*.root"  % (skim_sample_path), 
+	"zz2l2nu" : "%s/zz2l2nu*.root" % (skim_sample_path), 
+	"zz2l2q"  : "%s/zz2l2q*.root"  % (skim_sample_path), 
+	"zz4l"    : "%s/zz4l*.root"    % (skim_sample_path), 
+}
 
 # mac file names (hack -- FIXME)
 from sys import platform as platform
@@ -100,8 +119,11 @@ def MakeHists(sample):
 	cmd += " --nevts %s" % int(options.nevts)
 
 	# sample input file (if mac)
-	if (platform == "darwin"):
-		cmd += " --input \"%s\"" % mac_sample_files[sample]
+	if (use_skim):
+		cmd += " --input \"%s\"" % skim_sample_files[sample]
+	else:
+		if (platform == "darwin"):
+			cmd += " --input \"%s\"" % mac_sample_files[sample]
 
 	# verbose	
 	if (options.verbose):
