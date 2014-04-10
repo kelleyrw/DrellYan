@@ -1,6 +1,7 @@
 // C++
 #include <iostream>
 #include <vector>
+#include <functional>
 
 // ROOT
 #include "TChain.h"
@@ -26,6 +27,7 @@
 #include "AnalysisTools/LanguageTools/interface/LanguageTools.h"
 #include "AnalysisTools/CMS2Tools/interface/DileptonChargeType.h"
 #include "AnalysisTools/CMS2Tools/interface/DileptonHypType.h"
+#include "AnalysisTools/CMS2Tools/interface/GenHypType.h"
 
 // -------------------------------------------------//
 // Simple class to hold your analysis data
@@ -106,10 +108,15 @@ void SetYieldAxisLabel(TH1* const hist)
 void DrellYanLooper::BeginJob()
 {
     // gen level plots
-    hc.Add(new TH1D("h_gen_yield" , "Yield count of gen  level l^{+}l^{-}"         ,   4, 0,   4));
+    hc.Add(new TH1D("h_gen_yield" , "Yield count of gen level l^{+}l^{-}"          ,   4, 0,   4));
     hc.Add(new TH1D("h_gen_mee"   , "Generator level dielectron mass;m_{ee} (GeV)" , 150, 0, 150));
     hc.Add(new TH1D("h_gen_mmm"   , "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
+
+    // acceptance plots
+    hc.Add(new TH1D("h_acc_den"    , "Acceptence denominator;Channel;Event Count"          , 4, 0, 4));
+//     hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count"  , 4, 0, 4));
+    hc.Add(new TH1D("h_acc_num"    , "Acceptence numerator;Channel;Event Count"            , 4, 0, 4));
 
     // reco level plots
     hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}",   4,  0,   4));
@@ -158,24 +165,58 @@ void DrellYanLooper::Analyze(const long event)
     // generator level plots
     // ---------------------- // 
 
+    bool is_gen_ee      = false;
+    bool is_gen_mm      = false;
+    bool passes_acc_den = false;
+
     if (!tas::evt_isRealData())
     {
-        const int gen_flavor_type = dy::GenDileptonType(); 
-        if (m_verbose) {std::cout << "gen_flavor_type = " << gen_flavor_type << "\n";}
+        const std::vector<at::GenHyp> gen_hyps = at::GetGenHyps(/*min_pt=*/0.0, /*max_eta=*/1000.0);
+        const std::vector<at::GenHyp> gen_hyps_clean = lt::filter_container(gen_hyps,
+            [](const at::GenHyp& h)
+            {
+                return (h.IsOS() and (h.IsEE_IncludeTaus() or h.IsMuMu_IncludeTaus()));
+            }
+        );
 
-        // flavor
-        if (gen_flavor_type > -1)
+        if (!gen_hyps_clean.empty())
         {
-            hc["h_gen_yield"]->Fill(gen_flavor_type, event_scale);
-            hc["h_gen_yield"]->Fill(0.0            , event_scale);
+            // observables:
+            passes_acc_den            = true; 
+            const at::GenHyp& gen_hyp = gen_hyps_clean.front();
+            const double gen_mass     = gen_hyp.P4().mass();
+
+            // fill hists
+            if (gen_hyp.IsMuMu_IncludeTaus()) {hc["h_gen_yield"]->Fill(1.0, event_scale);}
+            if (gen_hyp.IsEE_IncludeTaus()  ) {hc["h_gen_yield"]->Fill(3.0, event_scale);}
+            hc["h_gen_yield"]->Fill(0.0, event_scale);
+
+            // kinematics
+            if (gen_hyp.IsMuMu_IncludeTaus()) {rt::Fill1D(hc["h_gen_mee"], gen_mass, event_scale);}
+            if (gen_hyp.IsEE_IncludeTaus()  ) {rt::Fill1D(hc["h_gen_mmm"], gen_mass, event_scale);}
+            rt::Fill1D(hc["h_gen_mll"], gen_mass, event_scale);
         }
 
-        // kinematics
-        //         if (gen_flavor_type > -1)
-        //         {
-        //             hc["h_gen_"]->Fill(gen_flavor_type, event_scale);
-        //             hc["h_gen_"]->Fill(0.0            , event_scale);
-        //         }
+        // acceptence denominator
+        const std::vector<at::GenHyp> gen_hyps_acc_den = lt::filter_container(gen_hyps_clean,
+            [](const at::GenHyp& h)
+            {
+                return (h.IsFromZ() and (60 < h.P4().mass() && h.P4().mass() < 120));
+            }
+        );
+        if (!gen_hyps_acc_den.empty())
+        {
+            // observables:
+            passes_acc_den            = true; 
+            const at::GenHyp& gen_hyp = gen_hyps_clean.front();
+            is_gen_mm                 = gen_hyp.IsMuMu_IncludeTaus();
+            is_gen_ee                 = gen_hyp.IsEE_IncludeTaus();
+
+            // fill hists 
+            if (is_gen_mm) {hc["h_acc_den"]->Fill(1.0, event_scale);}
+            if (is_gen_ee) {hc["h_acc_den"]->Fill(3.0, event_scale);}
+            hc["h_acc_den"]->Fill(0.0, event_scale);
+        }
     }
 
     // reco level plots
@@ -233,8 +274,9 @@ void DrellYanLooper::Analyze(const long event)
 //     const int l2_id             = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_ll_id().at(hyp_idx)    : tas::hyp_lt_id().at(hyp_idx)   );
 
     // flavor bools
-    const bool is_ee = (reco_flavor_type == at::DileptonHypType::EE);
-    const bool is_mm = (reco_flavor_type == at::DileptonHypType::MUMU);
+    const bool is_ee          = (reco_flavor_type == at::DileptonHypType::EE);
+    const bool is_mm          = (reco_flavor_type == at::DileptonHypType::MUMU);
+    const bool passes_acc_num = passes_acc_den and ((is_gen_ee and is_ee) or (is_gen_mm and is_mm));
 
     // fill hist
     hc["h_reco_yield"]->Fill(reco_flavor_type, event_scale);
@@ -243,6 +285,13 @@ void DrellYanLooper::Analyze(const long event)
     if (is_mm) {rt::Fill1D(hc["h_reco_mmm"], hyp_p4.mass(), event_scale);}
     if (is_ee) {rt::Fill1D(hc["h_reco_mee"], hyp_p4.mass(), event_scale);}
     rt::Fill1D(hc["h_reco_mll"], hyp_p4.mass(), event_scale);
+
+    // acceptance
+    if (passes_acc_num)
+    {
+        hc["h_acc_num"]->Fill(reco_flavor_type, event_scale);
+        hc["h_acc_num"]->Fill(0.0             , event_scale);
+    }
 
     // done with event
     // ---------------------- // 
@@ -262,12 +311,15 @@ void DrellYanLooper::Analyze(const long event)
 // ------------------------------------ //
 void DrellYanLooper::EndJob()
 {
-    // output counts
-    dy::Yield gen_yield = dy::GetYieldFromHist(*hc["h_gen_yield" ]);
-    std::cout << dy::GetYieldString(gen_yield, "Gen level Yields") << std::endl;
+    // calculate accecptance
+    hc.Add(rt::DivideHists(hc["h_acc_num"], hc["h_acc_den"], "h_acc", "Reco Acceptence;Channel;Event Count"));
 
-    dy::Yield reco_yield = dy::GetYieldFromHist(*hc["h_reco_yield" ]);
-    std::cout << dy::GetYieldString(reco_yield, "Reco level Yields") << std::endl;
+    // output yields
+    //std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_den"    ]), "Acceptance Denominator"      , "1.1") << std::endl;
+    //std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_num"    ]), "Acceptance Numerator (reco)" , "1.1") << std::endl;
+    std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc"        ]), "Reco Acceptance"             , "1.3") << std::endl;
+    std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_gen_yield"  ]), "Gen level Yields"            , "4.1") << std::endl;
+    std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_yield" ]), "Reco level Yields"           , "4.1") << std::endl;
 
     std::cout << "[DrellYanLooper] Saving hists to output file: " << m_output_filename << std::endl;
     hc.Write(m_output_filename);

@@ -123,14 +123,28 @@ namespace dy
         return result;
     }
 
+    Yield GetBackgroundPred(const std::string& label)
+    {
+        const dy::YieldMap ym = dy::GetRecoYieldMap(label);
+        dy::Yield pred;
+        for (const auto& s : ym)
+        {
+            if (s.first != dy::Sample::data && s.first != dy::Sample::dyll)
+            {
+                pred += s.second;
+            }
+        }
+        return pred;
+    }
+
     // human readable yield table
-    std::string GetYieldString(const Yield& yield, const std::string& title)
+    std::string GetYieldString(const Yield& yield, const std::string& title, const std::string& fmt)
     {
         CTable table;
         table.setTitle(title.empty() ? "Drell-Yan Analysis yield" : title);
         table.useTitle();
-        table.setTable() (                  "ee",          "mm",          "ll")
-                         ("yield", yield.ee.pm(), yield.mm.pm(), yield.ll.pm())
+        table.setTable() (                     "ee",             "mm",             "ll")
+                         ("yield", yield.ee.pm(fmt), yield.mm.pm(fmt), yield.ll.pm(fmt))
                          ;
         std::ostringstream os;
         os << table;

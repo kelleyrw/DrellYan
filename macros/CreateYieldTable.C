@@ -36,22 +36,15 @@ std::string GetLatex
 void CreateYieldTable 
 (
     const std::string& label, 
+    const std::string& output_file = "", 
     bool print_latex = false
 )
 {
     // map of samples and yields
-    dy::YieldMap  ym = dy::GetRecoYieldMap(label);
-    dy::SampleMap sm = dy::GetSampleMap();
-
-    // total prediction
-    dy::Yield pred;
-    for (const auto& s : ym)
-    {
-        if (s.first != dy::Sample::data && s.first != dy::Sample::dyll)
-        {
-            pred += s.second;
-        }
-    }
+    dy::YieldMap  ym    = dy::GetRecoYieldMap(label);
+    dy::SampleMap sm    = dy::GetSampleMap();
+    dy::Yield bkgd_pred = dy::GetBackgroundPred(label);
+    dy::Yield dy_pred   = ym[dy::Sample::dyll] - bkgd_pred;
 
     std::string table;
     if (print_latex)
@@ -59,28 +52,29 @@ void CreateYieldTable
         string latex("\\begin{table}[ht!]\n"                            );
         latex.append("\\begin{center}\n"                                );
         latex.append("\\begin{tabular}{l|cccc} \\hline\\hline\n"        );
-        //latex.append("\\caption{Drell-Yan Exercise Yields}\n"           );
         latex.append("source & $ee$ & $\\mu\\mu$ & $\\ell\\ell $ \\\\\n");
-        latex.append("\\hline\n"                                                         );
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::dyll       , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wjets      , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttdil      , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttslq      , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::tthad      , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::qcdmu15    , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ww2l2nu    , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz2l2q     , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz3lnu     , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2nu    , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2q     , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz4l       , ym, sm).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex("Background Prediction", pred  ).c_str()));
+        latex.append("\\hline\n"                                                            );
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::dyll       , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wjets      , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttdil      , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttslq      , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::tthad      , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::qcdmu15    , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ww2l2nu    , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz2l2q     , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz3lnu     , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2nu    , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2q     , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz4l       , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("Background Prediction", bkgd_pred).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("MC Prediction"        , dy_pred  ).c_str()));
         latex.append("\\hline\\hline\n");
         latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::data, ym, sm).c_str()));
-        latex.append("\\hline\\hline\n" );
-        latex.append("\\end{tabular}\n" );
-        latex.append("\\end{center}\n"  );
-        latex.append("\\end{table}"     );
+        latex.append("\\hline\\hline\n"                      );
+        latex.append("\\end{tabular}\n"                      );
+        latex.append("\\caption{Drell-Yan Exercise Yields}\n");
+        latex.append("\\end{center}\n"                       );
+        latex.append("\\end{table}"                          );
 
         // print it
         table = latex; 
@@ -105,7 +99,8 @@ void CreateYieldTable
         (sm[dy::Sample::zz2l2nu ].name, ym[dy::Sample::zz2l2nu ].ee.pm() , ym[dy::Sample::zz2l2nu ].mm.pm() , ym[dy::Sample::zz2l2nu ].ll.pm())
         (sm[dy::Sample::zz2l2q  ].name, ym[dy::Sample::zz2l2q  ].ee.pm() , ym[dy::Sample::zz2l2q  ].mm.pm() , ym[dy::Sample::zz2l2q  ].ll.pm())
         (sm[dy::Sample::zz4l    ].name, ym[dy::Sample::zz4l    ].ee.pm() , ym[dy::Sample::zz4l    ].mm.pm() , ym[dy::Sample::zz4l    ].ll.pm())
-        ("Total Pred"                 ,                     pred.ee.pm() ,                     pred.mm.pm() ,                     pred.ll.pm())
+        ("Background Pred"            ,                bkgd_pred.ee.pm() ,                bkgd_pred.mm.pm() ,                bkgd_pred.ll.pm())
+        ("MC Pred"                    ,                  dy_pred.ee.pm() ,                  dy_pred.mm.pm() ,                  dy_pred.ll.pm())
         (sm[dy::Sample::data    ].name, ym[dy::Sample::data    ].ee.pm() , ym[dy::Sample::data    ].mm.pm() , ym[dy::Sample::data    ].ll.pm())
         ;
 
@@ -115,5 +110,14 @@ void CreateYieldTable
         table = os.str();
     }
 
-    std::cout << table << std::endl;
+    // output
+    if (output_file.empty())
+    {
+        std::cout << table << std::endl;
+    }
+    else
+    {
+        std::ofstream fout(output_file);
+        fout << table << std::endl;
+    }
 }

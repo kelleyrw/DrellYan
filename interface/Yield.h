@@ -44,8 +44,11 @@ namespace dy
     Yield GetRecoYieldFromLabel(const Sample::value_type, const std::string& label);
     Yield GetGenYieldFromLabel (const Sample::value_type, const std::string& label);
 
+    // get total background prediction
+    Yield GetBackgroundPred(const std::string& label);
+
     // human readable yield table
-    std::string GetYieldString(const Yield& yield, const std::string& title = "");
+    std::string GetYieldString(const Yield& yield, const std::string& title = "", const std::string& fmt = "4.1");
 
     // get yield map for all samples 
     typedef std::map<dy::Sample::value_type, dy::Yield> YieldMap;
