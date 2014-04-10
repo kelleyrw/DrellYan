@@ -1,27 +1,11 @@
 #include <vector>
 #include <string>
 #include <map>
-/* #include <algorithm> */
 #include "TStyle.h" 
 #include "Analysis/DrellYan/interface/Sample.h"
 #include "Analysis/DrellYan/interface/Yield.h"
 #include "AnalysisTools/RootTools/interface/RootTools.h"
 #include "AnalysisTools/LanguageTools/interface/LanguageTools.h"
-/* #include "DileptonHypType.h" */
-
-// combine the contributions for the background predictions
-/* TH1F* GetTotalPredHist(TH1* h_fake, TH1* h_flip, TH1* h_mc) */
-/* { */
-/*     string hist_name = rt::string_replace_all(h_fake->GetName(), "_fake", "_pred"); */
-/*     TH1F* h_pred = dynamic_cast<TH1F*>(h_fake->Clone(hist_name.c_str())); */
-/*     h_pred->Add(h_flip); */
-/*     h_pred->Add(h_mc); */
-/*     h_pred->SetLineColor(kWhite); */
-/*     h_pred->SetFillColor(kBlack); */
-/*     h_pred->SetFillStyle(3335); */
-/*     h_pred->SetDrawOption("hist E5"); */
-/*     return h_pred; */
-/* } */
 
 rt::TH1Overlay CreateOverlay
 (
@@ -74,13 +58,12 @@ rt::TH1Overlay CreateOverlay
         {
             p.Add(hist, legend, color);
         }
-        if (hist_stem == "reco_yield" or hist_stem == "gen_yield")
-        {
-            p.SetYAxisRange(1e0, 1e6);
-            p.SetLogy(true);
-        }
     }
     //p.SetYAxisRange(0.0, max);
+    if (p.GetLogy())
+    {
+        p.SetYAxisRange(1e-1, 1e5);
+    }
     return p;
 }
 
@@ -131,7 +114,10 @@ void OverlayPlots
     rt::TH1Overlay::profile_marker_size_default = 10.0;
     p["p_gen_yield"   ] = CreateOverlay(sample_hist_map, "gen_yield"  , Form("%s;channel;Generator Events"                , title.c_str()), "sb::off dt::stack lg::top_left" );
     p["p_reco_yield"  ] = CreateOverlay(sample_hist_map, "reco_yield" , Form("%s;channel;Selected Events"                 , title.c_str()), "sb::off dt::stack lg::top_left" );
-/*     p["p_dilep_mass"  ] = CreateOverlay(sample_hist_map, "dilep_mass" , Form("%s;m_{ll} (GeV);Events"             , title.c_str()), "sb::off dt::stack lg::right"); */
+    p["p_reco_mmm"    ] = CreateOverlay(sample_hist_map, "reco_mmm"   , Form("%s;m_{#mu#mu} (GeV);Events"             , title.c_str()), "sb::off dt::stack lg::top_left");
+    p["p_reco_mmm_log"] = CreateOverlay(sample_hist_map, "reco_mmm"   , Form("%s;m_{#mu#mu} (GeV);Events"             , title.c_str()), "sb::off dt::stack lg::top_left logy");
+    p["p_reco_nosel_mmm"    ] = CreateOverlay(sample_hist_map, "reco_nosel_mmm"   , Form("%s;m_{#mu#mu} (GeV);Events"             , title.c_str()), "sb::off dt::stack lg::top_left");
+    p["p_reco_nosel_mmm_log"] = CreateOverlay(sample_hist_map, "reco_nosel_mmm"   , Form("%s;m_{#mu#mu} (GeV);Events"             , title.c_str()), "sb::off dt::stack lg::top_left logy");
 /*     p["p_pt1"         ] = CreateOverlay(sample_hist_map, "pt1"        , Form("%s;p^{lep1}_{T} (GeV);Events"       , title.c_str()), "sb::off dt::stack lg::right"); */
 /*     p["p_pt2"         ] = CreateOverlay(sample_hist_map, "pt2"        , Form("%s;p^{lep2}_{T} (GeV);Events"       , title.c_str()), "sb::off dt::stack lg::right"); */
 /*     p["p_met"         ] = CreateOverlay(sample_hist_map, "met"        , Form("%s;E^{miss}_{T} (GeV);Events"       , title.c_str()), "sb::off dt::stack lg::right"); */

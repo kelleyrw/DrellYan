@@ -123,6 +123,10 @@ void DrellYanLooper::BeginJob()
     hc.Add(new TH1D("h_reco_mee"  , "Final dielectron mass;m_{ee} (GeV)"  ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mmm"  , "Final dilmuon mass;m_{#mu#mu} (GeV)" ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mll"  , "Final dilepton mass;m_{ll} (GeV)"    ,  60, 60, 120));
+    hc.Add(new TH1D("h_reco_nosel_yield", "No selection yield count of reco level l^{+}l^{-}",   4, -1,   3));
+    hc.Add(new TH1D("h_reco_nosel_mee"  , "No selection dielectron mass;m_{ee} (GeV)"  , 150, 0, 150));
+    hc.Add(new TH1D("h_reco_nosel_mmm"  , "No selection dilmuon mass;m_{#mu#mu} (GeV)" , 150, 0, 150));
+    hc.Add(new TH1D("h_reco_nosel_mll"  , "No selection dilepton mass;m_{ll} (GeV)"    , 150, 0, 150));
 
     // change axis labels
     SetYieldAxisLabel(hc["h_gen_yield"  ]);
@@ -259,6 +263,20 @@ void DrellYanLooper::Analyze(const long event)
         // apply selections
         if ((tas::hyp_lt_charge().at(hyp_idx) * tas::hyp_ll_charge().at(hyp_idx)) > 0)               {continue;}
         if (not(flavor_type == at::DileptonHypType::EE or flavor_type == at::DileptonHypType::MUMU)) {continue;}
+    
+        // fill the nosel hists for all OSSF hyps
+        {
+            const bool is_ee = (flavor_type == at::DileptonHypType::EE);
+            const bool is_mm = (flavor_type == at::DileptonHypType::MUMU);
+
+            if (is_mm) {rt::Fill1D(hc["h_reco_nosel_mmm"], dilep_mass, event_scale);}
+            if (is_ee) {rt::Fill1D(hc["h_reco_nosel_mee"], dilep_mass, event_scale);}
+            rt::Fill1D(hc["h_reco_nosel_mll"], dilep_mass, event_scale);
+
+            if (is_mm) {hc["h_reco_nosel_yield"]->Fill(1.0, event_scale);}
+            if (is_ee) {hc["h_reco_nosel_yield"]->Fill(2.0, event_scale);}
+            hc["h_reco_nosel_yield"]->Fill(0.0            , event_scale);
+        }
         if (not (60 < dilep_mass && dilep_mass < 120.0))                                             {continue;}
         if (not hypsFromFirstGoodVertex(hyp_idx))                                                    {continue;}
         if (!dy::passesTrigger(tas::hyp_type().at(hyp_idx)))                                         {continue;}
@@ -342,17 +360,19 @@ void DrellYanLooper::EndJob()
     // output yields
     if (m_sample_info.sample == dy::Sample::data)
     {
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_yield" ]), "Reco level Yields", "4.0") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_nosel_yield"]), "Reco level Yields (no selection)", "4.0") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_yield"      ]), "Reco level Yields (final)"       , "4.0") << std::endl;
     }
     else
     {
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_den"    ]), "Acceptance Denominator"      , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen_num"]), "Acceptance Numerator (gen)"  , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_num"    ]), "Acceptance Numerator (reco)" , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen"    ]), "Gen Acceptance"              , "1.3") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc"        ]), "Reco Acceptance"             , "1.3") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_gen_yield"  ]), "Gen level Yields"            , "4.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_yield" ]), "Reco level Yields"           , "4.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_den"         ]), "Acceptance Denominator"          , "1.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen_num"     ]), "Acceptance Numerator (gen)"      , "1.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_num"         ]), "Acceptance Numerator (reco)"     , "1.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen"         ]), "Gen Acceptance"                  , "1.3") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc"             ]), "Reco Acceptance"                 , "1.3") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_gen_yield"       ]), "Gen level Yields"                , "4.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_nosel_yield"]), "Reco level Yields (no selection)", "4.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_yield"      ]), "Reco level Yields (final)"       , "4.1") << std::endl;
     }
 
     std::cout << "[DrellYanLooper] Saving hists to output file: " << m_output_filename << std::endl;
