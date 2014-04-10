@@ -2,12 +2,12 @@
 
 function create_skim
 {
-    local output="skims/${1}_skim.root"
+    local output="/nfs-7/userdata/rwkelley/dy_skims/${1}_skim.root"
     local input=$2
 	cmd="cms2tools_keep_branches --pset psets/dy_skim_cfg.py --max_events -1 --input_files \"$input\" --output_file $output"
     mkdir -p logs/skims
     echo $cmd
-    eval $cmd >& logs/skims/${1}.log &
+#     eval $cmd >& logs/skims/${1}.log &
 }
 
 create_skim "data_smu" "/nfs-7/userdata/rwkelley/cms2/SingleMu_Run2012A-recover-06Aug2012-v1_AOD.root"

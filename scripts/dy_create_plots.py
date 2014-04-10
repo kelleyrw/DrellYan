@@ -61,7 +61,7 @@ samples = [
 ]
 
 # skim paths
-skim_sample_path = "skim" 
+skim_sample_path = "/nfs-7/userdata/rwkelley/dy_skims" 
 skim_sample_files = {
 	"data"    : "%s/data*.root"    % (skim_sample_path), 
 	"dyll"    : "%s/dyll*.root"    % (skim_sample_path), 
@@ -119,7 +119,7 @@ def MakeHists(sample):
 	cmd += " --nevts %s" % int(options.nevts)
 
 	# sample input file (if mac)
-	if (use_skim):
+	if (options.use_skim):
 		cmd += " --input \"%s\"" % skim_sample_files[sample]
 	else:
 		if (platform == "darwin"):
