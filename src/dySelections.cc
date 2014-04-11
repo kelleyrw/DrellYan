@@ -446,8 +446,8 @@ int dy::GenDileptonType()
             for(size_t d_idx = 0; d_idx < tas::genps_lepdaughter_id().at(genps_idx).size(); ++d_idx)
             {
                 const int daughter = abs(tas::genps_lepdaughter_id().at(genps_idx).at(d_idx));
-                if (daughter == 13) {nels++;}
-                if (daughter == 15) {nmus++;}
+                if (daughter == 11) {nels++;}
+                if (daughter == 13) {nmus++;}
             }
         }
     }

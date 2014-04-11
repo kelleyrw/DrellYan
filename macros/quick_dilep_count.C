@@ -32,9 +32,9 @@ void FillHists(rt::TH1Container& hc, TChain& chain, const std::string& sample_na
     std::cout << "Beginning " << sample_name << " on " << num_events << " of " << chain.GetEntries() << " events..." << std::endl; 
 
      // scale the # of events
-    const float nevts_aod   = chain.GetMaximum("evt_nEvts");
-    const float nevts_file  = chain.GetEntries(); 
-    const float nevts_scale = nevts_aod/nevts_file;
+    const float nevts_aod   = chain.GetMaximum("evt_nEvts"); // # files in AOD
+    const float nevts_file  = chain.GetEntries();            // # files in this sample
+    const float nevts_scale = nevts_aod/nevts_file;          // scale factor to "fix" evt_scale1fb since we are using a subset of the data 
 
     // lumi
     static const float lumi = 0.082; //fb^-1

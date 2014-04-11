@@ -42,11 +42,10 @@ std::string GetLatex
 (
     const dy::Sample::value_type sample,
     const dy::YieldMap&  ym,
-    const dy::SampleMap& sm, 
     const bool data = false
 )
 {
-    return GetLatex(sm.at(sample).latex, ym.at(sample), data);
+    return GetLatex(GetSampleInfo(sample).latex, ym.at(sample), data);
 }
 
 // print the yields
@@ -60,7 +59,6 @@ void CreateYieldTable
 {
     // map of samples and yields
     dy::YieldMap  ym    = dy::GetYieldMap(label, hist_name);
-    dy::SampleMap sm    = dy::GetSampleMap();
     dy::Yield bkgd_pred = dy::GetBackgroundPred(label, hist_name);
     dy::Yield dy_pred   = ym[dy::Sample::dyll] + bkgd_pred;
 
@@ -72,22 +70,22 @@ void CreateYieldTable
         latex.append("\\begin{tabular}{l|cccc} \\hline\\hline\n"        );
         latex.append("source & $ee$ & $\\mu\\mu$ & $\\ell\\ell $ \\\\\n");
         latex.append("\\hline\n"                                                            );
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::dyll       , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wjets      , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttdil      , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttslq      , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::tthad      , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::qcdmu15    , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ww2l2nu    , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz2l2q     , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz3lnu     , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2nu    , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2q     , ym, sm   ).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz4l       , ym, sm   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::dyll       , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wjets      , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttdil      , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttslq      , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::tthad      , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::qcdmu15    , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ww2l2nu    , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz2l2q     , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wz3lnu     , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2nu    , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz2l2q     , ym       ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::zz4l       , ym       ).c_str()));
         latex.append(Form("%s \\\\\n", GetLatex("Background Prediction", bkgd_pred).c_str()));
         latex.append(Form("%s \\\\\n", GetLatex("MC Prediction"        , dy_pred  ).c_str()));
         latex.append("\\hline\\hline\n");
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::data, ym, sm, /*data=*/true).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::data, ym, /*data=*/true).c_str()));
         latex.append("\\hline\\hline\n"                      );
         latex.append("\\end{tabular}\n"                      );
         latex.append("\\caption{Drell-Yan Exercise Yields}\n");
@@ -104,22 +102,22 @@ void CreateYieldTable
         t_yields.useTitle();
         t_yields.setTitle("yields for Drell-Yan Exercise");
         t_yields.setTable()
-        (                                                            "ee",                              "mm",                             "ll")
-        (sm[dy::Sample::dyll    ].name, ym[dy::Sample::dyll    ].ee.pm() , ym[dy::Sample::dyll    ].mm.pm() , ym[dy::Sample::dyll    ].ll.pm())
-        (sm[dy::Sample::wjets   ].name, ym[dy::Sample::wjets   ].ee.pm() , ym[dy::Sample::wjets   ].mm.pm() , ym[dy::Sample::wjets   ].ll.pm())
-        (sm[dy::Sample::ttdil   ].name, ym[dy::Sample::ttdil   ].ee.pm() , ym[dy::Sample::ttdil   ].mm.pm() , ym[dy::Sample::ttdil   ].ll.pm())
-        (sm[dy::Sample::ttslq   ].name, ym[dy::Sample::ttslq   ].ee.pm() , ym[dy::Sample::ttslq   ].mm.pm() , ym[dy::Sample::ttslq   ].ll.pm())
-        (sm[dy::Sample::tthad   ].name, ym[dy::Sample::tthad   ].ee.pm() , ym[dy::Sample::tthad   ].mm.pm() , ym[dy::Sample::tthad   ].ll.pm())
-        (sm[dy::Sample::qcdmu15 ].name, ym[dy::Sample::qcdmu15 ].ee.pm() , ym[dy::Sample::qcdmu15 ].mm.pm() , ym[dy::Sample::qcdmu15 ].ll.pm())
-        (sm[dy::Sample::ww2l2nu ].name, ym[dy::Sample::ww2l2nu ].ee.pm() , ym[dy::Sample::ww2l2nu ].mm.pm() , ym[dy::Sample::ww2l2nu ].ll.pm())
-        (sm[dy::Sample::wz2l2q  ].name, ym[dy::Sample::wz2l2q  ].ee.pm() , ym[dy::Sample::wz2l2q  ].mm.pm() , ym[dy::Sample::wz2l2q  ].ll.pm())
-        (sm[dy::Sample::wz3lnu  ].name, ym[dy::Sample::wz3lnu  ].ee.pm() , ym[dy::Sample::wz3lnu  ].mm.pm() , ym[dy::Sample::wz3lnu  ].ll.pm())
-        (sm[dy::Sample::zz2l2nu ].name, ym[dy::Sample::zz2l2nu ].ee.pm() , ym[dy::Sample::zz2l2nu ].mm.pm() , ym[dy::Sample::zz2l2nu ].ll.pm())
-        (sm[dy::Sample::zz2l2q  ].name, ym[dy::Sample::zz2l2q  ].ee.pm() , ym[dy::Sample::zz2l2q  ].mm.pm() , ym[dy::Sample::zz2l2q  ].ll.pm())
-        (sm[dy::Sample::zz4l    ].name, ym[dy::Sample::zz4l    ].ee.pm() , ym[dy::Sample::zz4l    ].mm.pm() , ym[dy::Sample::zz4l    ].ll.pm())
-        ("Background Pred"            ,                bkgd_pred.ee.pm() ,                bkgd_pred.mm.pm() ,                bkgd_pred.ll.pm())
-        ("MC Pred"                    ,                  dy_pred.ee.pm() ,                  dy_pred.mm.pm() ,                  dy_pred.ll.pm())
-        (sm[dy::Sample::data    ].name, ym[dy::Sample::data    ].ee.pm("4.0") , ym[dy::Sample::data    ].mm.pm("4.0") , ym[dy::Sample::data    ].ll.pm("4.0"))
+        (                                                                                "ee",                                   "mm",                                  "ll")
+        (dy::GetSampleInfo(dy::Sample::dyll    ).name, ym[dy::Sample::dyll    ].ee.pm("4.1") , ym[dy::Sample::dyll    ].mm.pm("4.1") , ym[dy::Sample::dyll    ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::wjets   ).name, ym[dy::Sample::wjets   ].ee.pm("4.1") , ym[dy::Sample::wjets   ].mm.pm("4.1") , ym[dy::Sample::wjets   ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::ttdil   ).name, ym[dy::Sample::ttdil   ].ee.pm("4.1") , ym[dy::Sample::ttdil   ].mm.pm("4.1") , ym[dy::Sample::ttdil   ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::ttslq   ).name, ym[dy::Sample::ttslq   ].ee.pm("4.1") , ym[dy::Sample::ttslq   ].mm.pm("4.1") , ym[dy::Sample::ttslq   ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::tthad   ).name, ym[dy::Sample::tthad   ].ee.pm("4.1") , ym[dy::Sample::tthad   ].mm.pm("4.1") , ym[dy::Sample::tthad   ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::qcdmu15 ).name, ym[dy::Sample::qcdmu15 ].ee.pm("4.1") , ym[dy::Sample::qcdmu15 ].mm.pm("4.1") , ym[dy::Sample::qcdmu15 ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::ww2l2nu ).name, ym[dy::Sample::ww2l2nu ].ee.pm("4.1") , ym[dy::Sample::ww2l2nu ].mm.pm("4.1") , ym[dy::Sample::ww2l2nu ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::wz2l2q  ).name, ym[dy::Sample::wz2l2q  ].ee.pm("4.1") , ym[dy::Sample::wz2l2q  ].mm.pm("4.1") , ym[dy::Sample::wz2l2q  ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::wz3lnu  ).name, ym[dy::Sample::wz3lnu  ].ee.pm("4.1") , ym[dy::Sample::wz3lnu  ].mm.pm("4.1") , ym[dy::Sample::wz3lnu  ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::zz2l2nu ).name, ym[dy::Sample::zz2l2nu ].ee.pm("4.1") , ym[dy::Sample::zz2l2nu ].mm.pm("4.1") , ym[dy::Sample::zz2l2nu ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::zz2l2q  ).name, ym[dy::Sample::zz2l2q  ].ee.pm("4.1") , ym[dy::Sample::zz2l2q  ].mm.pm("4.1") , ym[dy::Sample::zz2l2q  ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::zz4l    ).name, ym[dy::Sample::zz4l    ].ee.pm("4.1") , ym[dy::Sample::zz4l    ].mm.pm("4.1") , ym[dy::Sample::zz4l    ].ll.pm("4.1"))
+        ("Background Pred"                           ,                bkgd_pred.ee.pm("4.1") ,                bkgd_pred.mm.pm("4.1") ,                bkgd_pred.ll.pm("4.1"))
+        ("MC Pred"                                   ,                  dy_pred.ee.pm("4.1") ,                  dy_pred.mm.pm("4.1") ,                  dy_pred.ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::data    ).name, ym[dy::Sample::data    ].ee.pm("4.0") , ym[dy::Sample::data    ].mm.pm("4.0") , ym[dy::Sample::data    ].ll.pm("4.0"))
         ;
 
         // print it

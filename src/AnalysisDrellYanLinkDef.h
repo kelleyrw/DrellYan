@@ -8,7 +8,7 @@
 
 #pragma link C++ namespace dy;
 #pragma link C++ typedef dy::YieldMap;
-#pragma link C++ typedef dy::SampleMap;
+// #pragma link C++ typedef dy::SampleMap;
 #pragma link C++ enum dy::Sample::value_type;
 #pragma link C++ class dy::Sample+;
 #pragma link C++ class dy::Sample::Info+;
@@ -23,7 +23,7 @@
 #pragma link C++ function dy::GetSampleInfo;
 #pragma link C++ function dy::GetSampleInfo;
 #pragma link C++ function dy::GetSampleTChain;
-#pragma link C++ function dy::GetSampleMap;
+// #pragma link C++ function dy::GetSampleMap;
 #pragma link C++ function dy::GetYieldFromHist;
 #pragma link C++ function dy::GetYieldFromLabel;
 #pragma link C++ function dy::GetYieldString;
