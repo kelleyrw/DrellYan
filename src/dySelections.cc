@@ -443,11 +443,11 @@ int dy::GenDileptonType()
         if (tas::genps_status().at(genps_idx)  != 3 ) {continue;}
         if (abs(tas::genps_id().at(genps_idx)) == 11) {nels++;}
         if (abs(tas::genps_id().at(genps_idx)) == 13) {nmus++;}
-        if (abs(tas::genps_id().at(genps_idx)) == 13)
+        if (abs(tas::genps_id().at(genps_idx)) == 15)
         {
             for(size_t d_idx = 0; d_idx < tas::genps_lepdaughter_id().at(genps_idx).size(); ++d_idx)
             {
-	            const int daughter = abs(tas::genps_lepdaughter_id().at(genps_idx).at(d_idx));
+                const int daughter = abs(tas::genps_lepdaughter_id().at(genps_idx).at(d_idx));
                 if (daughter == 12) {nels++;}
                 if (daughter == 14) {nmus++;}
             }
