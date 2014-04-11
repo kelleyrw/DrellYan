@@ -261,7 +261,7 @@ void DrellYanLooper::Analyze(const long event)
         const at::DileptonHypType::value_type flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
 
         // apply selections
-        if ((tas::hyp_lt_charge().at(hyp_idx) * tas::hyp_ll_charge().at(hyp_idx)) > 0)               {continue;}
+        if (tas::hyp_lt_charge().at(hyp_idx) != tas::hyp_ll_charge().at(hyp_idx))                    {continue;}
         if (not(flavor_type == at::DileptonHypType::EE or flavor_type == at::DileptonHypType::MUMU)) {continue;}
     
         // fill the nosel hists for all OSSF hyps

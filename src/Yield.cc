@@ -89,8 +89,8 @@ namespace dy
         return result;
     }
 
-    Yield GetRecoYieldFromLabel(const Sample::value_type sample, const std::string& label)
-    {
+    Yield GetYieldFromLabel(const Sample::value_type sample, const std::string& label, const std::string& hist_name)
+    { 
         if (label.empty())
         {
             throw std::runtime_error("[dy::GetYieldFromFile] Error: label is empty");
@@ -101,32 +101,15 @@ namespace dy
         }
         const Sample::Info sample_info = GetSampleInfo(sample);
         const std::string file_name = Form("plots/%s/%s_plots.root", label.c_str(), sample_info.name.c_str());
-        TH1 * const yield_hist = rt::GetHistFromRootFile<TH1>(file_name, "h_reco_yield");
+        TH1 * const yield_hist = rt::GetHistFromRootFile<TH1>(file_name, hist_name);
         Yield result = GetYieldFromHist(*yield_hist);
         return result;
     }
 
-    Yield GetGenYieldFromLabel(const Sample::value_type sample, const std::string& label)
+    Yield GetBackgroundPred(const std::string& label, const std::string& hist_name)
     {
-        if (label.empty())
-        {
-            throw std::runtime_error("[dy::GetYieldFromFile] Error: label is empty");
-        }
-        if (!lt::file_exists("plots/"+label))
-        {
-            throw std::runtime_error(Form("[dy::GetYieldFromFile] Error: label %s does not exist", label.c_str()));
-        }
-        const Sample::Info sample_info = GetSampleInfo(sample);
-        const std::string file_name = Form("plots/%s/%s_plots.root", label.c_str(), sample_info.name.c_str());
-        TH1 * const yield_hist = rt::GetHistFromRootFile<TH1>(file_name, "h_gen_yield");
-        Yield result = GetYieldFromHist(*yield_hist);
-        return result;
-    }
-
-    Yield GetBackgroundPred(const std::string& label)
-    {
-        const dy::YieldMap ym = dy::GetRecoYieldMap(label);
-        dy::Yield pred;
+        const dy::YieldMap ym = dy::GetYieldMap(label, hist_name);
+        dy::Yield pred{{0, 0},{0,0},{0.0}};
         for (const auto& s : ym)
         {
             if (s.first != dy::Sample::data && s.first != dy::Sample::dyll)
@@ -152,25 +135,13 @@ namespace dy
     }
 
     // get yield map for all samples 
-    std::map<Sample::value_type, Yield> GetRecoYieldMap(const std::string& label)
+    std::map<Sample::value_type, Yield> GetYieldMap(const std::string& label, const std::string& hist_name)
     {
         std::map<Sample::value_type, Yield> result; 
         for (int sample_num = 0; sample_num < Sample::static_size; ++sample_num)
         {
             const Sample::Info sample_info = GetSampleInfo(sample_num);
-            const Yield sample_yield = GetRecoYieldFromLabel(sample_info.sample, label);
-            result[sample_info.sample] = sample_yield;
-        }
-        return result;
-    }
-
-    std::map<Sample::value_type, Yield> GetGenYieldMap(const std::string& label)
-    {
-        std::map<Sample::value_type, Yield> result; 
-        for (int sample_num = 0; sample_num < Sample::static_size; ++sample_num)
-        {
-            const Sample::Info sample_info = GetSampleInfo(sample_num);
-            const Yield sample_yield = GetGenYieldFromLabel(sample_info.sample, label);
+            const Yield sample_yield = GetYieldFromLabel(sample_info.sample, label, hist_name);
             result[sample_info.sample] = sample_yield;
         }
         return result;

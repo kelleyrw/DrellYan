@@ -25,11 +25,9 @@
 #pragma link C++ function dy::GetSampleTChain;
 #pragma link C++ function dy::GetSampleMap;
 #pragma link C++ function dy::GetYieldFromHist;
-#pragma link C++ function dy::GetRecoYieldFromLabel;
-#pragma link C++ function dy::GetGenYieldFromLabel;
+#pragma link C++ function dy::GetYieldFromLabel;
 #pragma link C++ function dy::GetYieldString;
-#pragma link C++ function dy::GetRecoYieldMap;
-#pragma link C++ function dy::GetGenYieldMap;
+#pragma link C++ function dy::GetYieldMap;
 
 #endif
 

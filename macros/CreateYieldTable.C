@@ -6,19 +6,35 @@
 #include "AnalysisTools/RootTools/interface/RootTools.h"
 #include "AnalysisTools/LanguageTools/interface/LanguageTools.h"
 
-std::string GetLatex(const std::string& title, const dy::Yield& yield)
+std::string GetLatex(const std::string& title, const dy::Yield& yield, const bool data = false)
 {
-    const std::string result = Form
-    (
-        "%35s & %5.2f $\\pm$ %5.2f & %5.2f $\\pm$ %5.2f & %5.2f $\\pm$ %5.2f", 
-        title.c_str(),
-        yield.ee.value,
-        yield.ee.error,
-        yield.mm.value,
-        yield.mm.error,
-        yield.ll.value,
-        yield.ll.error
-    );
+
+    std::string result;
+    if (data)
+    {
+        result = Form
+        (
+            "%35s & %5.0f & %5.0f & %5.0f", 
+            title.c_str(),
+            yield.ee.value,
+            yield.mm.value,
+            yield.ll.value
+        );
+    }
+    else
+    {
+        result = Form
+        (
+            "%35s & %5.1f $\\pm$ %5.1f & %5.1f $\\pm$ %5.1f & %5.1f $\\pm$ %5.1f", 
+            title.c_str(),
+            yield.ee.value,
+            yield.ee.error,
+            yield.mm.value,
+            yield.mm.error,
+            yield.ll.value,
+            yield.ll.error
+        );
+    }
     return result;
 }
 
@@ -26,25 +42,27 @@ std::string GetLatex
 (
     const dy::Sample::value_type sample,
     const dy::YieldMap&  ym,
-    const dy::SampleMap& sm
+    const dy::SampleMap& sm, 
+    const bool data = false
 )
 {
-    return GetLatex(sm.at(sample).latex, ym.at(sample));
+    return GetLatex(sm.at(sample).latex, ym.at(sample), data);
 }
 
 // print the yields
 void CreateYieldTable 
 (
     const std::string& label, 
+    const std::string& hist_name = "h_reco_yield",
     const std::string& output_file = "", 
     bool print_latex = false
 )
 {
     // map of samples and yields
-    dy::YieldMap  ym    = dy::GetRecoYieldMap(label);
+    dy::YieldMap  ym    = dy::GetYieldMap(label, hist_name);
     dy::SampleMap sm    = dy::GetSampleMap();
-    dy::Yield bkgd_pred = dy::GetBackgroundPred(label);
-    dy::Yield dy_pred   = ym[dy::Sample::dyll] - bkgd_pred;
+    dy::Yield bkgd_pred = dy::GetBackgroundPred(label, hist_name);
+    dy::Yield dy_pred   = ym[dy::Sample::dyll] + bkgd_pred;
 
     std::string table;
     if (print_latex)
@@ -69,7 +87,7 @@ void CreateYieldTable
         latex.append(Form("%s \\\\\n", GetLatex("Background Prediction", bkgd_pred).c_str()));
         latex.append(Form("%s \\\\\n", GetLatex("MC Prediction"        , dy_pred  ).c_str()));
         latex.append("\\hline\\hline\n");
-        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::data, ym, sm).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::data, ym, sm, /*data=*/true).c_str()));
         latex.append("\\hline\\hline\n"                      );
         latex.append("\\end{tabular}\n"                      );
         latex.append("\\caption{Drell-Yan Exercise Yields}\n");
@@ -101,7 +119,7 @@ void CreateYieldTable
         (sm[dy::Sample::zz4l    ].name, ym[dy::Sample::zz4l    ].ee.pm() , ym[dy::Sample::zz4l    ].mm.pm() , ym[dy::Sample::zz4l    ].ll.pm())
         ("Background Pred"            ,                bkgd_pred.ee.pm() ,                bkgd_pred.mm.pm() ,                bkgd_pred.ll.pm())
         ("MC Pred"                    ,                  dy_pred.ee.pm() ,                  dy_pred.mm.pm() ,                  dy_pred.ll.pm())
-        (sm[dy::Sample::data    ].name, ym[dy::Sample::data    ].ee.pm() , ym[dy::Sample::data    ].mm.pm() , ym[dy::Sample::data    ].ll.pm())
+        (sm[dy::Sample::data    ].name, ym[dy::Sample::data    ].ee.pm("4.0") , ym[dy::Sample::data    ].mm.pm("4.0") , ym[dy::Sample::data    ].ll.pm("4.0"))
         ;
 
         // print it
