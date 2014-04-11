@@ -250,7 +250,7 @@ void DrellYanLooper::Analyze(const long event)
 
     // loop over hypotheses
     int best_hyp = -1;
-    for (size_t hyp_idx = 0; hyp_idx != tas::hyp_type().size(); hyp_idx++)
+    for (size_t hyp_idx = 0; hyp_idx < tas::hyp_type().size(); ++hyp_idx)
     {                
         // convenience variables
         const int lt_id                                   = tas::hyp_lt_id().at(hyp_idx);
@@ -259,6 +259,8 @@ void DrellYanLooper::Analyze(const long event)
         const int ll_idx                                  = tas::hyp_ll_index().at(hyp_idx);
         const float dilep_mass                            = tas::hyp_p4().at(hyp_idx).mass();
         const at::DileptonHypType::value_type flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
+        const bool is_ee                                  = (flavor_type == at::DileptonHypType::EE);
+        const bool is_mm                                  = (flavor_type == at::DileptonHypType::MUMU);
 
         // apply selections
         if (tas::hyp_lt_charge().at(hyp_idx) != tas::hyp_ll_charge().at(hyp_idx))                    {continue;}
@@ -266,9 +268,6 @@ void DrellYanLooper::Analyze(const long event)
     
         // fill the nosel hists for all OSSF hyps
         {
-            const bool is_ee = (flavor_type == at::DileptonHypType::EE);
-            const bool is_mm = (flavor_type == at::DileptonHypType::MUMU);
-
             if (is_mm) {rt::Fill1D(hc["h_reco_nosel_mmm"], dilep_mass, event_scale);}
             if (is_ee) {rt::Fill1D(hc["h_reco_nosel_mee"], dilep_mass, event_scale);}
             rt::Fill1D(hc["h_reco_nosel_mll"], dilep_mass, event_scale);
@@ -286,7 +285,7 @@ void DrellYanLooper::Analyze(const long event)
         // if we're here, then good event :)
         best_hyp = dy::ChooseBetterHypothesis(best_hyp, hyp_idx);
 
-    } // end looper over hypothesis
+    } // end loop over hypothesis
 
     // only continue if hyp has been selected
     // all: 0, mm: 1, em: 2, ee: 3

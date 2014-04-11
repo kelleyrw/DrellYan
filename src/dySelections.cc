@@ -327,11 +327,9 @@ bool dy::passesTrigger(const int hyp_type)
     switch(hyp_type)
     {
         /*mu mu*/case 0: return passUnprescaledHLTTriggerPattern("HLT_Mu17_Mu8_v"); break;
-                  //return passUnprescaledHLTTriggerPattern("HLT_Mu15_eta2p1_v");
         /*e mu*/ case 1: return false; break;
         /*e mu*/ case 2: return false; break;
         /*e e*/  case 3: return passUnprescaledHLTTriggerPattern("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"); break;
-                  //passUnprescaledHLTTriggerPattern("HLT_Ele22_CaloIdL_CaloIsoVL_v");
         default: return false;
     }
 }
@@ -431,7 +429,7 @@ int dy::ChooseBetterHypothesis(const int hyp1_idx, const int hyp2_idx)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////     
-// disambiguate between two passing hypotheses 
+// Gen hypotheses 
 // 1 mumu; 2 emu; 3 ee; -1 other;
 ////////////////////////////////////////////////////////////////////////////////////////////     
 int dy::GenDileptonType()
@@ -448,14 +446,14 @@ int dy::GenDileptonType()
             for(size_t d_idx = 0; d_idx < tas::genps_lepdaughter_id().at(genps_idx).size(); ++d_idx)
             {
                 const int daughter = abs(tas::genps_lepdaughter_id().at(genps_idx).at(d_idx));
-                if (daughter == 12) {nels++;}
-                if (daughter == 14) {nmus++;}
+                if (daughter == 13) {nels++;}
+                if (daughter == 15) {nmus++;}
             }
         }
     }
     if ((nels + nmus) != 2    ) {return -1;}
-    if (nmus == 2             ) {return 1;}
-    if (nels == 2             ) {return 3;}
+    if (nmus == 2             ) {return 0;}
     if (nels == 1 && nmus == 1) {return 2;} 
+    if (nels == 2             ) {return 3;}
     return -1;
 }

@@ -116,7 +116,7 @@ void OverlayPlots
 
     // title
     const double lumi = 0.082;
-    std::string title = Form("CMS2 Drell-Yan Exercise, #sqrt{s} = 8 TeV, L_{int} = %1.3f fb^{-1}", lumi);
+    const std::string title = Form("CMS2 Drell-Yan Exercise, #sqrt{s} = 8 TeV, L_{int} = %1.3f fb^{-1}", lumi);
 
     // overlays
     map<string, rt::TH1Overlay> p;
