@@ -16,7 +16,7 @@ process.dy_samples = cms.VPSet(
     	name        = cms.string("data"),
     	title       = cms.string("data"),
     	latex       = cms.string("data"),
-    	ntuple_path = cms.string(data_path+ "/Single*_Run2012A-recover-06Aug2012-v1_AOD/merged/*.root"),
+    	ntuple_path = cms.string(data_path+ "/SingleMu_Run2012A-recover-06Aug2012-v1_AOD/merged/*.root,"+data_path+"/SingleElectron_Run2012A-recover-06Aug2012-v1_AOD/merged/*.root"),
     	color       = cms.int32 (1), # kBlack
     	eff         = cms.double(1.0)
     ),
