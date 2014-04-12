@@ -35,7 +35,11 @@ namespace dy
     // non-members
     Yield operator-(const Yield& y1, const Yield& y2);
     Yield operator+(const Yield& y1, const Yield& y2);
+    Yield operator*(const Yield& y1, const Yield& y2);
+    Yield operator/(const Yield& y1, const Yield& y2);
+
     Yield operator*(const double scale, const Yield& y);
+    Yield operator*(const Yield& y, const double scale);
 
     // get yields from a yield histogram
     // NOTE: expect 4 bins with bin 0 --> ll, 1 --> ee, 3 --> mm

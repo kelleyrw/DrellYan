@@ -392,6 +392,18 @@ void DrellYanLooper::Analyze(const long event)
     }
     FillRecoHists(hc, hyp_idx, Selection::full, event_scale);
 
+    // acceptance
+    const at::DileptonHypType::value_type reco_flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
+    const bool is_ee          = (reco_flavor_type == at::DileptonHypType::EE);
+    const bool is_mm          = (reco_flavor_type == at::DileptonHypType::MUMU);
+    const bool passes_acc_num = passes_acc_den and ((is_gen_ee and is_ee) or (is_gen_mm and is_mm));
+    if (passes_acc_num)
+    {
+        if (is_mm) {hc["h_acc_num"]->Fill(1.0, event_scale);}
+        if (is_ee) {hc["h_acc_num"]->Fill(2.0, event_scale);}
+        hc["h_acc_num"]->Fill(0.0             , event_scale);
+    }
+
     // done with event
     // ---------------------- // 
 

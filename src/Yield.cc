@@ -32,6 +32,11 @@ namespace dy
         return result; 
     }
     
+    Yield operator*(const Yield& y, const double scale)
+    {
+        return scale * y;
+    }
+    
     Yield operator-(const Yield& y1, const Yield& y2)
     {
         Yield result =
@@ -50,6 +55,31 @@ namespace dy
             {y1.ee.value + y2.ee.value, sqrt(y1.ee.error*y1.ee.error + y2.ee.error*y2.ee.error)}, 
             {y1.mm.value + y2.mm.value, sqrt(y1.mm.error*y1.mm.error + y2.mm.error*y2.mm.error)}, 
             {y1.ll.value + y2.ll.value, sqrt(y1.ll.error*y1.ll.error + y2.ll.error*y2.ll.error)}
+        };
+        return result; 
+    }
+
+    Yield operator*(const Yield& y1, const Yield& y2)
+    {
+        Yield result =
+        {
+            {y1.ee.value * y2.ee.value, sqrt((y1.ee.error*y1.ee.error)/(y1.ee.value * y2.ee.value) + (y2.ee.error*y2.ee.error)/(y1.ee.value * y2.ee.value))}, 
+            {y1.mm.value * y2.mm.value, sqrt((y1.mm.error*y1.mm.error)/(y1.mm.value * y2.mm.value) + (y2.mm.error*y2.mm.error)/(y1.mm.value * y2.mm.value))}, 
+            {y1.ll.value * y2.ll.value, sqrt((y1.ll.error*y1.ll.error)/(y1.ll.value * y2.ll.value) + (y2.ll.error*y2.ll.error)/(y1.ll.value * y2.ll.value))}
+        };
+        return result; 
+    }
+
+    Yield operator/(const Yield& y1, const Yield& y2)
+    {
+        assert(!lt::is_zero(y2.ee.value));
+        assert(!lt::is_zero(y2.mm.value));
+        assert(!lt::is_zero(y2.ee.value));
+        Yield result =
+        {
+            {y1.ee.value / y2.ee.value, sqrt((y1.ee.error*y1.ee.error)/(y1.ee.value * y2.ee.value) + (y2.ee.error*y2.ee.error)/(y1.ee.value * y2.ee.value))}, 
+            {y1.mm.value / y2.mm.value, sqrt((y1.mm.error*y1.mm.error)/(y1.mm.value * y2.mm.value) + (y2.mm.error*y2.mm.error)/(y1.mm.value * y2.mm.value))}, 
+            {y1.ll.value / y2.ll.value, sqrt((y1.ll.error*y1.ll.error)/(y1.ll.value * y2.ll.value) + (y2.ll.error*y2.ll.error)/(y1.ll.value * y2.ll.value))}
         };
         return result; 
     }
