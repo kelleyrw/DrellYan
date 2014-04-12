@@ -7,6 +7,7 @@
 from optparse import OptionParser
 import os
 import sys
+from sys import platform as platform
 
 # ------------------#
 # parse inputs
@@ -14,6 +15,7 @@ import sys
 
 default_run_list = "json/Cert_190782-190949_8TeV_06Aug2012ReReco_Collisions12_cms2.txt"
 default_lumi     = 0.082 # fb^-1
+default_pset     = "pset/dy_samples_cfg.py"
 
 # parameter options
 parser = OptionParser()
@@ -68,25 +70,6 @@ skim_sample_files = {
 	"zz4l"    : "%s/zz4l*.root"    % (skim_sample_path), 
 }
 
-# mac file names (hack -- FIXME)
-from sys import platform as platform
-mac_sample_path = "/nfs-7/userdata/rwkelley/cms2" 
-mac_sample_files = {
-	"data"    : "%s/Single*_Run2012A-recover-06Aug2012-v1_AOD.root"                                                   % (mac_sample_path), 
-	"dyll"    : "%s/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1.root"       % (mac_sample_path), 
-	"wjets"   : "%s/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1.root"            % (mac_sample_path), 
-	"ttdil"   : "%s/TTJets_FullLeptMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v2.root"                  % (mac_sample_path), 
-	"ttslq"   : "%s/TTJets_SemiLeptMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A_ext-v1.root"              % (mac_sample_path), 
-	"tthad"   : "%s/TTJets_HadronicMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A_ext-v1.root"              % (mac_sample_path), 
-	"qcdmu15" : "%s/QCD_Pt_20_MuEnrichedPt_15_TuneZ2star_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v3ple_1.root" % (mac_sample_path), 
-	"ww2l2nu" : "%s/WWJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"          % (mac_sample_path), 
-	"wz2l2q"  : "%s/WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"               % (mac_sample_path), 
-	"wz3lnu"  : "%s/WZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"           % (mac_sample_path), 
-	"zz2l2nu" : "%s/ZZJetsTo2L2Nu_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v3.root"          % (mac_sample_path), 
-	"zz2l2q"  : "%s/ZZJetsTo2L2Q_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"           % (mac_sample_path), 
-	"zz4l"    : "%s/ZZJetsTo4L_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root"             % (mac_sample_path), 
-}
-
 # ---------------------------------------------------------------------------------- #
 # make the histograms for a particular sample and signal region
 # ---------------------------------------------------------------------------------- #
@@ -111,9 +94,8 @@ def MakeHists(sample):
 	# sample input file (if mac)
 	if (options.use_skim):
 		cmd += " --input \"%s\"" % skim_sample_files[sample]
-	else:
-		if (platform == "darwin"):
-			cmd += " --input \"%s\"" % mac_sample_files[sample]
+	elif (platform == "darwin"):
+		cmd += " --sample_pset psets/dy_samples_rwk_cfg.py" 
 
 	# verbose	
 	if (options.verbose):
@@ -136,7 +118,7 @@ def MakeHists(sample):
 def MakeTable():
 	return
 
-def MakeOveralys():
+def MakeOverlays():
 	return
 
 # ------------------#
