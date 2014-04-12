@@ -32,7 +32,6 @@ parser.add_option("--sample_pset", dest="sample_pset", default=default_pset     
 # boolean options
 parser.add_option("--test"       , action="store_true"  , dest="test"        , default=False , help="test script -- print commands but do nothing")
 parser.add_option("--verbose"    , action="store_true"  , dest="verbose"     , default=False , help="verbose print out"                           )
-parser.add_option("--no_hist"    , action="store_true"  , dest="no_hist"     , default=False , help="do not create histograms, do everything else"   )
 
 (options, args) = parser.parse_args()
 
@@ -97,27 +96,6 @@ def MakeHists(sample):
 		os.system(cmd)
 
 	return	
-
-def MakeTable():
-	return
-
-def MakeOverlays():
-	cmd = "root -b -q -l \"macros/OverlayPlots.C+(%s, \\\"png\\\")\" >>& logs/%s/%s.log" % options.label
-	cmd = "root -b -q -l \"macros/OverlayPlots.C+(%s, \\\"eps\\\")\" >>& logs/%s/%s.log" % options.label
-	cmd = "root -b -q -l \"macros/OverlayPlots.C+(%s, \\\"pdf\\\")\" >>& logs/%s/%s.log" % options.label
-
-	# logname
-	log_dir_name  = "logs/%s" % options.label
-	log_file_name = "%s/%s.log" % (log_dir_name, sample)
-	cmd += " >>& %s &" % log_file_name
-	if (not options.test and not os.path.exists(log_dir_name)):
-		os.makedirs(log_dir_name)		
-
-	print cmd
-	if (not options.test):
-		os.system(cmd)
-	return
-
 # ------------------#
 # "main program" 
 # ------------------#
@@ -126,10 +104,7 @@ def main():
 	try:
 		# samples to run on
 		for sample in samples:	
-			if (not options.no_hist):
-				MakeHists(sample)
-			MakeTable()
-			MakeOverlays()
+			MakeHists(sample)
 
 	except Exception, e:
 		print "[dy_create_plots] ERROR:", e

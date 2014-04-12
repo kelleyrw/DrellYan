@@ -158,12 +158,13 @@ void DrellYanLooper::Analyze(const long event)
     double event_scale = 1.0;
     if (!tas::evt_isRealData())
     {
-        const double nevts_aod     = tas::evt_nEvts();          // number of events run in CMSSW job to make ntuple
-        const double nevts_file    = m_num_events;              // number of events in the current job
-        const double nevts_scale   = nevts_aod/nevts_file;      // scale up the weight to account fo lower stats
-        const double  scale1fb     = tas::evt_scale1fb();       // scale1fb stored in event
-        const double sd_filter_eff = m_sample_info.filter_eff;  // number of events after the "EDFilter"
-        event_scale                = m_lumi * scale1fb * nevts_scale * sd_filter_eff;
+//         const double nevts_aod     = tas::evt_nEvts();                            // number of events run in CMSSW job to make ntuple
+        const double nevts_cms2    = m_sample_info.filter_eff * tas::evt_nEvts(); // number of events run in CMSSW job to make ntuple
+        const double nevts_file    = m_num_events;                                // number of events in the current job
+        const double nevts_scale   = nevts_cms2/nevts_file;                       // scale up the weight to account fo lower stats
+        const double scale1fb      = tas::evt_scale1fb();                         // scale1fb stored in event
+//         const double filter_eff    = m_sample_info.filter_eff;                    // number of events after the "EDFilter"
+        event_scale                = m_lumi * scale1fb * nevts_scale;
     }
     if (m_verbose) {std::cout << "event_scale = " << event_scale << "\n";}
 

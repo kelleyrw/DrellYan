@@ -2,6 +2,7 @@
 #define DY_SAMPLE_H
 
 #include <string>
+#include <iostream>
 #include "TChain.h"
 #include "TColor.h"
 
@@ -49,6 +50,10 @@ namespace dy
 
     // operators:
     bool operator < (const Sample::Info& s1, const Sample::Info& s2);
+    std::ostream& operator << (std::ostream& out, const Sample::Info& sample_info);
+
+    // print all available sample infos
+    void PrintSampleInfos(std::ostream& out = std::cout);
 
     // Get the Sample from a string/number
     Sample::value_type GetSampleFromName(const std::string& sample_name);

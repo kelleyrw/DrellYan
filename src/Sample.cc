@@ -15,16 +15,30 @@
 
 namespace dy
 {
-    // PSET that holds the sample metadata
-    static std::string sample_pset_path = "psets/dy_samples_cfg.py";
+    // path to file that holds the sample metadata
+    std::string& PsetPath()
+    {
+        static std::string sample_pset_path = "psets/dy_samples_cfg.py";
+        return sample_pset_path;
+    }
+        
+    // parameter set vector
+    std::vector<edm::ParameterSet>& PsetVector()
+    {
+        static std::vector<edm::ParameterSet> pset_vec;
+        return pset_vec;
+    }
+
+    // reset pset
+    void ResetPsetVector()
+    {
+        const edm::ParameterSet& process = edm::readPSetsFrom(PsetPath())->getParameter<edm::ParameterSet>("process");
+        PsetVector() = process.getParameter<std::vector<edm::ParameterSet> >("dy_samples");
+    }
 
     // create a sample Info from the pset
-    Sample::Info CreateSampleInfo(const Sample::value_type sample)
+    Sample::Info CreateSampleInfo(const Sample::value_type sample, const std::vector<edm::ParameterSet>& pset_vec)
     {
-        assert(!sample_pset_path.empty());
-        assert(lt::file_exists(sample_pset_path));
-        const edm::ParameterSet& process = edm::readPSetsFrom(sample_pset_path)->getParameter<edm::ParameterSet>("process");
-        const auto& pset_vec             = process.getParameter<std::vector<edm::ParameterSet> >("dy_samples");
         assert(pset_vec.size() == Sample::static_size);
         const auto& pset = pset_vec[sample];
         Sample::Info info
@@ -40,38 +54,54 @@ namespace dy
         return info;
     }
 
-    // Array of SampleInfo's with the relevant metadata
-    static Sample::Info s_SampleInfos[Sample::static_size]
+    // re-assign the SampleInfos
+    std::vector<Sample::Info> GetInitialSampleInfosFromPset()
     {
-        CreateSampleInfo(Sample::data    ), 
-        CreateSampleInfo(Sample::dyll    ), 
-        CreateSampleInfo(Sample::wjets   ), 
-        CreateSampleInfo(Sample::ttdil   ), 
-        CreateSampleInfo(Sample::ttslq   ), 
-        CreateSampleInfo(Sample::tthad   ), 
-        CreateSampleInfo(Sample::qcdmu15 ), 
-        CreateSampleInfo(Sample::ww2l2nu ), 
-        CreateSampleInfo(Sample::wz2l2q  ), 
-        CreateSampleInfo(Sample::wz3lnu  ), 
-        CreateSampleInfo(Sample::zz2l2nu ), 
-        CreateSampleInfo(Sample::zz2l2q  ), 
-        CreateSampleInfo(Sample::zz4l    ) 
-    };
+        ResetPsetVector();
+        assert(PsetVector().size() == Sample::static_size);
+        std::vector<Sample::Info> sample_infos;
+        sample_infos.reserve(Sample::static_size);
+        for (size_t i = 0; i < PsetVector().size(); ++i)
+        {
+            sample_infos.push_back(CreateSampleInfo(static_cast<Sample::value_type>(i), PsetVector()));
+        }
+        assert(sample_infos.size() == Sample::static_size);
+        return sample_infos;
+    }
+
+    // Vector of SampleInfo's with the relevant metadata
+    std::vector<Sample::Info>& SampleInfos()
+    {
+        static std::vector<Sample::Info> sample_infos = GetInitialSampleInfosFromPset();
+        assert(sample_infos.size() == Sample::static_size);
+        return sample_infos;
+    }
+
+    // re-assign the SampleInfos
+    std::vector<Sample::Info> GetSampleInfosFromPset()
+    {
+        std::vector<Sample::Info> sample_infos;
+        sample_infos.reserve(Sample::static_size);
+        for (auto& sample_info : SampleInfos())
+        {
+            sample_infos.push_back(CreateSampleInfo(sample_info.sample, PsetVector()));
+        }
+        assert(sample_infos.size() == Sample::static_size);
+        return sample_infos;
+    }
 
     // rest the pset 
     /*static*/ void Sample::SetPsetPath(const std::string& pset_path)
     {
-        sample_pset_path = pset_path;
-        for (int i = 0; i < Sample::static_size; ++i)
-        {
-            s_SampleInfos[i] = CreateSampleInfo(static_cast<Sample::value_type>(i));
-        }
+        PsetPath() = pset_path;
+        ResetPsetVector();
+        SampleInfos() = GetSampleInfosFromPset();
     }
 
     // get the current pset
     /*static*/ const std::string& Sample::GetPsetPath()
     {
-        return sample_pset_path;
+        return PsetPath();
     }
 
     // operators:
@@ -80,10 +110,33 @@ namespace dy
         return (s1.sample < s2.sample);
     }
 
+    std::ostream& operator << (std::ostream& out, const Sample::Info& sample_info)
+    {
+        out << Form("Sample::Info = {\n\t%s, \n\t%s, \n\t%s, \n\t%s, \n\t%d, \n\t%f, \n\t%d\n}",
+                    sample_info.name.c_str(),
+                    sample_info.title.c_str(),
+                    sample_info.latex.c_str(),
+                    sample_info.ntuple_path.c_str(),
+                    sample_info.color,
+                    sample_info.filter_eff,
+                    sample_info.sample);
+        return out;               
+    }
+
+    // print all available sample infos
+    void PrintSampleInfos(std::ostream& out)
+    {
+        for (const auto& sample_info : SampleInfos())
+        {
+            out << sample_info << '\n';
+        }
+        out << '\n';
+    }
+
     // Get the Sample from a string
     Sample::value_type GetSampleFromName(const std::string& sample_name)
     {
-        for (const auto& sample_info : s_SampleInfos)
+        for (const auto& sample_info : SampleInfos())
         {
             if (sample_info.name == sample_name)
             {
@@ -110,7 +163,7 @@ namespace dy
     // test if a string is a sample name 
     bool IsSample(const std::string& sample_name)
     {
-        for (const auto& sample_info : s_SampleInfos)
+        for (const auto& sample_info : SampleInfos())
         {
             if (sample_info.name == sample_name)
             {
@@ -123,7 +176,7 @@ namespace dy
     // wrapper function to get the SampleInfo
     Sample::Info GetSampleInfo(const Sample::value_type& sample)
     {
-        return s_SampleInfos[sample]; 
+        return SampleInfos()[sample]; 
     }
 
     Sample::Info GetSampleInfo(const std::string& sample_name)
