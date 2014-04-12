@@ -386,27 +386,11 @@ int dy::ChooseBetterHypothesis(const int hyp1_idx, const int hyp2_idx)
     // NOTE: MUMU 0, EMU 1, 2, EE 3
     const int hyp1_flavor_type = tas::hyp_type().at(hyp1_idx);
     const int hyp2_flavor_type = tas::hyp_type().at(hyp2_idx);
-    
-    const bool hyp1_is_em = (hyp1_flavor_type==1 or hyp1_flavor_type==2);
-    const bool hyp2_is_em = (hyp2_flavor_type==1 or hyp2_flavor_type==2);
-    const bool hyp1_is_ee = (hyp1_flavor_type==3);
-    const bool hyp2_is_ee = (hyp2_flavor_type==3);
-    const bool hyp1_is_mm = (hyp1_flavor_type==0);
-    const bool hyp2_is_mm = (hyp2_flavor_type==0);
-
-    if (hyp1_is_em and not hyp2_is_em)
-    {
-        return hyp2_idx;
-    }
-    if (not hyp1_is_em and hyp2_is_em)
+    if (hyp1_flavor_type > hyp2_flavor_type)
     {
         return hyp1_idx;
     }
-    if (hyp1_is_mm and hyp2_is_ee)
-    {
-        return hyp1_idx;
-    }
-    if (hyp1_is_ee and hyp2_is_mm)
+    else
     {
         return hyp2_idx;
     }

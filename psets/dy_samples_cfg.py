@@ -120,6 +120,8 @@ process.dy_samples = cms.VPSet(
 
 from sys import platform as platform
 if (platform == "darwin"):
+	data_path = "/nfs-7/userdata/rwkelley/cms2"
+	mc_path   = "/nfs-7/userdata/rwkelley/cms2"
 	process.dy_samples[0 ].ntuple_path = cms.string(data_path + "/Single*_Run2012A-recover-06Aug2012-v1_AOD.root"                                              ) 
 	process.dy_samples[1 ].ntuple_path = cms.string(mc_path   + "/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1.root"  ) 
 	process.dy_samples[2 ].ntuple_path = cms.string(mc_path   + "/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1.root"       ) 

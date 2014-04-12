@@ -112,19 +112,20 @@ void DrellYanLooper::BeginJob()
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
 
     // acceptance plots
-    hc.Add(new TH1D("h_acc_den"    , "Acceptence denominator;Channel;Event Count"          , 4, -1, 3));
-    hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count"  , 4, -1, 3));
-    hc.Add(new TH1D("h_acc_num"    , "Acceptence numerator;Channel;Event Count"            , 4, -1, 3));
+    hc.Add(new TH1D("h_acc_den"    , "Acceptence denominator;Channel;Event Count"        , 4, -1, 3));
+    hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count", 4, -1, 3));
+    hc.Add(new TH1D("h_acc_num"    , "Acceptence numerator;Channel;Event Count"          , 4, -1, 3));
 
     // reco level plots
     hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}",   4, -1,   3));
     hc.Add(new TH1D("h_reco_mee"  , "Final dielectron mass;m_{ee} (GeV)"  ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mmm"  , "Final dilmuon mass;m_{#mu#mu} (GeV)" ,  60, 60, 120));
     hc.Add(new TH1D("h_reco_mll"  , "Final dilepton mass;m_{ll} (GeV)"    ,  60, 60, 120));
+
     hc.Add(new TH1D("h_reco_nosel_yield", "No selection yield count of reco level l^{+}l^{-}",   4, -1,   3));
-    hc.Add(new TH1D("h_reco_nosel_mee"  , "No selection dielectron mass;m_{ee} (GeV)"  , 150, 0, 150));
-    hc.Add(new TH1D("h_reco_nosel_mmm"  , "No selection dilmuon mass;m_{#mu#mu} (GeV)" , 150, 0, 150));
-    hc.Add(new TH1D("h_reco_nosel_mll"  , "No selection dilepton mass;m_{ll} (GeV)"    , 150, 0, 150));
+    hc.Add(new TH1D("h_reco_nosel_mee"  , "No selection dielectron mass;m_{ee} (GeV)"        , 150, 0, 150));
+    hc.Add(new TH1D("h_reco_nosel_mmm"  , "No selection dilmuon mass;m_{#mu#mu} (GeV)"       , 150, 0, 150));
+    hc.Add(new TH1D("h_reco_nosel_mll"  , "No selection dilepton mass;m_{ll} (GeV)"          , 150, 0, 150));
 
     // change axis labels
     SetYieldAxisLabel(hc["h_gen_yield"  ]);
@@ -211,7 +212,7 @@ void DrellYanLooper::Analyze(const long event)
         {
             // observables:
             passes_acc_den            = true; 
-            const at::GenHyp& gen_hyp = gen_hyps_clean.front();
+            const at::GenHyp& gen_hyp = gen_hyps_acc_den.front();
             is_gen_mm                 = gen_hyp.IsMuMu_IncludeTaus();
             is_gen_ee                 = gen_hyp.IsEE_IncludeTaus();
 
@@ -249,18 +250,14 @@ void DrellYanLooper::Analyze(const long event)
     for (size_t hyp_idx = 0; hyp_idx < tas::hyp_type().size(); ++hyp_idx)
     {                
         // convenience variables
-        const int lt_id                                   = tas::hyp_lt_id().at(hyp_idx);
-        const int ll_id                                   = tas::hyp_ll_id().at(hyp_idx);
-        const int lt_idx                                  = tas::hyp_lt_index().at(hyp_idx);
-        const int ll_idx                                  = tas::hyp_ll_index().at(hyp_idx);
-        const float dilep_mass                            = tas::hyp_p4().at(hyp_idx).mass();
-        const at::DileptonHypType::value_type flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
-        const bool is_ee                                  = (flavor_type == at::DileptonHypType::EE);
-        const bool is_mm                                  = (flavor_type == at::DileptonHypType::MUMU);
+        const float dilep_mass = tas::hyp_p4().at(hyp_idx).mass();
+        const int flavor_type  = tas::hyp_type().at(hyp_idx);
+        const bool is_ee       = (flavor_type == 3);
+        const bool is_mm       = (flavor_type == 0);
 
         // apply selections
-        if (tas::hyp_lt_charge().at(hyp_idx) != tas::hyp_ll_charge().at(hyp_idx))                    {continue;}
-        if (not(flavor_type == at::DileptonHypType::EE or flavor_type == at::DileptonHypType::MUMU)) {continue;}
+        if (tas::hyp_lt_charge().at(hyp_idx) == tas::hyp_ll_charge().at(hyp_idx)) {continue;} // OS
+        if (not(is_ee or is_mm))                                                  {continue;} // SF
     
         // fill the nosel hists for all OSSF hyps
         {
@@ -268,15 +265,14 @@ void DrellYanLooper::Analyze(const long event)
             if (is_ee) {rt::Fill1D(hc["h_reco_nosel_mee"], dilep_mass, event_scale);}
             rt::Fill1D(hc["h_reco_nosel_mll"], dilep_mass, event_scale);
 
-            if (is_mm) {hc["h_reco_nosel_yield"]->Fill(1.0, event_scale);}
-            if (is_ee) {hc["h_reco_nosel_yield"]->Fill(2.0, event_scale);}
-            hc["h_reco_nosel_yield"]->Fill(0.0            , event_scale);
+            if (is_mm) {hc["h_reco_nosel_yield"]->Fill(1.1, event_scale);}
+            if (is_ee) {hc["h_reco_nosel_yield"]->Fill(2.1, event_scale);}
+            hc["h_reco_nosel_yield"]->Fill(0.1            , event_scale);
         }
-        if (not (60 < dilep_mass && dilep_mass < 120.0))                                             {continue;}
-        if (not hypsFromFirstGoodVertex(hyp_idx))                                                    {continue;}
-        if (!dy::passesTrigger(tas::hyp_type().at(hyp_idx)))                                         {continue;}
-        if (not dy::isSelectedLepton(lt_id, lt_idx))                                                 {continue;}
-        if (not dy::isSelectedLepton(ll_id, ll_idx))                                                 {continue;}
+        if (not (60 < dilep_mass && dilep_mass < 120.0))        {continue;} // 60 < m_ll << 120 GeV
+        if (not hypsFromFirstGoodVertex(hyp_idx))               {continue;} // both leptons from first vertex
+        if (not dy::passesTrigger(tas::hyp_type().at(hyp_idx))) {continue;} // trigger
+        if (not dy::isSelectedHypothesis(hyp_idx))              {continue;} // l1 and l2 pass selection
 
         // if we're here, then good event :)
         best_hyp = dy::ChooseBetterHypothesis(best_hyp, hyp_idx);
