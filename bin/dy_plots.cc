@@ -94,6 +94,36 @@ DrellYanLooper::~DrellYanLooper()
 // Stuff to do before job starts
 // ------------------------------------ //
 
+struct Selection
+{
+    enum value_type
+    {
+        ossf,
+        mwin,
+        svtx,
+        trig,
+        idiso,
+        full,
+        static_size
+    };
+
+    struct Info
+    {
+        std::string name;
+        std::string title;
+    };
+};
+
+const Selection::Info s_Selections[Selection::static_size] = 
+{
+    {"ossf" , "OSSF"                }, 
+    {"mwin" , "Mass Window"         }, 
+    {"svtx" , "Same Vertex"         }, 
+    {"trig" , "Passes Trigger"      }, 
+    {"idiso", "Passes ID/Isolation" },
+    {"full" , "Full Selection"      } 
+};
+
 void SetYieldAxisLabel(TH1* const hist)
 {
     hist->GetXaxis()->SetLabelSize(0.05);
@@ -101,6 +131,42 @@ void SetYieldAxisLabel(TH1* const hist)
     hist->GetXaxis()->SetBinLabel(2, "ll"    );
     hist->GetXaxis()->SetBinLabel(3, "#mu#mu");
     hist->GetXaxis()->SetBinLabel(4, "ee"    );
+}
+
+void SetCutflowAxisLabel(TH1* const hist)
+{
+    hist->GetXaxis()->SetLabelSize(0.05);
+    int bin = 1;
+    for (const auto& sel : s_Selections)
+    {
+        hist->GetXaxis()->SetBinLabel(bin++, sel.name.c_str());
+    }
+}
+
+void FillRecoHists(rt::TH1Container& hc, const int hyp_idx, const Selection::value_type sel, const double event_scale)
+{
+    // convenience variables
+    const float dilep_mass = tas::hyp_p4().at(hyp_idx).mass();
+    const int flavor_type  = tas::hyp_type().at(hyp_idx);
+    const bool is_ee       = (flavor_type == 3);
+    const bool is_mm       = (flavor_type == 0);
+
+    // fill
+    const std::string hist_prefix = "h_reco_" + s_Selections[sel].name + "_";
+    if (is_mm)
+    {
+        rt::Fill1D(hc[hist_prefix+"yield"], 1.0       , event_scale);
+        rt::Fill1D(hc[hist_prefix+"mmm"  ], dilep_mass, event_scale);
+        rt::Fill1D(hc["h_reco_cutflow_mm"], sel       , event_scale);
+    }
+    if (is_ee)
+    {
+        rt::Fill1D(hc[hist_prefix+"yield"], 2.0       , event_scale);
+        rt::Fill1D(hc[hist_prefix+"mee"  ], dilep_mass, event_scale);
+        rt::Fill1D(hc["h_reco_cutflow_ee"], sel       , event_scale);
+    }
+    rt::Fill1D(hc[hist_prefix+"yield"], 0.0, event_scale);
+    rt::Fill1D(hc["h_reco_cutflow_ll"], sel, event_scale);
 }
 
 void DrellYanLooper::BeginJob()
@@ -117,19 +183,23 @@ void DrellYanLooper::BeginJob()
     hc.Add(new TH1D("h_acc_num"    , "Acceptence numerator;Channel;Event Count"          , 4, -1, 3));
 
     // reco level plots
-    hc.Add(new TH1D("h_reco_yield", "Yield count of reco level l^{+}l^{-}",   4, -1,   3));
-    hc.Add(new TH1D("h_reco_mee"  , "Final dielectron mass;m_{ee} (GeV)"  ,  60, 60, 120));
-    hc.Add(new TH1D("h_reco_mmm"  , "Final dilmuon mass;m_{#mu#mu} (GeV)" ,  60, 60, 120));
-    hc.Add(new TH1D("h_reco_mll"  , "Final dilepton mass;m_{ll} (GeV)"    ,  60, 60, 120));
-
-    hc.Add(new TH1D("h_reco_nosel_yield", "No selection yield count of reco level l^{+}l^{-}",   4, -1,   3));
-    hc.Add(new TH1D("h_reco_nosel_mee"  , "No selection dielectron mass;m_{ee} (GeV)"        , 150, 0, 150));
-    hc.Add(new TH1D("h_reco_nosel_mmm"  , "No selection dilmuon mass;m_{#mu#mu} (GeV)"       , 150, 0, 150));
-    hc.Add(new TH1D("h_reco_nosel_mll"  , "No selection dilepton mass;m_{ll} (GeV)"          , 150, 0, 150));
+    hc.Add(new TH1D("h_reco_cutflow_ee", "e^{+}e^{-}  Cut Flow;Selection;Event Count"    , Selection::static_size, 0, Selection::static_size));
+    hc.Add(new TH1D("h_reco_cutflow_mm", "#mu^{+}#mu^{-}  Cut Flow;Selection;Event Count", Selection::static_size, 0, Selection::static_size));
+    hc.Add(new TH1D("h_reco_cutflow_ll", "l^{+}l^{-} Cut Flow;Selection;Event Count"     , Selection::static_size, 0, Selection::static_size));
+    SetCutflowAxisLabel(hc["h_reco_cutflow_ee"]);
+    SetCutflowAxisLabel(hc["h_reco_cutflow_mm"]);
+    SetCutflowAxisLabel(hc["h_reco_cutflow_ll"]);
+    for (const auto& sel : s_Selections)
+    {
+        hc.Add(new TH1D(Form("h_reco_%s_yield", sel.name.c_str()), Form("%s yield count of reco level l^{+}l^{-}", sel.title.c_str()),   4, -1,  3));
+        hc.Add(new TH1D(Form("h_reco_%s_mee"  , sel.name.c_str()), Form("%s dielectron mass;m_{ee} (GeV)"        , sel.title.c_str()), 150, 0, 150));
+        hc.Add(new TH1D(Form("h_reco_%s_mmm"  , sel.name.c_str()), Form("%s dilmuon mass;m_{#mu#mu} (GeV)"       , sel.title.c_str()), 150, 0, 150));
+        hc.Add(new TH1D(Form("h_reco_%s_mll"  , sel.name.c_str()), Form("%s dilepton mass;m_{ll} (GeV)"          , sel.title.c_str()), 150, 0, 150));
+        SetYieldAxisLabel(hc["h_reco_"+sel.name+"_yield"]);
+    }
 
     // change axis labels
     SetYieldAxisLabel(hc["h_gen_yield"  ]);
-    SetYieldAxisLabel(hc["h_reco_yield" ]);
     SetYieldAxisLabel(hc["h_acc_den"    ]);
     SetYieldAxisLabel(hc["h_acc_gen_num"]);
     SetYieldAxisLabel(hc["h_acc_num"    ]);
@@ -256,23 +326,52 @@ void DrellYanLooper::Analyze(const long event)
         const bool is_mm       = (flavor_type == 0);
 
         // apply selections
-        if (tas::hyp_lt_charge().at(hyp_idx) == tas::hyp_ll_charge().at(hyp_idx)) {continue;} // OS
-        if (not(is_ee or is_mm))                                                  {continue;} // SF
-    
-        // fill the nosel hists for all OSSF hyps
-        {
-            if (is_mm) {rt::Fill1D(hc["h_reco_nosel_mmm"], dilep_mass, event_scale);}
-            if (is_ee) {rt::Fill1D(hc["h_reco_nosel_mee"], dilep_mass, event_scale);}
-            rt::Fill1D(hc["h_reco_nosel_mll"], dilep_mass, event_scale);
 
-            if (is_mm) {hc["h_reco_nosel_yield"]->Fill(1.1, event_scale);}
-            if (is_ee) {hc["h_reco_nosel_yield"]->Fill(2.1, event_scale);}
-            hc["h_reco_nosel_yield"]->Fill(0.1            , event_scale);
+        // OSSF
+        if (tas::hyp_lt_charge().at(hyp_idx) == tas::hyp_ll_charge().at(hyp_idx))
+        {
+            if (m_verbose) {std::cout << "not OS" << std::endl;}
+            continue;
         }
-        if (not (60 < dilep_mass && dilep_mass < 120.0))        {continue;} // 60 < m_ll << 120 GeV
-        if (not hypsFromFirstGoodVertex(hyp_idx))               {continue;} // both leptons from first vertex
-        if (not dy::passesTrigger(tas::hyp_type().at(hyp_idx))) {continue;} // trigger
-        if (not dy::isSelectedHypothesis(hyp_idx))              {continue;} // l1 and l2 pass selection
+        if (not(is_ee or is_mm))
+        {
+            if (m_verbose) {std::cout << "not SF" << std::endl;}
+            continue;
+        }
+        FillRecoHists(hc, hyp_idx, Selection::ossf, event_scale);
+    
+        // 60 < m_ll << 120 GeV
+        if (not (60 < dilep_mass && dilep_mass < 120.0))        
+        {
+            if (m_verbose) {std::cout << "not SF" << std::endl;}
+            continue;
+        }
+        FillRecoHists(hc, hyp_idx, Selection::mwin, event_scale);
+    
+        // both leptons from first vertex
+        if (not hypsFromFirstGoodVertex(hyp_idx))
+        {
+            if (m_verbose) {std::cout << "did not pass same vertex" << std::endl;}
+            continue;
+        }
+        FillRecoHists(hc, hyp_idx, Selection::svtx, event_scale);
+    
+        // trigger
+        if (not dy::passesTrigger(tas::hyp_type().at(hyp_idx)))
+        {
+            if (m_verbose) {std::cout << "did not pass trigger" << std::endl;}
+            continue;
+        }
+        FillRecoHists(hc, hyp_idx, Selection::trig, event_scale);
+    
+        // l1 and l2 pass selection
+        if (not dy::isSelectedHypothesis(hyp_idx))
+        {
+            if (m_verbose) {std::cout << "not selected" << std::endl;}
+            continue;
+        }
+        FillRecoHists(hc, hyp_idx, Selection::idiso, event_scale);
+    
 
         // if we're here, then good event :)
         best_hyp = dy::ChooseBetterHypothesis(best_hyp, hyp_idx);
@@ -291,40 +390,7 @@ void DrellYanLooper::Analyze(const long event)
     {
         if (m_verbose) {std::cout << "hypthesis chosen: " << hyp_idx << " of " << tas::hyp_p4().size() << std::endl;}
     }
-
-    // observables
-    const at::DileptonHypType::value_type reco_flavor_type = at::hyp_typeToHypType(tas::hyp_type().at(hyp_idx));
-//     const LorentzVector& lt_p4  = tas::hyp_lt_p4().at(hyp_idx);
-//     const LorentzVector& ll_p4  = tas::hyp_ll_p4().at(hyp_idx);
-    const LorentzVector& hyp_p4 = tas::hyp_p4().at(hyp_idx);
-//     const LorentzVector& l1_p4  = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_lt_p4().at(hyp_idx)    : tas::hyp_ll_p4().at(hyp_idx)   );
-//     const LorentzVector& l2_p4  = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_ll_p4().at(hyp_idx)    : tas::hyp_lt_p4().at(hyp_idx)   );
-//     const int l1_idx            = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_lt_index().at(hyp_idx) : tas::hyp_ll_index().at(hyp_idx));
-//     const int l2_idx            = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_ll_index().at(hyp_idx) : tas::hyp_lt_index().at(hyp_idx));
-//     const int l1_id             = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_lt_id().at(hyp_idx)    : tas::hyp_ll_id().at(hyp_idx)   );
-//     const int l2_id             = (lt_p4.pt() > ll_p4.pt() ? tas::hyp_ll_id().at(hyp_idx)    : tas::hyp_lt_id().at(hyp_idx)   );
-
-    // flavor bools
-    const bool is_ee          = (reco_flavor_type == at::DileptonHypType::EE);
-    const bool is_mm          = (reco_flavor_type == at::DileptonHypType::MUMU);
-    const bool passes_acc_num = passes_acc_den and ((is_gen_ee and is_ee) or (is_gen_mm and is_mm));
-
-    // fill hist
-    if (is_mm) {hc["h_reco_yield"]->Fill(1.0, event_scale);}
-    if (is_ee) {hc["h_reco_yield"]->Fill(2.0, event_scale);}
-    hc["h_reco_yield"]->Fill(0.0            , event_scale);
-
-    if (is_mm) {rt::Fill1D(hc["h_reco_mmm"], hyp_p4.mass(), event_scale);}
-    if (is_ee) {rt::Fill1D(hc["h_reco_mee"], hyp_p4.mass(), event_scale);}
-    rt::Fill1D(hc["h_reco_mll"], hyp_p4.mass(), event_scale);
-
-    // acceptance
-    if (passes_acc_num)
-    {
-        if (is_mm) {hc["h_acc_num"]->Fill(1.0, event_scale);}
-        if (is_ee) {hc["h_acc_num"]->Fill(2.0, event_scale);}
-        hc["h_acc_num"]->Fill(0.0             , event_scale);
-    }
+    FillRecoHists(hc, hyp_idx, Selection::full, event_scale);
 
     // done with event
     // ---------------------- // 
@@ -351,19 +417,19 @@ void DrellYanLooper::EndJob()
     // output yields
     if (m_sample_info.sample == dy::Sample::data)
     {
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_nosel_yield"]), "Reco level Yields (no selection)", "4.0") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_yield"      ]), "Reco level Yields (final)"       , "4.0") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_ossf_yield"]), "Reco level Yields (OSSF selection)", "4.0") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_full_yield"]), "Reco level Yields (full selection)", "4.0") << std::endl;
     }
     else
     {
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_den"         ]), "Acceptance Denominator"          , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen_num"     ]), "Acceptance Numerator (gen)"      , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_num"         ]), "Acceptance Numerator (reco)"     , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen"         ]), "Gen Acceptance"                  , "1.3") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc"             ]), "Reco Acceptance"                 , "1.3") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_gen_yield"       ]), "Gen level Yields"                , "4.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_nosel_yield"]), "Reco level Yields (no selection)", "4.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_yield"      ]), "Reco level Yields (final)"       , "4.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_den"        ]), "Acceptance Denominator"            , "1.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen_num"    ]), "Acceptance Numerator (gen)"        , "1.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_num"        ]), "Acceptance Numerator (reco)"       , "1.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen"        ]), "Gen Acceptance"                    , "1.3") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc"            ]), "Reco Acceptance"                   , "1.3") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_gen_yield"      ]), "Gen level Yields"                  , "4.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_ossf_yield"]), "Reco level Yields (OSSF selection)", "4.1") << std::endl;
+        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_full_yield"]), "Reco level Yields (full selection)", "4.1") << std::endl;
     }
 
     std::cout << "[DrellYanLooper] Saving hists to output file: " << m_output_filename << std::endl;
