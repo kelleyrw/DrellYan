@@ -122,8 +122,8 @@ void OverlayPlots
     map<string, rt::TH1Overlay> p;
     rt::TH1Overlay::profile_marker_size_default = 10.0;
     p["p_gen_yield"         ] = CreateOverlay(sample_hist_map, "gen_yield"       , Form("%s;channel;Generator Events", title.c_str()), "sb::off dt::stack lg::top_left logy", 10, 3e6);
-    p["p_reco_yield"        ] = CreateOverlay(sample_hist_map, "reco_yield"      , Form("%s;channel;Selected Events" , title.c_str()), "sb::off dt::stack lg::top_left logy", 10, 3e6);
-    p["p_reco_nosel_yield"  ] = CreateOverlay(sample_hist_map, "reco_nosel_yield", Form("%s;channel;Selected Events" , title.c_str()), "sb::off dt::stack lg::top_left logy", 10, 3e6);
+    p["p_reco_full_yield"   ] = CreateOverlay(sample_hist_map, "reco_full_yield" , Form("%s;channel;Events"          , title.c_str()), "sb::off dt::stack lg::top_left logy", 10, 3e6);
+    p["p_reco_ossf_yield"   ] = CreateOverlay(sample_hist_map, "reco_ossf_yield" , Form("%s;channel;OSSF Events"     , title.c_str()), "sb::off dt::stack lg::top_left logy", 10, 3e6);
     p["p_gen_mmm"           ] = CreateOverlay(sample_hist_map, "gen_mmm"         , Form("%s;m_{#mu#mu} (GeV);Events" , title.c_str()), "sb::off dt::stack lg::top_left");
     p["p_gen_mmm_log"       ] = CreateOverlay(sample_hist_map, "gen_mmm"         , Form("%s;m_{#mu#mu} (GeV);Events" , title.c_str()), "sb::off dt::stack lg::top_left logy", 5, 3e5, 1);
     p["p_reco_mmm"          ] = CreateOverlay(sample_hist_map, "reco_mmm"        , Form("%s;m_{#mu#mu} (GeV);Events" , title.c_str()), "sb::off dt::stack lg::top_left");
@@ -144,7 +144,7 @@ void OverlayPlots
     // print yield explicitly
     // this is a kludge to the the x error bars the right size for the yeild plot
     gStyle->SetErrorX(0.3);
-    rt::Print(p["p_reco_yield"      ], Form("%s/p_reco_yield"      , plots_path.c_str()), suffix);
-    rt::Print(p["p_reco_nosel_yield"], Form("%s/p_reco_nosel_yield", plots_path.c_str()), suffix);
+    rt::Print(p["p_reco_full_yield"      ], Form("%s/p_reco_full_yield"      , plots_path.c_str()), suffix);
+    rt::Print(p["p_reco_ossf_yield"], Form("%s/p_reco_ossf_yield", plots_path.c_str()), suffix);
     gStyle->SetErrorX();
 }

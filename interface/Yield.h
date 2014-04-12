@@ -41,17 +41,17 @@ namespace dy
     // NOTE: expect 4 bins with bin 0 --> ll, 1 --> ee, 3 --> mm
     // (bin 2 is em which is unused)
     Yield GetYieldFromHist(TH1& hist);
-    Yield GetYieldFromLabel(const Sample::value_type, const std::string& label, const std::string& hist_name = "h_reco_yield");
+    Yield GetYieldFromLabel(const Sample::value_type, const std::string& label, const std::string& hist_name = "h_reco_full_yield");
 
     // get total background prediction
-    Yield GetBackgroundPred(const std::string& label, const std::string& hist_name = "h_reco_yield");
+    Yield GetBackgroundPred(const std::string& label, const std::string& hist_name = "h_reco_full_yield");
 
     // human readable yield table
     std::string GetYieldString(const Yield& yield, const std::string& title = "", const std::string& fmt = "4.1");
 
     // yield array for all samples 
     typedef std::map<dy::Sample::value_type, dy::Yield> YieldMap;
-    YieldMap GetYieldMap(const std::string& label, const std::string& hist_name = "h_reco_yield");
+    YieldMap GetYieldMap(const std::string& label, const std::string& hist_name = "h_reco_full_yield");
 
 } // namepsace dy
 
