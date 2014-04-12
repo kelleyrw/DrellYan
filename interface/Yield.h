@@ -49,7 +49,7 @@ namespace dy
     // human readable yield table
     std::string GetYieldString(const Yield& yield, const std::string& title = "", const std::string& fmt = "4.1");
 
-    // get yield map for all samples 
+    // yield array for all samples 
     typedef std::map<dy::Sample::value_type, dy::Yield> YieldMap;
     YieldMap GetYieldMap(const std::string& label, const std::string& hist_name = "h_reco_yield");
 

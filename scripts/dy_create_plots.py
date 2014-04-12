@@ -102,6 +102,20 @@ def MakeTable():
 	return
 
 def MakeOverlays():
+	cmd = "root -b -q -l \"macros/OverlayPlots.C+(%s, \\\"png\\\")\" >>& logs/%s/%s.log" % options.label
+	cmd = "root -b -q -l \"macros/OverlayPlots.C+(%s, \\\"eps\\\")\" >>& logs/%s/%s.log" % options.label
+	cmd = "root -b -q -l \"macros/OverlayPlots.C+(%s, \\\"pdf\\\")\" >>& logs/%s/%s.log" % options.label
+
+	# logname
+	log_dir_name  = "logs/%s" % options.label
+	log_file_name = "%s/%s.log" % (log_dir_name, sample)
+	cmd += " >>& %s &" % log_file_name
+	if (not options.test and not os.path.exists(log_dir_name)):
+		os.makedirs(log_dir_name)		
+
+	print cmd
+	if (not options.test):
+		os.system(cmd)
 	return
 
 # ------------------#

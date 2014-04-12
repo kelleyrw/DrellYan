@@ -4,7 +4,6 @@
 <use name="AnalysisTools/CMS2Tools"/>
 <use name="CMS2/NtupleMacrosHeader"/>
 <use name="CMS2/NtupleMacrosCore"/>
-<use name="FWCore/PythonParameterSet"/>
 <use name="PhysicsTools/FWLite"/>
 <use name="Analysis/DrellYan"/>
 <environment>

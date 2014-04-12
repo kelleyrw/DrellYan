@@ -104,9 +104,9 @@ void OverlayPlots
 )
 {
     // get the histograms
-    dy::SampleMap sm = dy::GetSampleMap();
+    dy::SampleArray sa = dy::GetSampleArray();
     std::map<dy::Sample::Info, rt::TH1Container> sample_hist_map;
-    for (const auto& s : sm)
+    for (const auto& s : sa)
     {
         sample_hist_map[s.second] = GetSampleHists(s.second, label);
     }
