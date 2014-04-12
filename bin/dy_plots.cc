@@ -16,8 +16,6 @@
 
 // CMSSW includes
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
 // tools 
 #include "Analysis/DrellYan/interface/Sample.h"
@@ -400,37 +398,37 @@ try
     // parse the inputs
     // -------------------------------------------------------------------------------------------------//
 
-    // get the inputs 
-    long long number_of_events = -1; 
-    std::string sample_name = "";
-    std::string pset_filename = "";
-    std::string input_file = ""; 
-    std::string output_file = ""; 
-    std::string label = "test"; 
-    std::string run_list = ""; 
-    double lumi = 1.0;
-    bool verbose = false;
-    int event = -1;
-    int run = -1;
-    int ls = -1;
+    // defaults 
+    long long number_of_events = -1;
+    std::string sample_name    = "";
+    std::string sample_pset    = "psets/dy_samples_cfg.py";
+    std::string input_file     = "";
+    std::string output_file    = "";
+    std::string label          = "test";
+    std::string run_list       = "json/Cert_190782-190949_8TeV_06Aug2012ReReco_Collisions12_cms2.txt";
+    double lumi                = 0.082;
+    bool verbose               = false;
+    int event                  = -1;
+    int run                    = -1;
+    int ls                     = -1;
     
     // parse arguments
     namespace po = boost::program_options;
     po::options_description desc("Allowed options");
     desc.add_options()
-        ("help"     , "print this menu")
-        ("pset"     , po::value<std::string>(&pset_filename)->required() , "REQUIRED: python configuration file"                )
-        ("nevts"    , po::value<long long>(&number_of_events)            , "maximum number of events to skim"                   )
-        ("sample"   , po::value<std::string>(&sample_name)               , "Sample name to run on (from Sample.h)"              )
-        ("input"    , po::value<std::string>(&input_file)                , "input ROOT file (or csv)"                           )
-        ("output"   , po::value<std::string>(&output_file)               , "output ROOT file"                                   )
-        ("label"    , po::value<std::string>(&label)                     , "unique output label to keep differnet jobs straight")
-        ("run_list" , po::value<std::string>(&run_list)                  , "good run list (empty == none)"                      )
-        ("lumi"     , po::value<double>(&lumi)                           , "luminosity (default -1)"                            )
-        ("verbose"  , po::value<bool>(&verbose)                          , "verbosity toggle"                                   )
-        ("event"    , po::value<int>(&event)                             , "specific event to run on (-1 == all events)"        )
-        ("run"      , po::value<int>(&run)                               , "specific run to run on (-1 == all events)"          )
-        ("ls"       , po::value<int>(&ls)                                , "specific lumi section to run on (-1 == all events)" )
+        ("help"       , "print this menu")
+        ("sample"     , po::value<std::string>(&sample_name)->required(), "REQUIRED: Sample name to run on (from Sample.h)"        )
+        ("sample_pset", po::value<std::string>(&sample_pset)            , "pset to change the value of Sample::Info(from Sample.h)")
+        ("input"      , po::value<std::string>(&input_file)             , "input ROOT file (or csv)"                               )
+        ("output"     , po::value<std::string>(&output_file)            , "output ROOT file"                                       )
+        ("nevts"      , po::value<long long>(&number_of_events)         , "maximum number of events to skim"                       )
+        ("label"      , po::value<std::string>(&label)                  , "unique output label to keep differnet jobs straight"    )
+        ("run_list"   , po::value<std::string>(&run_list)               , "good run list (empty == none)"                          )
+        ("lumi"       , po::value<double>(&lumi)                        , "luminosity (default -1)"                                )
+        ("verbose"    , po::value<bool>(&verbose)                       , "verbosity toggle"                                       )
+        ("event"      , po::value<int>(&event)                          , "specific event to run on (-1 == all events)"            )
+        ("run"        , po::value<int>(&run)                            , "specific run to run on (-1 == all events)"              )
+        ("ls"         , po::value<int>(&ls)                             , "specific lumi section to run on (-1 == all events)"     )
         ;
     try
     {
@@ -442,34 +440,6 @@ try
             std::cout << desc << "\n";
             return 1;
         }
-        po::notify(vm);
-
-        // get the inputs from pset
-
-        // check that pset contains "process" 
-        if (!edm::readPSetsFrom(pset_filename)->existsAs<edm::ParameterSet>("process"))
-        {
-            throw std::invalid_argument(Form("[dy_plots] Error: ParametersSet 'process' is missing in your configuration file"));
-        }
-
-        // get the python configuration
-        const edm::ParameterSet& process = edm::readPSetsFrom(pset_filename)->getParameter<edm::ParameterSet>("process");
-        const edm::ParameterSet& cfg     = process.getParameter<edm::ParameterSet>("dy_plots");
-
-        number_of_events = cfg.getUntrackedParameter<long long>   ( "nevts"    , number_of_events);
-        sample_name      = cfg.getUntrackedParameter<std::string> ( "sample"   , sample_name     );
-        input_file       = cfg.getUntrackedParameter<std::string> ( "input"    , input_file      );
-        output_file      = cfg.getUntrackedParameter<std::string> ( "output"   , output_file     );
-        label            = cfg.getUntrackedParameter<std::string> ( "label"    , label           );
-        run_list         = cfg.getUntrackedParameter<std::string> ( "run_list" , run_list        );
-        lumi             = cfg.getUntrackedParameter<double>      ( "lumi"     , lumi            );
-        verbose          = cfg.getUntrackedParameter<bool>        ( "verbose"  , verbose         );
-        event            = cfg.getUntrackedParameter<int>         ( "event"    , event           );
-        run              = cfg.getUntrackedParameter<int>         ( "run"      , run             );
-        ls               = cfg.getUntrackedParameter<int>         ( "ls"       , ls              );
-
-        // now parse command line again to see if there are overrides
-        po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
     }
     catch (const std::exception& e)
@@ -487,6 +457,7 @@ try
     // print the inputs  
     std::cout << "[dy_plots] inputs:\n";
     std::cout << "sample           = " << sample_name      << "\n";
+    std::cout << "sample_pset      = " << sample_pset      << "\n";
     std::cout << "input            = " << input_file       << "\n";
     std::cout << "output           = " << output_file      << "\n";
     std::cout << "label            = " << label            << "\n";
@@ -503,7 +474,10 @@ try
     // -------------------------------------------------------------------------------------------------//
 
     // sample info
+    dy::Sample::SetPsetPath(sample_pset);
+//     std::cout << dy::Sample::GetPsetPath() << std::endl;
     dy::Sample::Info sample_info = dy::GetSampleInfo(sample_name);
+//     std::cout << sample_info.ntuple_path << std::endl;
 
     // get the chain
     at::LoadFWLite();

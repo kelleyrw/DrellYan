@@ -12,13 +12,11 @@ import sys
 # parse inputs
 # ------------------#
 
-default_pset     = "psets/dy_plots_defaults_cfg.py"
 default_run_list = "json/Cert_190782-190949_8TeV_06Aug2012ReReco_Collisions12_cms2.txt"
 default_lumi     = 0.082 # fb^-1
 
 # parameter options
 parser = OptionParser()
-parser.add_option("--pset"     , dest="pset"      , default=default_pset     , help="path to the razor cards"                             )
 parser.add_option("--nevts"    , dest="nevts"     , default=-1               , help="REQUIRED: python configuration file"                 )
 parser.add_option("--label"    , dest="label"     , default="test"           , help="unique output label to keep differnet jobs straight" )
 parser.add_option("--run_list" , dest="run_list"  , default=default_run_list , help="good run list (empty == none)"                       )
@@ -31,14 +29,6 @@ parser.add_option("--use_skim"   , action="store_true"  , dest="use_skim"    , d
 # parser.add_option("--no_hist"    , action="store_true"  , dest="no_hist"     , default=False , help="do not create histograms, do everything else"   )
 
 (options, args) = parser.parse_args()
-
-# check for validity
-def CheckOptions():
-	# pset
-	if (not options.pset or not os.path.isfile(options.pset)):
-		raise Exception("required pset is missing")
-
-	return
 
 # ------------------#
 # available samples 
@@ -104,7 +94,7 @@ mac_sample_files = {
 def MakeHists(sample):
 
 	# start the command
-	cmd = "dy_plots --pset %s" % options.pset
+	cmd = "dy_plots "
 
 	# luminosity
 	cmd += " --lumi %1.3f" % float(options.lumi)
@@ -144,7 +134,9 @@ def MakeHists(sample):
 	return	
 
 def MakeTable():
-	
+	return
+
+def MakeOveralys():
 	return
 
 # ------------------#
@@ -153,12 +145,11 @@ def MakeTable():
 
 def main():
 	try:
-		# check the options
-		CheckOptions()
-
 		# samples to run on
 		for sample in samples:	
 			MakeHists(sample)
+			MakeTable()
+			MakeOverlays()
 
 	except Exception, e:
 		print "[dy_create_plots] ERROR:", e

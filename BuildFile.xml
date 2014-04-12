@@ -2,6 +2,7 @@
 <use name="AnalysisTools/RootTools"/>
 <use name="AnalysisTools/LanguageTools"/>
 <use name="CMS2/NtupleMacrosCore"/>
+<use name="FWCore/PythonParameterSet"/>
 <export>
   <use name="AnalysisTools/RootTools"/>
   <use name="AnalysisTools/LanguageTools"/>

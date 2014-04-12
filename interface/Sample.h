@@ -41,6 +41,10 @@ namespace dy
             double filter_eff;       // SD filter efficiency
             value_type sample;       // redundant process enum
         };
+
+        // members: 
+        static void SetPsetPath(const std::string& pset_path);
+        static const std::string& GetPsetPath();
     };
 
     // operators:
