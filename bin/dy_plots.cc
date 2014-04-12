@@ -474,10 +474,12 @@ try
     // -------------------------------------------------------------------------------------------------//
 
     // sample info
+    if (sample_pset.empty() || !lt::file_exists(sample_pset))
+    {
+        throw std::invalid_argument(Form("[dy_plots] pset %s does not exist.\n", sample_pset.c_str()));
+    }
     dy::Sample::SetPsetPath(sample_pset);
-//     std::cout << dy::Sample::GetPsetPath() << std::endl;
     dy::Sample::Info sample_info = dy::GetSampleInfo(sample_name);
-//     std::cout << sample_info.ntuple_path << std::endl;
 
     // get the chain
     at::LoadFWLite();
