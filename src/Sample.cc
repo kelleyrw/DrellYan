@@ -70,11 +70,17 @@ namespace dy
     }
 
     // Vector of SampleInfo's with the relevant metadata
-    std::vector<Sample::Info>& SampleInfos()
+    /*static*/ std::vector<Sample::Info>& SampleInfos()
     {
         static std::vector<Sample::Info> sample_infos = GetInitialSampleInfosFromPset();
         assert(sample_infos.size() == Sample::static_size);
         return sample_infos;
+    }
+
+    // Vector of SampleInfo's with the relevant metadata
+    /*static*/ const std::vector<Sample::Info>& Sample::GetInfos()
+    {
+        return SampleInfos();
     }
 
     // re-assign the SampleInfos
@@ -82,7 +88,7 @@ namespace dy
     {
         std::vector<Sample::Info> sample_infos;
         sample_infos.reserve(Sample::static_size);
-        for (auto& sample_info : SampleInfos())
+        for (auto& sample_info : Sample::GetInfos())
         {
             sample_infos.push_back(CreateSampleInfo(sample_info.sample, PsetVector()));
         }
@@ -126,7 +132,7 @@ namespace dy
     // print all available sample infos
     void PrintSampleInfos(std::ostream& out)
     {
-        for (const auto& sample_info : SampleInfos())
+        for (const auto& sample_info : Sample::GetInfos())
         {
             out << sample_info << '\n';
         }
@@ -136,7 +142,7 @@ namespace dy
     // Get the Sample from a string
     Sample::value_type GetSampleFromName(const std::string& sample_name)
     {
-        for (const auto& sample_info : SampleInfos())
+        for (const auto& sample_info : Sample::GetInfos())
         {
             if (sample_info.name == sample_name)
             {
@@ -163,7 +169,7 @@ namespace dy
     // test if a string is a sample name 
     bool IsSample(const std::string& sample_name)
     {
-        for (const auto& sample_info : SampleInfos())
+        for (const auto& sample_info : Sample::GetInfos())
         {
             if (sample_info.name == sample_name)
             {
@@ -176,7 +182,7 @@ namespace dy
     // wrapper function to get the SampleInfo
     Sample::Info GetSampleInfo(const Sample::value_type& sample)
     {
-        return SampleInfos()[sample]; 
+        return Sample::GetInfos()[sample]; 
     }
 
     Sample::Info GetSampleInfo(const std::string& sample_name)
@@ -206,18 +212,6 @@ namespace dy
             chain->Add(file.c_str());
         }
         return chain;
-    }
-
-    // get map of Sample::Info's
-    std::map<Sample::value_type, Sample::Info> GetSampleMap()
-    {
-        std::map<Sample::value_type, Sample::Info> result; 
-        for (int sample_num = 0; sample_num < Sample::static_size; ++sample_num)
-        {
-            const Sample::Info sample_info = GetSampleInfo(sample_num);
-            result[sample_info.sample] = sample_info;
-        }
-        return result;
     }
 
 } // namespace dy

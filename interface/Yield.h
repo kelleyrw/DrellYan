@@ -3,33 +3,36 @@
 
 #include <string> 
 #include <map> 
+#include <vector> 
 #include "TH1.h"
 #include "Analysis/DrellYan/interface/Sample.h"
 
 namespace dy
 {
     // simple struct to hold the yield
-    struct Yield
+    class Yield
     {
-        struct value_t
-        {
-            // members:
-            double value;
-            double error;
-        
-            // methods:
-            std::string pm(const std::string& fmt = "4.1") const;  // value +/- error
-            std::string pp(const std::string& fmt = "4.1") const;  // value +/- error (perc error %)
-            double frac_error() const;
-        };
+        public:
+            class value_t
+            {
+                public:
+                    // members:
+                    double value;
+                    double error;
 
-        value_t ee;
-        value_t mm;
-        value_t ll;
+                    // methods:
+                    std::string pm(const std::string& fmt = "4.1") const;  // value +/- error
+                    std::string pp(const std::string& fmt = "4.1") const;  // value +/- error (perc error %)
+                    double frac_error() const;
+            };
 
-        // operators:
-        Yield& operator+=(const Yield& y);
-        Yield& operator-=(const Yield& y);
+            value_t ee;
+            value_t mm;
+            value_t ll;
+
+            // operators:
+            Yield& operator+=(const Yield& y);
+            Yield& operator-=(const Yield& y);
     };
 
     // non-members
@@ -42,8 +45,7 @@ namespace dy
     Yield operator*(const Yield& y, const double scale);
 
     // get yields from a yield histogram
-    // NOTE: expect 4 bins with bin 0 --> ll, 1 --> ee, 3 --> mm
-    // (bin 2 is em which is unused)
+    // NOTE: expects 3 bins with bin 0 --> ll, 1 --> mm, 2 --> ee
     Yield GetYieldFromHist(TH1& hist);
     Yield GetYieldFromLabel(const Sample::value_type, const std::string& label, const std::string& hist_name = "h_reco_full_yield");
 
@@ -54,8 +56,8 @@ namespace dy
     std::string GetYieldString(const Yield& yield, const std::string& title = "", const std::string& fmt = "4.1");
 
     // yield array for all samples 
-    typedef std::map<dy::Sample::value_type, dy::Yield> YieldMap;
-    YieldMap GetYieldMap(const std::string& label, const std::string& hist_name = "h_reco_full_yield");
+    typedef std::vector<dy::Yield> YieldVector;
+    YieldVector GetYieldVector(const std::string& label, const std::string& hist_name = "h_reco_full_yield");
 
 } // namepsace dy
 

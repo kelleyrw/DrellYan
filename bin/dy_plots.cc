@@ -23,7 +23,6 @@
 #include "Analysis/DrellYan/interface/dySelections.h"
 #include "AnalysisTools/RootTools/interface/RootTools.h"
 #include "AnalysisTools/LanguageTools/interface/LanguageTools.h"
-#include "AnalysisTools/CMS2Tools/interface/DileptonChargeType.h"
 #include "AnalysisTools/CMS2Tools/interface/DileptonHypType.h"
 #include "AnalysisTools/CMS2Tools/interface/GenHypType.h"
 
@@ -114,18 +113,21 @@ struct Selection
     };
 };
 
-typedef const Selection::Info (&SelectionArrayRef)[Selection::static_size];
-SelectionArrayRef Selections()
+// typedef const Selection::Info (&SelectionArrayRef)[Selection::static_size];
+// SelectionArrayRef Selections()
+std::vector<Selection::Info> Selections()
 {
-    static const Selection::Info s_Selections[Selection::static_size] = 
+//     static const Selection::Info s_Selections[Selection::static_size] = 
+    static const std::vector<Selection::Info> s_Selections = 
     {
-        {"ossf" , "OSSF"                }, 
-        {"mwin" , "Mass Window"         }, 
-        {"svtx" , "Same Vertex"         }, 
-        {"trig" , "Passes Trigger"      }, 
-        {"idiso", "Passes ID/Isolation" },
-        {"full" , "Full Selection"      } 
+        {"ossf" , "OSSF"                         },
+        {"mwin" , "Mass Window"                  },
+        {"svtx" , "Same Vertex"                  },
+        {"trig" , "Passes Trigger"               },
+        {"idiso", "Passes ID/Isolation"          },
+        {"full" , "Full Selection"               }
     };
+    assert(s_Selections.size()==Selection::static_size);
     return s_Selections;
 }
 
@@ -183,9 +185,9 @@ void DrellYanLooper::BeginJob()
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
 
     // acceptance plots
-    hc.Add(new TH1D("h_acc_den"    , "Acceptence denominator;Channel;Event Count"        , 4, -1, 3));
+    hc.Add(new TH1D("h_acc_gen_den", "Acceptence denominator;Channel;Event Count"        , 4, -1, 3));
     hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count", 4, -1, 3));
-    hc.Add(new TH1D("h_acc_num"    , "Acceptence numerator;Channel;Event Count"          , 4, -1, 3));
+    hc.Add(new TH1D("h_acc_rec_num", "Acceptence numerator;Channel;Event Count"          , 4, -1, 3));
 
     // reco level plots
     hc.Add(new TH1D("h_reco_cutflow_ee", "e^{+}e^{-}  Cut Flow;Selection;Event Count"    , Selection::static_size, 0, Selection::static_size));
@@ -205,9 +207,9 @@ void DrellYanLooper::BeginJob()
 
     // change axis labels
     SetYieldAxisLabel(hc["h_gen_yield"  ]);
-    SetYieldAxisLabel(hc["h_acc_den"    ]);
+    SetYieldAxisLabel(hc["h_acc_gen_den"]);
     SetYieldAxisLabel(hc["h_acc_gen_num"]);
-    SetYieldAxisLabel(hc["h_acc_num"    ]);
+    SetYieldAxisLabel(hc["h_acc_rec_num"]);
 
     // sumw2()
     hc.Sumw2();
@@ -309,9 +311,9 @@ void DrellYanLooper::Analyze(const long event)
             is_gen_ee                 = gen_hyp.IsEE_IncludeTaus();
 
             // fill hists 
-            if (is_gen_mm) {hc["h_acc_den"]->Fill(1.0, event_scale);}
-            if (is_gen_ee) {hc["h_acc_den"]->Fill(2.0, event_scale);}
-            hc["h_acc_den"]->Fill(0.0, event_scale);
+            if (is_gen_mm) {hc["h_acc_gen_den"]->Fill(1.0, event_scale);}
+            if (is_gen_ee) {hc["h_acc_gen_den"]->Fill(2.0, event_scale);}
+            hc["h_acc_gen_den"]->Fill(0.0, event_scale);
         }
 
         // acceptence numerator
@@ -420,9 +422,9 @@ void DrellYanLooper::Analyze(const long event)
     const bool passes_acc_num = passes_acc_den and ((is_gen_ee and is_ee) or (is_gen_mm and is_mm));
     if (passes_acc_num)
     {
-        if (is_mm) {hc["h_acc_num"]->Fill(1.0, event_scale);}
-        if (is_ee) {hc["h_acc_num"]->Fill(2.0, event_scale);}
-        hc["h_acc_num"]->Fill(0.0             , event_scale);
+        if (is_mm) {hc["h_acc_rec_num"]->Fill(1.0, event_scale);}
+        if (is_ee) {hc["h_acc_rec_num"]->Fill(2.0, event_scale);}
+        hc["h_acc_rec_num"]->Fill(0.0             , event_scale);
     }
 
     // done with event
@@ -444,29 +446,52 @@ void DrellYanLooper::Analyze(const long event)
 void DrellYanLooper::EndJob()
 {
     // calculate accecptance
-    hc.Add(rt::DivideHists(hc["h_acc_num"    ], hc["h_acc_den"], "h_acc"    , "Reco Acceptence;Channel;Event Count"));
-    hc.Add(rt::DivideHists(hc["h_acc_gen_num"], hc["h_acc_den"], "h_acc_gen", "Gen Acceptence;Channel;Event Count" ));
+    hc.Add(rt::DivideHists(hc["h_acc_rec_num"], hc["h_acc_gen_den"], "h_acc_rec", "Reco Acceptence;Channel;Event Count"));
+    hc.Add(rt::DivideHists(hc["h_acc_gen_num"], hc["h_acc_gen_den"], "h_acc_gen", "Gen Acceptence;Channel;Event Count" ));
+    SetYieldAxisLabel(hc["h_acc_rec"]);
+    SetYieldAxisLabel(hc["h_acc_gen"]);
 
-    // output yields
-    if (m_sample_info.sample == dy::Sample::data)
+    // acceptance 
+    if (m_sample_info.sample != dy::Sample::data)
     {
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_ossf_yield"]), "Reco level Yields (OSSF selection)", "4.0") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_full_yield"]), "Reco level Yields (full selection)", "4.0") << std::endl;
+        const dy::Yield y_acc_gen_den = dy::GetYieldFromHist(*hc["h_acc_gen_den"]);
+        const dy::Yield y_acc_gen_num = dy::GetYieldFromHist(*hc["h_acc_gen_num"]);
+        const dy::Yield y_acc_rec_num = dy::GetYieldFromHist(*hc["h_acc_rec_num"]);
+        const dy::Yield y_acc_gen     = dy::GetYieldFromHist(*hc["h_acc_gen"    ]);
+        const dy::Yield y_acc_rec     = dy::GetYieldFromHist(*hc["h_acc_rec"    ]);
+        CTable t_gen_yields;
+        t_gen_yields.useTitle();
+        t_gen_yields.setTitle("Acceptance for Drell-Yan Exercise");
+        t_gen_yields.setTable()
+        (                                                     "ee",                        "mm",                       "ll")
+        ("Acceptance Denominator"     , y_acc_gen_den.ee.pm("4.0"),  y_acc_gen_den.ee.pm("4.0"), y_acc_gen_den.ll.pm("4.0"))
+        ("Acceptance Numerator (gen)" , y_acc_gen_num.ee.pm("4.0"),  y_acc_gen_num.ee.pm("4.0"), y_acc_gen_num.ll.pm("4.0"))
+        ("Acceptance Numerator (reco)", y_acc_rec_num.ee.pm("4.0"),  y_acc_rec_num.ee.pm("4.0"), y_acc_rec_num.ll.pm("4.0"))
+        ("Gen Acceptance"             ,     y_acc_gen.ee.pm("4.3"),      y_acc_gen.ee.pm("4.3"),     y_acc_gen.ll.pm("4.3"))
+        ("Reco Acceptance"            ,     y_acc_rec.ee.pm("4.3"),      y_acc_rec.ee.pm("4.3"),     y_acc_rec.ll.pm("4.3"))
+        ;
+        std::cout << t_gen_yields << std::endl;
     }
-    else
+
+    // yields 
+    CTable t_reco_yields;
+    t_reco_yields.useTitle();
+    t_reco_yields.setTitle("yields for Drell-Yan Exercise");
+    t_reco_yields.setTable() ("ee", "mm", "ll");
+    for (size_t i = 0; i < Selections().size(); ++i)
     {
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_den"        ]), "Acceptance Denominator"            , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen_num"    ]), "Acceptance Numerator (gen)"        , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_num"        ]), "Acceptance Numerator (reco)"       , "1.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc_gen"        ]), "Gen Acceptance"                    , "1.3") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_acc"            ]), "Reco Acceptance"                   , "1.3") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_gen_yield"      ]), "Gen level Yields"                  , "4.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_ossf_yield"]), "Reco level Yields (OSSF selection)", "4.1") << std::endl;
-        std::cout << dy::GetYieldString(dy::GetYieldFromHist(*hc["h_reco_full_yield"]), "Reco level Yields (full selection)", "4.1") << std::endl;
+        const auto s = Selections()[i];
+        const dy::Yield yield = dy::GetYieldFromHist(*hc["h_reco_"+s.name+"_yield"]);
+        t_reco_yields.setCell(yield.ee.pm("4.1"), i, 0);
+        t_reco_yields.setCell(yield.mm.pm("4.1"), i, 1);
+        t_reco_yields.setCell(yield.ll.pm("4.1"), i, 2);
+        t_reco_yields.setRowLabel(s.title, i);
     }
+    std::cout << t_reco_yields << std::endl;
 
     std::cout << "[DrellYanLooper] Saving hists to output file: " << m_output_filename << std::endl;
     hc.Write(m_output_filename);
+    if (m_verbose) hc.List();
     return;
 }
 

@@ -104,11 +104,10 @@ void OverlayPlots
 )
 {
     // get the histograms
-    dy::SampleMap sm = dy::GetSampleMap();
     std::map<dy::Sample::Info, rt::TH1Container> sample_hist_map;
-    for (const auto& s : sm)
+    for (const auto& s : dy::Sample::GetInfos())
     {
-        sample_hist_map[s.second] = GetSampleHists(s.second, label);
+        sample_hist_map[s] = GetSampleHists(s, label);
     }
     // set style
     rt::SetTDRStyle();

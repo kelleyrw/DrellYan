@@ -38,18 +38,18 @@ std::string GetLatex(const std::string& title, const dy::Yield& yield, const boo
 std::string GetLatex
 (
     const dy::Sample::value_type sample,
-    const dy::YieldMap&  ym,
+    const dy::YieldVector& yields,
     const bool data = false
 )
 {
-    return GetLatex(GetSampleInfo(sample).latex, ym.at(sample), data);
+    return GetLatex(GetSampleInfo(sample).latex, yields.at(sample), data);
 }
 
 // print the yields
 void CreateCrossSectionTable 
 (
     const std::string& label, 
-    const std::string& hist_name = "h_reco_yield",
+    const std::string& hist_name = "h_reco_full_yield",
     const std::string& output_file = "", 
     bool print_latex = false
 )
@@ -57,13 +57,13 @@ void CreateCrossSectionTable
     const double lumi = 0.082; // fb^-1
 
     // map of samples and yields
-    dy::YieldMap  ym    = dy::GetYieldMap(label, hist_name);
-    dy::Yield y_data    = ym[dy::Sample::data];
-    dy::Yield y_bk_pred = dy::GetBackgroundPred(label, hist_name);
-    dy::Yield y_dy_pred = ym[dy::Sample::dyll];
-    dy::Yield y_mc_pred = y_dy_pred + y_bk_pred;
-    dy::Yield y_acc     = dy::GetYieldFromLabel(dy::Sample::dyll, label, "h_acc");
-    dy::Yield y_nsig    = y_data - y_bk_pred; 
+    const dy::YieldVector yields = dy::GetYieldVector(label, hist_name);
+    const dy::Yield y_data       = yields[dy::Sample::data];
+    const dy::Yield y_bk_pred    = dy::GetBackgroundPred(label, hist_name);
+    const dy::Yield y_dy_pred    = yields[dy::Sample::dyll];
+    const dy::Yield y_mc_pred    = y_dy_pred + y_bk_pred;
+    const dy::Yield y_acc        = dy::GetYieldFromLabel(dy::Sample::dyll, label, "h_acc");
+    const dy::Yield y_nsig       = y_data - y_bk_pred; 
 
     // xsec = (Nobs - Nbkg)/(lumi * acc)
     dy::Yield xsec = y_nsig/(lumi * y_acc); 

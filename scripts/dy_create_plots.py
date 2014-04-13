@@ -17,10 +17,6 @@ default_run_list = "json/Cert_190782-190949_8TeV_06Aug2012ReReco_Collisions12_cm
 default_lumi     = 0.082 # fb^-1
 default_pset     = "psets/dy_samples_cfg.py"
 
-# use single files when working on mac
-if (platform == "darwin"):
-	default_pset = "psets/dy_samples_rwk_cfg.py"
-
 # parameter options
 parser = OptionParser()
 parser.add_option("--nevts"      , dest="nevts"      , default=-1               , help="REQUIRED: python configuration file"                 )
@@ -96,6 +92,7 @@ def MakeHists(sample):
 		os.system(cmd)
 
 	return	
+
 # ------------------#
 # "main program" 
 # ------------------#

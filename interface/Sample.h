@@ -9,43 +9,45 @@
 namespace dy
 {
     // simple Sample class
-    struct Sample
+    class Sample
     {
-        // list of available samples
-        enum value_type
-        {
-            data,
-            dyll,
-            wjets,
-            ttdil,
-            ttslq,
-            tthad,
-            qcdmu15,
-            ww2l2nu,
-            wz2l2q,
-            wz3lnu,
-            zz2l2nu,
-            zz2l2q,
-            zz4l,
+        public:
+            // list of available samples
+            enum value_type
+            {
+                data,
+                dyll,
+                wjets,
+                ttdil,
+                ttslq,
+                tthad,
+                qcdmu15,
+                ww2l2nu,
+                wz2l2q,
+                wz3lnu,
+                zz2l2nu,
+                zz2l2q,
+                zz4l,
 
-            static_size
-        };
+                static_size
+            };
 
-        // sample information
-        struct Info
-        {
-            std::string name;        // short name
-            std::string title;       // ROOT TLatex title
-            std::string latex;       // real latex title
-            std::string ntuple_path; // logical name for path
-            Color_t color;           // color for plots
-            double filter_eff;       // SD filter efficiency
-            value_type sample;       // redundant process enum
-        };
+            // sample information
+            struct Info
+            {
+                std::string name;        // short name
+                std::string title;       // ROOT TLatex title
+                std::string latex;       // real latex title
+                std::string ntuple_path; // logical name for path
+                Color_t color;           // color for plots
+                double filter_eff;       // SD filter efficiency
+                value_type sample;       // redundant process enum
+            };
 
-        // members: 
-        static void SetPsetPath(const std::string& pset_path);
-        static const std::string& GetPsetPath();
+            // members: 
+            static void SetPsetPath(const std::string& pset_path);
+            static const std::string& GetPsetPath();
+            static const std::vector<dy::Sample::Info>& GetInfos();
     };
 
     // operators:
@@ -55,7 +57,7 @@ namespace dy
     // print all available sample infos
     void PrintSampleInfos(std::ostream& out = std::cout);
 
-    // Get the Sample from a string/number
+    // get the Sample from a string/number
     Sample::value_type GetSampleFromName(const std::string& sample_name);
     Sample::value_type GetSampleFromNumber(const int sample_num);
 
@@ -69,10 +71,6 @@ namespace dy
 
     // get the chain from the Sample
     TChain* GetSampleTChain(const Sample::value_type& sample); 
-
-    // get map of Sample::Info's
-    typedef std::map<Sample::value_type, Sample::Info> SampleMap;
-    SampleMap GetSampleMap();
 
 } // namespace dy
 

@@ -50,6 +50,11 @@ float dy::leptonD0(const int id, const int idx)
         {
             return gsftrks_d0_pv(gsfidx, vtxidx).first;
         }
+        const int trkidx = tas::els_trkidx().at(idx);
+        if (trkidx >= 0)
+        {
+            return trks_d0_pv(trkidx, vtxidx).first;
+        }
     }
 
     // return bogus for non electon/muon
@@ -78,6 +83,11 @@ float dy::leptonDz(const int id, const int idx)
         if (gsfidx >= 0)
         {
             return gsftrks_dz_pv(gsfidx, vtxidx).first;
+        }
+        const int trkidx = tas::els_trkidx().at(idx);
+        if (trkidx >= 0)
+        {
+            return trks_dz_pv(trkidx, vtxidx).first;
         }
     }
 
@@ -223,8 +233,7 @@ float dy::EffectiveArea03(const int id, const int idx)
     float eta = fabs(tas::els_etaSC().at(idx));
 
     // get effective area from electronSelections.h
-    //return fastJetEffArea03_v1(eta);  // used for HCP and ICHEP
-    return fastJetEffArea03_v2(eta);    // 2013
+    return fastJetEffArea03_v2(eta);
 }
 
 float dy::EffectiveArea04(int id, int idx)
@@ -236,9 +245,9 @@ float dy::EffectiveArea04(int id, int idx)
     float eta = fabs(tas::els_etaSC().at(idx));
 
     // get effective area from electronSelections.h
-    //return fastJetEffArea04_v1(eta);  // used for HCP and ICHEP
-    return fastJetEffArea04_v2(eta);    // 2013
+    return fastJetEffArea04_v2(eta);
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 // calculate PF-based isolation for electrons with rho*Aeff correction
 // using cone size 03
@@ -308,7 +317,34 @@ float dy::muonIsoValuePF2012(const unsigned int imu)
 // passes dilepton trigger
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-bool dy::passesTrigger(const int hyp_type)
+bool dy::passesTriggerSingleLep(const int hyp_type)
+{
+    //----------------------------------------
+    // no trigger requirements applied to MC
+    //----------------------------------------
+
+    if (not tas::evt_isRealData())
+    {
+        return true; 
+    }
+
+    //---------------------------------
+    // triggers for dilepton datasets
+    //---------------------------------
+
+    switch(hyp_type)
+    {
+        /*mu mu*/case 0: return passUnprescaledHLTTriggerPattern("HLT_Mu15_eta2p1_v"); break;
+        /*e mu*/ case 1: return false; break;
+        /*e mu*/ case 2: return false; break;
+        /*e e*/  case 3: return passUnprescaledHLTTriggerPattern("HLT_Ele22_CaloIdL_CaloIsoVL_v"); break;
+        default: return false;
+    }
+    
+    return false;
+}
+
+bool dy::passesTriggerDoubleLep(const int hyp_type)
 {
     //----------------------------------------
     // no trigger requirements applied to MC
@@ -333,6 +369,11 @@ bool dy::passesTrigger(const int hyp_type)
     }
     
     return false;
+}
+
+bool dy::passesTrigger(const int hyp_type)
+{
+    return dy::passesTriggerDoubleLep(hyp_type);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////     

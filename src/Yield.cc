@@ -2,6 +2,7 @@
 #include "AnalysisTools/LanguageTools/interface/LanguageTools.h"
 #include "AnalysisTools/RootTools/interface/RootTools.h"
 #include <sstream>
+#include <cassert>
 
 namespace dy 
 {
@@ -72,15 +73,22 @@ namespace dy
 
     Yield operator/(const Yield& y1, const Yield& y2)
     {
-        assert(!lt::is_zero(y2.ee.value));
-        assert(!lt::is_zero(y2.mm.value));
-        assert(!lt::is_zero(y2.ee.value));
-        Yield result =
+        Yield::value_t ee =
         {
-            {y1.ee.value / y2.ee.value, sqrt((y1.ee.error*y1.ee.error)/(y1.ee.value * y2.ee.value) + (y2.ee.error*y2.ee.error)/(y1.ee.value * y2.ee.value))}, 
-            {y1.mm.value / y2.mm.value, sqrt((y1.mm.error*y1.mm.error)/(y1.mm.value * y2.mm.value) + (y2.mm.error*y2.mm.error)/(y1.mm.value * y2.mm.value))}, 
-            {y1.ll.value / y2.ll.value, sqrt((y1.ll.error*y1.ll.error)/(y1.ll.value * y2.ll.value) + (y2.ll.error*y2.ll.error)/(y1.ll.value * y2.ll.value))}
-        };
+            lt::is_zero(y2.ee.value) ? 0.0 : y1.ee.value / y2.ee.value, 
+            lt::is_zero(y2.ee.value) ? 0.0 : sqrt((y1.ee.error*y1.ee.error)/(y1.ee.value * y2.ee.value) + (y2.ee.error*y2.ee.error)/(y1.ee.value * y2.ee.value))
+        }; 
+        Yield::value_t mm =
+        {
+            lt::is_zero(y2.mm.value) ? 0.0 : y1.mm.value / y2.mm.value, 
+            lt::is_zero(y2.mm.value) ? 0.0 : sqrt((y1.mm.error*y1.mm.error)/(y1.mm.value * y2.mm.value) + (y2.mm.error*y2.mm.error)/(y1.mm.value * y2.mm.value))
+        }; 
+        Yield::value_t ll =
+        {
+            lt::is_zero(y2.ll.value) ? 0.0 : y1.ll.value / y2.ll.value, 
+            lt::is_zero(y2.ll.value) ? 0.0 : sqrt((y1.ll.error*y1.ll.error)/(y1.ll.value * y2.ll.value) + (y2.ll.error*y2.ll.error)/(y1.ll.value * y2.ll.value))
+        }; 
+        Yield result = {ee, mm, ll};
         return result; 
     }
 
@@ -107,6 +115,7 @@ namespace dy
     // (bin 2 is em which is unused)
     Yield GetYieldFromHist(TH1& hist)
     {
+        assert(hist.GetNbinsX() == 4);
         auto ll = rt::IntegralAndError(&hist, 0.0, 1.0);
         auto mm = rt::IntegralAndError(&hist, 1.0, 2.0);
         auto ee = rt::IntegralAndError(&hist, 2.0, 3.0);
@@ -138,13 +147,14 @@ namespace dy
 
     Yield GetBackgroundPred(const std::string& label, const std::string& hist_name)
     {
-        const dy::YieldMap ym = dy::GetYieldMap(label, hist_name);
-        dy::Yield pred{{0, 0},{0,0},{0.0}};
-        for (const auto& s : ym)
+        const YieldVector yields = GetYieldVector(label, hist_name);
+        Yield pred{{0, 0},{0,0},{0.0}};
+        for (size_t i = 0; i < yields.size(); ++i)
         {
-            if (s.first != dy::Sample::data && s.first != dy::Sample::dyll)
+            const Sample::value_type sample = GetSampleFromNumber(i);
+            if (sample != Sample::data && sample != Sample::dyll)
             {
-                pred += s.second;
+                pred += yields[sample];
             }
         }
         return pred;
@@ -165,14 +175,14 @@ namespace dy
     }
 
     // get yield map for all samples 
-    std::map<Sample::value_type, Yield> GetYieldMap(const std::string& label, const std::string& hist_name)
+    YieldVector GetYieldVector(const std::string& label, const std::string& hist_name)
     {
-        std::map<Sample::value_type, Yield> result; 
-        for (int sample_num = 0; sample_num < Sample::static_size; ++sample_num)
+        std::vector<Yield> result; 
+        result.reserve(Sample::static_size);
+        for (const auto& si : Sample::GetInfos())
         {
-            const Sample::Info sample_info = GetSampleInfo(sample_num);
-            const Yield sample_yield = GetYieldFromLabel(sample_info.sample, label, hist_name);
-            result[sample_info.sample] = sample_yield;
+            const Yield sample_yield = GetYieldFromLabel(si.sample, label, hist_name);
+            result.push_back(sample_yield);
         }
         return result;
     }

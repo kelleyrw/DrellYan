@@ -47,7 +47,9 @@ namespace dy
     ///////////////////////////////////////////////////////////////////////////////////////////
     // 2012 passes dilepton trigger
     ///////////////////////////////////////////////////////////////////////////////////////////
-    bool passesTrigger(const int flavor_type);
+    bool passesTriggerSingleLep(const int flavor_type);    // single lepton
+    bool passesTriggerDoubleLep(const int flavor_type); // double lepton
+    bool passesTrigger(const int flavor_type);      // wrapper uses dilepton triggers
 
     ////////////////////////////////////////////////////////////////////////////////////////////     
     // 2012 selected lepton (passes ID and isolation)
