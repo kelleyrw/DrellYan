@@ -114,15 +114,20 @@ struct Selection
     };
 };
 
-const Selection::Info s_Selections[Selection::static_size] = 
+typedef const Selection::Info (&SelectionArrayRef)[Selection::static_size];
+SelectionArrayRef Selections()
 {
-    {"ossf" , "OSSF"                }, 
-    {"mwin" , "Mass Window"         }, 
-    {"svtx" , "Same Vertex"         }, 
-    {"trig" , "Passes Trigger"      }, 
-    {"idiso", "Passes ID/Isolation" },
-    {"full" , "Full Selection"      } 
-};
+    static const Selection::Info s_Selections[Selection::static_size] = 
+    {
+        {"ossf" , "OSSF"                }, 
+        {"mwin" , "Mass Window"         }, 
+        {"svtx" , "Same Vertex"         }, 
+        {"trig" , "Passes Trigger"      }, 
+        {"idiso", "Passes ID/Isolation" },
+        {"full" , "Full Selection"      } 
+    };
+    return s_Selections;
+}
 
 void SetYieldAxisLabel(TH1* const hist)
 {
@@ -137,7 +142,7 @@ void SetCutflowAxisLabel(TH1* const hist)
 {
     hist->GetXaxis()->SetLabelSize(0.05);
     int bin = 1;
-    for (const auto& sel : s_Selections)
+    for (const auto& sel : Selections())
     {
         hist->GetXaxis()->SetBinLabel(bin++, sel.name.c_str());
     }
@@ -152,7 +157,7 @@ void FillRecoHists(rt::TH1Container& hc, const int hyp_idx, const Selection::val
     const bool is_mm       = (flavor_type == 0);
 
     // fill
-    const std::string hist_prefix = "h_reco_" + s_Selections[sel].name + "_";
+    const std::string hist_prefix = "h_reco_" + Selections()[sel].name + "_";
     if (is_mm)
     {
         rt::Fill1D(hc[hist_prefix+"yield"], 1.0       , event_scale);
@@ -189,7 +194,7 @@ void DrellYanLooper::BeginJob()
     SetCutflowAxisLabel(hc["h_reco_cutflow_ee"]);
     SetCutflowAxisLabel(hc["h_reco_cutflow_mm"]);
     SetCutflowAxisLabel(hc["h_reco_cutflow_ll"]);
-    for (const auto& sel : s_Selections)
+    for (const auto& sel : Selections())
     {
         hc.Add(new TH1D(Form("h_reco_%s_yield", sel.name.c_str()), Form("%s yield count of reco level l^{+}l^{-}", sel.title.c_str()),   4, -1,  3));
         hc.Add(new TH1D(Form("h_reco_%s_mee"  , sel.name.c_str()), Form("%s dielectron mass;m_{ee} (GeV)"        , sel.title.c_str()), 150, 0, 150));
@@ -221,6 +226,23 @@ void DrellYanLooper::Analyze(const long event)
             << tas::evt_lumiBlock() << ", "
             << tas::evt_event()     << ", "
             << std::endl;
+    }
+
+    // Event Cleaning
+    // ---------------------- // 
+
+    // require at least 3 tracks in the event
+    if (tas::trks_trk_p4().size() < 3)
+    {
+        if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
+        return;
+    }
+
+    // require standard cleaning 
+    if (!cleaning_standardNovember2011()) 
+    {
+        if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
+        return;
     }
 
     // event scale factors 
@@ -372,7 +394,6 @@ void DrellYanLooper::Analyze(const long event)
         }
         FillRecoHists(hc, hyp_idx, Selection::idiso, event_scale);
     
-
         // if we're here, then good event :)
         best_hyp = dy::ChooseBetterHypothesis(best_hyp, hyp_idx);
 

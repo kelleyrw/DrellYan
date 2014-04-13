@@ -10,7 +10,7 @@
 #include "CMS2/NtupleMacrosCore/interface/triggerUtils.h"
 #include "CMS2/NtupleMacrosCore/interface/susySelections.h"
 #include "CMS2/NtupleMacrosCore/interface/MITConversionUtilities.h"
-
+ 
 /////////////////////////////////////////////////////////////////
 ///                                                           ///
 ///                                                           ///
@@ -314,7 +314,7 @@ bool dy::passesTrigger(const int hyp_type)
     // no trigger requirements applied to MC
     //----------------------------------------
 
-    if (!tas::evt_isRealData())
+    if (not tas::evt_isRealData())
     {
         return true; 
     }
@@ -323,7 +323,6 @@ bool dy::passesTrigger(const int hyp_type)
     // triggers for dilepton datasets
     //---------------------------------
 
-    // mm
     switch(hyp_type)
     {
         /*mu mu*/case 0: return passUnprescaledHLTTriggerPattern("HLT_Mu17_Mu8_v"); break;
@@ -332,6 +331,8 @@ bool dy::passesTrigger(const int hyp_type)
         /*e e*/  case 3: return passUnprescaledHLTTriggerPattern("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"); break;
         default: return false;
     }
+    
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////     
@@ -355,7 +356,6 @@ bool dy::isSelectedHypothesis(const int idx)
     {
         return false;
     }
-
     return true;
 }
 
@@ -386,7 +386,7 @@ int dy::ChooseBetterHypothesis(const int hyp1_idx, const int hyp2_idx)
     // NOTE: MUMU 0, EMU 1, 2, EE 3
     const int hyp1_flavor_type = tas::hyp_type().at(hyp1_idx);
     const int hyp2_flavor_type = tas::hyp_type().at(hyp2_idx);
-
+    
     const bool hyp1_is_em = (hyp1_flavor_type==1 or hyp1_flavor_type==2);
     const bool hyp2_is_em = (hyp2_flavor_type==1 or hyp2_flavor_type==2);
     const bool hyp1_is_ee = (hyp1_flavor_type==3);
