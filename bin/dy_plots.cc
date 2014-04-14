@@ -242,35 +242,18 @@ void DrellYanLooper::Analyze(const long event)
             << std::endl;
     }
 
-    // Event Cleaning
-    // ---------------------- // 
-
-    // require at least 3 tracks in the event
-    if (tas::trks_trk_p4().size() < 3)
-    {
-        if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
-        return;
-    }
-
-    // require standard cleaning 
-    if (!cleaning_standardNovember2011()) 
-    {
-        if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
-        return;
-    }
-
     // event scale factors 
     // ---------------------- // 
 
     double event_scale = 1.0;
-//     if (!tas::evt_isRealData())
-//     {
-//         const double nevts_cms2  = m_sample_info.filter_eff * tas::evt_nEvts(); // number of events run in CMSSW job to make ntuple
-//         const double nevts_scale = nevts_cms2/m_num_events;                     // scale up the weight to account fo lower stats
-//         const double scale1fb    = tas::evt_scale1fb();                         // scale1fb stored in event
-//         event_scale              = m_lumi * scale1fb * nevts_scale;
-//     }
-//     if (m_verbose) {std::cout << "event_scale = " << event_scale << "\n";}
+    if (!tas::evt_isRealData())
+    {
+        const double nevts_cms2  = m_sample_info.filter_eff * tas::evt_nEvts(); // number of events run in CMSSW job to make ntuple
+        const double nevts_scale = nevts_cms2/m_num_events;                     // scale up the weight to account fo lower stats
+        const double scale1fb    = tas::evt_scale1fb();                         // scale1fb stored in event
+        event_scale              = m_lumi * scale1fb * nevts_scale;
+    }
+    if (m_verbose) {std::cout << "event_scale = " << event_scale << "\n";}
 
     // generator level plots
     // ---------------------- // 
@@ -367,7 +350,7 @@ void DrellYanLooper::Analyze(const long event)
         const std::vector<at::GenHyp> gen_hyps_acc_num = lt::filter_container(gen_hyps_acc_den,
             [](const at::GenHyp& h)
             {
-                return h.IsAccepted(/*min_pt=*/25.0, /*max_eta=*/2.5);
+                return ((h.IsEE() or h.IsMuMu()) and h.IsAccepted(/*min_pt=*/25.0, /*max_eta=*/2.5));
             }
         );
 
@@ -381,6 +364,23 @@ void DrellYanLooper::Analyze(const long event)
             if (gen_hyp.IsEE_IncludeTaus()  ) {hc["h_acc_gen_num"]->Fill(2.0, event_scale);}
             hc["h_acc_gen_num"]->Fill(0.0, event_scale);
         }
+    }
+
+    // Event Cleaning
+    // ---------------------- // 
+
+    // require at least 3 tracks in the event
+    if (tas::trks_trk_p4().size() < 3)
+    {
+        if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
+        return;
+    }
+
+    // require standard cleaning 
+    if (!cleaning_standardNovember2011()) 
+    {
+        if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
+        return;
     }
 
     // reco level plots
