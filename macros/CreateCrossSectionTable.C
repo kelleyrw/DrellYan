@@ -62,7 +62,7 @@ void CreateCrossSectionTable
     const dy::Yield y_bk_pred    = dy::GetBackgroundPred(label, hist_name);
     const dy::Yield y_dy_pred    = yields[dy::Sample::dyll];
     const dy::Yield y_mc_pred    = y_dy_pred + y_bk_pred;
-    const dy::Yield y_acc        = dy::GetYieldFromLabel(dy::Sample::dyll, label, "h_acc");
+    const dy::Yield y_acc        = dy::GetYieldFromLabel(dy::Sample::dyll, label, "h_acc_rec");
     const dy::Yield y_nsig       = y_data - y_bk_pred; 
 
     // xsec = (Nobs - Nbkg)/(lumi * acc)
@@ -76,16 +76,16 @@ void CreateCrossSectionTable
         string latex("\\begin{table}[ht!]\n"                    ); 
         latex.append("\\begin{center}\n"                        ); 
         latex.append("\\begin{tabular}{l|ccc} \\hline\\hline\n" ); 
-        latex.append("source & $ee$ & $\\mu\\mu$$ \\\\\n"       ); 
+        latex.append("source & $ee$ & $\\mu\\mu$ \\\\\n"       ); 
         latex.append("\\hline\n"                                ); 
-        latex.append(Form("%s \\\\\n", GetLatex("N_obs"     ,    y_data).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex("N_mc"      , y_mc_pred).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex("N_dyll"    , y_dy_pred).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex("N_bkgd"    , y_bk_pred).c_str()));
-        latex.append(Form("%s \\\\\n", GetLatex("N_sig"     ,    y_nsig).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("$N_{obs}$" ,    y_data).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("$N_{mc}$"  , y_mc_pred).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("$N_{dyll}$", y_dy_pred).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("$N_{bkgd}$", y_bk_pred).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("$N_{sig}$" ,    y_nsig).c_str()));
         latex.append(Form("%s \\\\\n", GetLatex("Acc"       ,     y_acc).c_str()));
         latex.append("\\hline\\hline\n");
-        latex.append(Form("%s \\\\\n", GetLatex("Sigma (nb)",      xsec).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex("Sigma (nb)", xsec).c_str()));
         latex.append("\\hline\\hline\n"                              ); 
         latex.append("\\end{tabular}\n"                              ); 
         latex.append("\\caption{Drell-Yan Exercise Cross-Section}\n" ); 
