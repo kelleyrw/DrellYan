@@ -38,6 +38,7 @@ parser.add_option("--verbose"    , action="store_true"  , dest="verbose"     , d
 samples = [
 	"data",
 	"dyll",
+	"dytt",
 	"wjets",
 	"ttdil",
 	"ttslq",

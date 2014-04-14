@@ -17,6 +17,7 @@ namespace dy
             {
                 data,
                 dyll,
+                dytt,
                 wjets,
                 ttdil,
                 ttslq,

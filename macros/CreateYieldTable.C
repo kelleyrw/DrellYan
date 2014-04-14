@@ -71,6 +71,7 @@ void CreateYieldTable
         latex.append("source & $ee$ & $\\mu\\mu$ & $\\ell\\ell $ \\\\\n");
         latex.append("\\hline\n"                                                        );
         latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::dyll       , yields   ).c_str()));
+        latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::dytt       , yields   ).c_str()));
         latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::wjets      , yields   ).c_str()));
         latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttdil      , yields   ).c_str()));
         latex.append(Form("%s \\\\\n", GetLatex(dy::Sample::ttslq      , yields   ).c_str()));
@@ -104,6 +105,7 @@ void CreateYieldTable
         t_yields.setTable()
         (                                                                                "ee",                                   "mm",                                  "ll")
         (dy::GetSampleInfo(dy::Sample::dyll    ).name, yields[dy::Sample::dyll    ].ee.pm("4.1") , yields[dy::Sample::dyll    ].mm.pm("4.1") , yields[dy::Sample::dyll    ].ll.pm("4.1"))
+        (dy::GetSampleInfo(dy::Sample::dytt    ).name, yields[dy::Sample::dytt    ].ee.pm("4.1") , yields[dy::Sample::dytt    ].mm.pm("4.1") , yields[dy::Sample::dytt    ].ll.pm("4.1"))
         (dy::GetSampleInfo(dy::Sample::wjets   ).name, yields[dy::Sample::wjets   ].ee.pm("4.1") , yields[dy::Sample::wjets   ].mm.pm("4.1") , yields[dy::Sample::wjets   ].ll.pm("4.1"))
         (dy::GetSampleInfo(dy::Sample::ttdil   ).name, yields[dy::Sample::ttdil   ].ee.pm("4.1") , yields[dy::Sample::ttdil   ].mm.pm("4.1") , yields[dy::Sample::ttdil   ].ll.pm("4.1"))
         (dy::GetSampleInfo(dy::Sample::ttslq   ).name, yields[dy::Sample::ttslq   ].ee.pm("4.1") , yields[dy::Sample::ttslq   ].mm.pm("4.1") , yields[dy::Sample::ttslq   ].ll.pm("4.1"))

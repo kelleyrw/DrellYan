@@ -45,7 +45,7 @@ namespace dy
         {
             pset.getParameter<std::string>("name"),
             pset.getParameter<std::string>("title"),
-            pset.getParameter<std::string>("title"),
+            pset.getParameter<std::string>("latex"),
             pset.getParameter<std::string>("ntuple_path"),
             static_cast<Color_t>(pset.getParameter<int>("color")),
             pset.getParameter<double>("eff"),

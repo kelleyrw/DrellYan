@@ -264,7 +264,7 @@ void DrellYanLooper::Analyze(const long event)
 
     if (!tas::evt_isRealData())
     {
-        const std::vector<at::GenHyp> gen_hyps = at::GetGenHyps(/*min_pt=*/0.0, /*max_eta=*/1000.0);
+        const std::vector<at::GenHyp> gen_hyps       = at::GetGenHyps(/*min_pt=*/0.0, /*max_eta=*/1000.0);
         const std::vector<at::GenHyp> gen_hyps_clean = lt::filter_container(gen_hyps,
             [](const at::GenHyp& h)
             {
@@ -279,6 +279,13 @@ void DrellYanLooper::Analyze(const long event)
             passes_acc_den            = true; 
             const at::GenHyp& gen_hyp = gen_hyps_clean.front();
             const double gen_mass     = gen_hyp.P4().mass();
+
+            // for dytt, only require tau tau events
+            if (m_sample_info.sample == dy::Sample::dytt and not gen_hyp.IsTauTau())
+            {
+                if (m_verbose) {std::cout << "fails dy --> tau tau requirement" << std::endl;}
+                return;
+            }
 
             // fill hists
             if (gen_hyp.IsMuMu_IncludeTaus())
@@ -323,6 +330,9 @@ void DrellYanLooper::Analyze(const long event)
             }
             rt::Fill1D(hc["h_gen_yield"], 0.0     , event_scale);
             rt::Fill1D(hc["h_gen_mll"  ], gen_mass, event_scale);
+
+
+            // only keep dy
         }
 
         // acceptence denominator (no taus)
