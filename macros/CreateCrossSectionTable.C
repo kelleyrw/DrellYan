@@ -76,7 +76,7 @@ void CreateCrossSectionTable
         string latex("\\begin{table}[ht!]\n"                    ); 
         latex.append("\\begin{center}\n"                        ); 
         latex.append("\\begin{tabular}{l|ccc} \\hline\\hline\n" ); 
-        latex.append("source & $ee$ & $\\mu\\mu$ \\\\\n"       ); 
+        latex.append("source & $ee$ & $\\mu\\mu$ \\\\\n"        ); 
         latex.append("\\hline\n"                                ); 
         latex.append(Form("%s \\\\\n", GetLatex("$N_{obs}$" ,    y_data).c_str()));
         latex.append(Form("%s \\\\\n", GetLatex("$N_{mc}$"  , y_mc_pred).c_str()));

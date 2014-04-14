@@ -44,12 +44,6 @@ class DrellYanLooper
             const bool verbose
         );
 
-        // destroy:
-        ~DrellYanLooper();
-
-        // methods:
-        void SetFilename(const std::string& output_filename);
-
         // basic methods:
         void BeginJob();
         void Analyze(const long event);
@@ -60,7 +54,6 @@ class DrellYanLooper
         // members:
         dy::Sample::Info m_sample_info; 
         std::string m_output_filename;
-        std::string m_runlist_filename;
         double m_lumi;
         long m_num_events;
         bool m_verbose;
@@ -81,11 +74,6 @@ DrellYanLooper::DrellYanLooper
     , m_lumi(lumi)
     , m_num_events(num_events)
     , m_verbose(verbose)
-{
-}
-
-// destroy:
-DrellYanLooper::~DrellYanLooper()
 {
 }
 
@@ -558,11 +546,6 @@ void DrellYanLooper::EndJob()
     return;
 }
 
-void DrellYanLooper::SetFilename(const std::string& filename)
-{
-    m_output_filename = filename;
-}
-   
 // -------------------------------------------------//
 // main program
 // -------------------------------------------------//
