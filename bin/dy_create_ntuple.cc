@@ -143,8 +143,46 @@ DrellYanInfo::DrellYanInfo()
 
 void DrellYanInfo::Reset()
 {
-    DrellYanInfo temp; 
-    std::swap(*this, temp);
+    run                  = -999999; 
+    ls                   = -999999; 
+    evt                  = -999999; 
+    sample               = -999999; 
+    dataset              = ""; 
+    filename             = ""; 
+    is_real_data         = false; 
+    scale1fb             = -999999; 
+    scale1fb_cms2        = -999999; 
+    xsec                 = -999999; 
+    nevts_aod            = -999999; 
+    nevts_cms2           = -999999; 
+    nevts_file           = -999999; 
+    kfactor              = -999999; 
+    nvtxs                = -999999; 
+    pfmet                = -999999; 
+    pfmet_phi            = -999999; 
+    pu_nvtxs             = -999999; 
+    pu_ntrueint          = -999999; 
+    trig_dmu             = -999999; 
+    trig_del             = -999999; 
+    trig_smu             = -999999; 
+    trig_sel             = -999999; 
+    trig                 = -999999; 
+    gen_hyp_type         = -999999; 
+    is_gen_ee            = -999999; 
+    is_gen_mm            = -999999; 
+    is_gen_tt            = -999999; 
+    is_gen_ee_includetau = -999999; 
+    is_gen_mm_includetau = -999999; 
+    is_gen_fromz         = -999999; 
+    is_gen_acc_den       = -999999; 
+    is_gen_acc_num       = -999999; 
+    gen_p4               = LorentzVector(0, 0, 0, 0); 
+    gen_lep1_p4          = LorentzVector(0, 0, 0, 0); 
+    gen_lep1_id          = -999999; 
+    gen_lep1_charge      = -999999; 
+    gen_lep2_p4          = LorentzVector(0, 0, 0, 0); 
+    gen_lep2_id          = -999999; 
+    gen_lep2_charge      = -999999; 
 }
     
 void DrellYanInfo::SetBranches(TTree& tree)
@@ -200,12 +238,15 @@ class DrellYanNtupleMaker
 {
     public:
         // construct:
+        DrellYanNtupleMaker() = delete;
         DrellYanNtupleMaker
         (
             const dy::Sample::Info sample_info, 
             const std::string& output_filename, 
             const double lumi,
             const long num_events,
+            const float min_pt,
+            const float max_eta,
             const bool verbose
         );
 
@@ -214,7 +255,7 @@ class DrellYanNtupleMaker
 
         // basic methods:
         void BeginJob();
-        void Analyze(const long event);
+        void Analyze(const long event, const std::string& current_file);
         void EndJob();
 
     private:
@@ -224,6 +265,8 @@ class DrellYanNtupleMaker
         std::string m_output_filename;
         double m_lumi;
         long m_num_events;
+        float m_min_pt;
+        float m_max_eta;
         bool m_verbose;
         DrellYanInfo m_info;
         TFile& m_file;
@@ -237,27 +280,30 @@ DrellYanNtupleMaker::DrellYanNtupleMaker
     const std::string& output_filename, 
     const double lumi,
     const long num_events,
+    const float min_pt,
+    const float max_eta,
     const bool verbose
 )
     : m_sample_info(sample_info)
     , m_output_filename(output_filename)
     , m_lumi(lumi)
     , m_num_events(num_events)
+    , m_min_pt(min_pt)
+    , m_max_eta(max_eta)
     , m_verbose(verbose)
     , m_info()
-    , m_file(*new TFile(output_filename.c_str(), "RECREATE"))
+    , m_file(*TFile::Open(output_filename.c_str(), "RECREATE"))
     , m_tree(*new TTree("tree", "DY Exercise TTree"))
 {
+    std::cout << gDirectory->GetName() << std::endl;
     // setup TTree
-    m_tree.SetDirectory(&m_file);
+//     m_tree.SetDirectory(&m_file);
     m_info.SetBranches(m_tree);
 }
 
 // destroy:
 DrellYanNtupleMaker::~DrellYanNtupleMaker()
 {
-    // cleanup
-    m_file.Close(); 
 }
 
 // ------------------------------------ //
@@ -272,7 +318,7 @@ void DrellYanNtupleMaker::BeginJob()
 // Stuff to do on each event 
 // ------------------------------------ //
 
-void DrellYanNtupleMaker::Analyze(const long event)
+void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_filename)
 {
     if (m_verbose)
     {
@@ -287,9 +333,16 @@ void DrellYanNtupleMaker::Analyze(const long event)
     // ---------------------- // 
     m_info.Reset();
 
-    // event scale factors 
+    // event information 
     // ---------------------- // 
 
+    m_info.run          = tas::evt_run();
+    m_info.ls           = tas::evt_lumiBlock();
+    m_info.evt          = tas::evt_event();
+    m_info.sample       = m_sample_info.sample; 
+    m_info.dataset      = tas::evt_dataset().front().Data();
+    m_info.filename     = current_filename; 
+    m_info.is_real_data = tas::evt_isRealData(); 
     if (!tas::evt_isRealData())
     {
         m_info.nevts_aod     = tas::evt_nEvts();
@@ -301,6 +354,14 @@ void DrellYanNtupleMaker::Analyze(const long event)
     }
     if (m_verbose)
     {
+        std::cout << "\n[DrellYanNtupleMaker] Running on run, ls, event: " 
+            << tas::evt_run()       << ", "
+            << tas::evt_lumiBlock() << ", "
+            << tas::evt_event()     << std::endl;
+        std::cout << "sample         = " << m_info.sample        << "\n";
+        std::cout << "dataset        = " << m_info.dataset       << "\n";
+        std::cout << "filename       = " << m_info.filename      << "\n";
+        std::cout << "is_real_data   = " << m_info.is_real_data  << "\n";
         std::cout << "nevts_aod      = " << m_info.nevts_aod     << "\n";
         std::cout << "nevts_cms2     = " << m_info.nevts_cms2    << "\n";
         std::cout << "nevts_file     = " << m_info.nevts_file    << "\n";
@@ -308,6 +369,73 @@ void DrellYanNtupleMaker::Analyze(const long event)
         std::cout << "scale1fb       = " << m_info.scale1fb      << "\n";
         std::cout << "xsec           = " << m_info.xsec          << "\n";
     }
+
+    // gen information 
+    // ---------------------- // 
+
+    if (!tas::evt_isRealData())
+    {
+        // gen gen hypotheses
+        const std::vector<at::GenHyp> gen_hyps       = at::GetGenHyps(/*min_pt=*/0.0, /*max_eta=*/1000.0);
+        const std::vector<at::GenHyp> gen_hyps_clean = lt::filter_container(gen_hyps,
+            [](const at::GenHyp& h)
+            {
+                return (h.IsOS() and (h.IsEE_IncludeTaus() or h.IsMuMu_IncludeTaus()));
+            }
+        );
+
+//         if (m_verbose) {std::cout << "number of gen hyps = " << gen_hyps_clean.size() << std::endl;}
+        if (!gen_hyps_clean.empty())
+        {
+            const at::GenHyp& gen_hyp = gen_hyps_clean.front();
+
+            // gen info:
+            m_info.gen_hyp_type         = static_cast<int>(gen_hyp.Type());
+            m_info.is_gen_ee            = gen_hyp.IsEE();
+            m_info.is_gen_mm            = gen_hyp.IsMuMu();
+            m_info.is_gen_tt            = gen_hyp.IsTauTau();
+            m_info.is_gen_ee_includetau = gen_hyp.IsEE_IncludeTaus();
+            m_info.is_gen_mm_includetau = gen_hyp.IsMuMu_IncludeTaus();
+            m_info.is_gen_fromz         = gen_hyp.IsFromZ();
+            m_info.is_gen_acc_den       = (gen_hyp.IsFromZ() and not gen_hyp.IsTauTau() and (60 < gen_hyp.P4().mass() && gen_hyp.P4().mass() < 120));
+            m_info.is_gen_acc_num       = (m_info.is_gen_acc_den and gen_hyp.IsAccepted(m_min_pt, m_max_eta));
+            m_info.gen_p4               = gen_hyp.P4();
+            m_info.gen_lep1_p4          = gen_hyp.Lep1().p4;
+            m_info.gen_lep1_id          = gen_hyp.Lep1().id;
+            m_info.gen_lep1_charge      = gen_hyp.Lep1().charge;
+            m_info.gen_lep2_p4          = gen_hyp.Lep2().p4;
+            m_info.gen_lep2_id          = gen_hyp.Lep2().id;
+            m_info.gen_lep2_charge      = gen_hyp.Lep2().charge;
+
+            if (m_verbose)
+            {
+                std::cout << "gen_hyp_type         = " << m_info.gen_hyp_type         << "\n";
+                std::cout << "is_gen_ee            = " << m_info.is_gen_ee            << "\n";
+                std::cout << "is_gen_mm            = " << m_info.is_gen_mm            << "\n";
+                std::cout << "is_gen_tt            = " << m_info.is_gen_tt            << "\n";
+                std::cout << "is_gen_ee_includetau = " << m_info.is_gen_ee_includetau << "\n";
+                std::cout << "is_gen_mm_includetau = " << m_info.is_gen_mm_includetau << "\n";
+                std::cout << "is_gen_fromz         = " << m_info.is_gen_fromz         << "\n";
+                std::cout << "is_gen_acc_den       = " << m_info.is_gen_acc_den       << "\n";
+                std::cout << "is_gen_acc_num       = " << m_info.is_gen_acc_num       << "\n";
+                std::cout << "gen_p4.mass()        = " << m_info.gen_p4.mass()        << "\n";
+                std::cout << "gen_lep1_p4.pt()     = " << m_info.gen_lep1_p4.pt()     << "\n";
+                std::cout << "gen_lep1_id          = " << m_info.gen_lep1_id          << "\n";
+                std::cout << "gen_lep1_charge      = " << m_info.gen_lep1_charge      << "\n";
+                std::cout << "gen_lep2_p4.pt()     = " << m_info.gen_lep2_p4.pt()     << "\n";
+                std::cout << "gen_lep2_id          = " << m_info.gen_lep2_id          << "\n";
+                std::cout << "gen_lep2_charge      = " << m_info.gen_lep2_charge      << "\n";
+            }
+        }
+    }
+
+    // fill the tree
+    // ---------------------- // 
+
+    m_tree.Fill();
+
+    // done
+    return;
 }
 
 // ------------------------------------ //
@@ -317,7 +445,9 @@ void DrellYanNtupleMaker::Analyze(const long event)
 void DrellYanNtupleMaker::EndJob()
 {
     std::cout << "[DrellYanNtupleMaker] Saving TTree to output file: " << m_output_filename << std::endl;
-    m_file.Write();
+    m_file.cd(); 
+    m_tree.Write();
+    m_file.Close(); 
     return;
 }
 
@@ -446,12 +576,14 @@ try
         output_file, 
         lumi,
         num_events_to_run,
+        /*min_pt=*/25.0,
+        /*max_eta=*/2.5,
         verbose
     );
     std::cout << "[dy_create_ntuple] running drell-yan plotting looper...\n";
 
     // scan the chain
-    at::ScanChain<CMS2>
+    at::ScanChainWithFilename<CMS2>
     (
         chain, 
         looper,
