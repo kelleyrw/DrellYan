@@ -184,6 +184,16 @@ void DrellYanLooper::BeginJob()
     hc.Add(new TH1D("h_gen_mmm"   , "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
     hc.Add(new TH1D("h_gen_mll"   , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
 
+    hc.Add(new TH1D("h_gen_notau_yield", "Yield count of gen level l^{+}l^{-} (no #taus)"          ,   4, -1,  3));
+    hc.Add(new TH1D("h_gen_notau_mee"  , "Generator level dielectron mass (no #taus);m_{ee} (GeV)" , 150, 0, 150));
+    hc.Add(new TH1D("h_gen_notau_mmm"  , "Generator level dilmuon mass (no #taus);m_{#mu#mu} (GeV)", 150, 0, 150));
+    hc.Add(new TH1D("h_gen_notau_mll"  , "Generator level dilepton mass (no #taus);m_{ll} (GeV)"   , 150, 0, 150));
+
+    hc.Add(new TH1D("h_gen_tau_yield", "Yield count of gen level l^{+}l^{-} (#taus #rightarrow e/#mu)"          ,   4, -1,  3));
+    hc.Add(new TH1D("h_gen_tau_mee"  , "Generator level dielectron mass (#taus #rightarrow e/#mu);m_{ee} (GeV)" , 150, 0, 150));
+    hc.Add(new TH1D("h_gen_tau_mmm"  , "Generator level dilmuon mass (#taus #rightarrow e/#mu);m_{#mu#mu} (GeV)", 150, 0, 150));
+    hc.Add(new TH1D("h_gen_tau_mll"  , "Generator level dilepton mass (#taus #rightarrow e/#mu);m_{ll} (GeV)"   , 150, 0, 150));
+
     // acceptance plots
     hc.Add(new TH1D("h_acc_gen_den", "Acceptence denominator;Channel;Event Count"        , 4, -1, 3));
     hc.Add(new TH1D("h_acc_gen_num", "Acceptence generator numerator;Channel;Event Count", 4, -1, 3));
@@ -206,10 +216,12 @@ void DrellYanLooper::BeginJob()
     }
 
     // change axis labels
-    SetYieldAxisLabel(hc["h_gen_yield"  ]);
-    SetYieldAxisLabel(hc["h_acc_gen_den"]);
-    SetYieldAxisLabel(hc["h_acc_gen_num"]);
-    SetYieldAxisLabel(hc["h_acc_rec_num"]);
+    SetYieldAxisLabel(hc["h_gen_yield"      ]);
+    SetYieldAxisLabel(hc["h_gen_notau_yield"]);
+    SetYieldAxisLabel(hc["h_gen_tau_yield"  ]);
+    SetYieldAxisLabel(hc["h_acc_gen_den"    ]);
+    SetYieldAxisLabel(hc["h_acc_gen_num"    ]);
+    SetYieldAxisLabel(hc["h_acc_rec_num"    ]);
 
     // sumw2()
     hc.Sumw2();
@@ -251,14 +263,14 @@ void DrellYanLooper::Analyze(const long event)
     // ---------------------- // 
 
     double event_scale = 1.0;
-    if (!tas::evt_isRealData())
-    {
-        const double nevts_cms2  = m_sample_info.filter_eff * tas::evt_nEvts(); // number of events run in CMSSW job to make ntuple
-        const double nevts_scale = nevts_cms2/m_num_events;                     // scale up the weight to account fo lower stats
-        const double scale1fb    = tas::evt_scale1fb();                         // scale1fb stored in event
-        event_scale              = m_lumi * scale1fb * nevts_scale;
-    }
-    if (m_verbose) {std::cout << "event_scale = " << event_scale << "\n";}
+//     if (!tas::evt_isRealData())
+//     {
+//         const double nevts_cms2  = m_sample_info.filter_eff * tas::evt_nEvts(); // number of events run in CMSSW job to make ntuple
+//         const double nevts_scale = nevts_cms2/m_num_events;                     // scale up the weight to account fo lower stats
+//         const double scale1fb    = tas::evt_scale1fb();                         // scale1fb stored in event
+//         event_scale              = m_lumi * scale1fb * nevts_scale;
+//     }
+//     if (m_verbose) {std::cout << "event_scale = " << event_scale << "\n";}
 
     // generator level plots
     // ---------------------- // 
@@ -277,6 +289,7 @@ void DrellYanLooper::Analyze(const long event)
             }
         );
 
+        // gen level yields
         if (!gen_hyps_clean.empty())
         {
             // observables:
@@ -285,21 +298,55 @@ void DrellYanLooper::Analyze(const long event)
             const double gen_mass     = gen_hyp.P4().mass();
 
             // fill hists
-            if (gen_hyp.IsMuMu_IncludeTaus()) {hc["h_gen_yield"]->Fill(1.0, event_scale);}
-            if (gen_hyp.IsEE_IncludeTaus()  ) {hc["h_gen_yield"]->Fill(2.0, event_scale);}
-            hc["h_gen_yield"]->Fill(0.0, event_scale);
-
-            // kinematics
-            if (gen_hyp.IsMuMu_IncludeTaus()) {rt::Fill1D(hc["h_gen_mee"], gen_mass, event_scale);}
-            if (gen_hyp.IsEE_IncludeTaus()  ) {rt::Fill1D(hc["h_gen_mmm"], gen_mass, event_scale);}
-            rt::Fill1D(hc["h_gen_mll"], gen_mass, event_scale);
+            if (gen_hyp.IsMuMu_IncludeTaus())
+            {
+                rt::Fill1D(hc["h_gen_yield"], 1.0     , event_scale);
+                rt::Fill1D(hc["h_gen_mmm"  ], gen_mass, event_scale);
+                if (gen_hyp.IsTauTau())
+                {
+                    rt::Fill1D(hc["h_gen_tau_yield"], 1.0     , event_scale);
+                    rt::Fill1D(hc["h_gen_tau_mmm"  ], gen_mass, event_scale);
+                }
+                else 
+                {
+                    rt::Fill1D(hc["h_gen_notau_yield"], 1.0     , event_scale);
+                    rt::Fill1D(hc["h_gen_notau_mmm"  ], gen_mass, event_scale);
+                }
+            }
+            if (gen_hyp.IsEE_IncludeTaus())
+            {
+                rt::Fill1D(hc["h_gen_yield"], 2.0     , event_scale);
+                rt::Fill1D(hc["h_gen_mee"  ], gen_mass, event_scale);
+                if (gen_hyp.IsTauTau())
+                {
+                    rt::Fill1D(hc["h_gen_tau_yield"], 2.0     , event_scale);
+                    rt::Fill1D(hc["h_gen_tau_mee"  ], gen_mass, event_scale);
+                }
+                else 
+                {
+                    rt::Fill1D(hc["h_gen_notau_yield"], 2.0     , event_scale);
+                    rt::Fill1D(hc["h_gen_notau_mee"  ], gen_mass, event_scale);
+                }
+            }
+            if (gen_hyp.IsTauTau())
+            {
+                rt::Fill1D(hc["h_gen_tau_yield"], 0.0     , event_scale);
+                rt::Fill1D(hc["h_gen_tau_mll"  ], gen_mass, event_scale);
+            }
+            else 
+            {
+                rt::Fill1D(hc["h_gen_notau_yield"], 0.0     , event_scale);
+                rt::Fill1D(hc["h_gen_notau_mll"  ], gen_mass, event_scale);
+            }
+            rt::Fill1D(hc["h_gen_yield"], 0.0     , event_scale);
+            rt::Fill1D(hc["h_gen_mll"  ], gen_mass, event_scale);
         }
 
-        // acceptence denominator
+        // acceptence denominator (no taus)
         const std::vector<at::GenHyp> gen_hyps_acc_den = lt::filter_container(gen_hyps_clean,
             [](const at::GenHyp& h)
             {
-                return (h.IsFromZ() and (60 < h.P4().mass() && h.P4().mass() < 120));
+                return (h.IsFromZ() and not h.IsTauTau() and (60 < h.P4().mass() && h.P4().mass() < 120));
             }
         );
         if (!gen_hyps_acc_den.empty())
@@ -320,7 +367,7 @@ void DrellYanLooper::Analyze(const long event)
         const std::vector<at::GenHyp> gen_hyps_acc_num = lt::filter_container(gen_hyps_acc_den,
             [](const at::GenHyp& h)
             {
-                return ((h.IsEE() or h.IsMuMu()) and h.IsAccepted(/*min_pt=*/25.0, /*max_eta=*/2.5));
+                return h.IsAccepted(/*min_pt=*/25.0, /*max_eta=*/2.5);
             }
         );
 
@@ -454,21 +501,27 @@ void DrellYanLooper::EndJob()
     // acceptance 
     if (m_sample_info.sample != dy::Sample::data)
     {
-        const dy::Yield y_acc_gen_den = dy::GetYieldFromHist(*hc["h_acc_gen_den"]);
-        const dy::Yield y_acc_gen_num = dy::GetYieldFromHist(*hc["h_acc_gen_num"]);
-        const dy::Yield y_acc_rec_num = dy::GetYieldFromHist(*hc["h_acc_rec_num"]);
-        const dy::Yield y_acc_gen     = dy::GetYieldFromHist(*hc["h_acc_gen"    ]);
-        const dy::Yield y_acc_rec     = dy::GetYieldFromHist(*hc["h_acc_rec"    ]);
+        const dy::Yield y_gen         = dy::GetYieldFromHist(*hc["h_gen_yield"      ]);
+        const dy::Yield y_gen_notau   = dy::GetYieldFromHist(*hc["h_gen_notau_yield"]);
+        const dy::Yield y_gen_tau     = dy::GetYieldFromHist(*hc["h_gen_tau_yield"  ]);
+        const dy::Yield y_acc_gen_den = dy::GetYieldFromHist(*hc["h_acc_gen_den"    ]);
+        const dy::Yield y_acc_gen_num = dy::GetYieldFromHist(*hc["h_acc_gen_num"    ]);
+        const dy::Yield y_acc_rec_num = dy::GetYieldFromHist(*hc["h_acc_rec_num"    ]);
+        const dy::Yield y_acc_gen     = dy::GetYieldFromHist(*hc["h_acc_gen"        ]);
+        const dy::Yield y_acc_rec     = dy::GetYieldFromHist(*hc["h_acc_rec"        ]);
         CTable t_gen_yields;
         t_gen_yields.useTitle();
         t_gen_yields.setTitle("Acceptance for Drell-Yan Exercise");
         t_gen_yields.setTable()
         (                                                     "ee",                        "mm",                       "ll")
-        ("Acceptance Denominator"     , y_acc_gen_den.ee.pm("4.0"),  y_acc_gen_den.ee.pm("4.0"), y_acc_gen_den.ll.pm("4.0"))
-        ("Acceptance Numerator (gen)" , y_acc_gen_num.ee.pm("4.0"),  y_acc_gen_num.ee.pm("4.0"), y_acc_gen_num.ll.pm("4.0"))
-        ("Acceptance Numerator (reco)", y_acc_rec_num.ee.pm("4.0"),  y_acc_rec_num.ee.pm("4.0"), y_acc_rec_num.ll.pm("4.0"))
-        ("Gen Acceptance"             ,     y_acc_gen.ee.pm("4.3"),      y_acc_gen.ee.pm("4.3"),     y_acc_gen.ll.pm("4.3"))
-        ("Reco Acceptance"            ,     y_acc_rec.ee.pm("4.3"),      y_acc_rec.ee.pm("4.3"),     y_acc_rec.ll.pm("4.3"))
+        ("Gen Yield"                  ,         y_gen.ee.pm("4.0"),          y_gen.mm.pm("4.0"),         y_gen.ll.pm("4.0"))
+        ("Gen Yield (no taus)"        ,   y_gen_notau.ee.pm("4.0"),    y_gen_notau.mm.pm("4.0"),   y_gen_notau.ll.pm("4.0"))
+        ("Gen Yield (tau --> e/m)"    ,     y_gen_tau.ee.pm("4.0"),      y_gen_tau.mm.pm("4.0"),     y_gen_tau.ll.pm("4.0"))
+        ("Acceptance Denominator"     , y_acc_gen_den.ee.pm("4.0"),  y_acc_gen_den.mm.pm("4.0"), y_acc_gen_den.ll.pm("4.0"))
+        ("Acceptance Numerator (gen)" , y_acc_gen_num.ee.pm("4.0"),  y_acc_gen_num.mm.pm("4.0"), y_acc_gen_num.ll.pm("4.0"))
+        ("Acceptance Numerator (reco)", y_acc_rec_num.ee.pm("4.0"),  y_acc_rec_num.mm.pm("4.0"), y_acc_rec_num.ll.pm("4.0"))
+        ("Gen Acceptance"             ,     y_acc_gen.ee.pm("4.3"),      y_acc_gen.mm.pm("4.3"),     y_acc_gen.ll.pm("4.3"))
+        ("Reco Acceptance"            ,     y_acc_rec.ee.pm("4.3"),      y_acc_rec.mm.pm("4.3"),     y_acc_rec.ll.pm("4.3"))
         ;
         std::cout << t_gen_yields << std::endl;
     }
