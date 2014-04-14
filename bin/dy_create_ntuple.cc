@@ -367,11 +367,10 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
 {
     if (m_verbose)
     {
-        std::cout << "[DrellYanNtupleMaker] Running on run, ls, event: " 
+        std::cout << "\n[DrellYanNtupleMaker] Running on run, ls, event: " 
             << tas::evt_run()       << ", "
             << tas::evt_lumiBlock() << ", "
-            << tas::evt_event()     << ", "
-            << std::endl;
+            << tas::evt_event()     << std::endl;
     }
 
     // reset the TTree variables
@@ -397,14 +396,6 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         m_info.scale1fb      = m_info.scale1fb_cms2 * m_info.nevts_cms2/m_info.nevts_file;
         m_info.xsec          = tas::evt_xsec_excl();
     }
-    if (m_verbose)
-    {
-        std::cout << "\n[DrellYanNtupleMaker] Running on run, ls, event: " 
-            << tas::evt_run()       << ", "
-            << tas::evt_lumiBlock() << ", "
-            << tas::evt_event()     << std::endl;
-    }
-
     // gen information 
     // ---------------------- // 
 
