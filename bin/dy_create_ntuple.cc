@@ -187,9 +187,9 @@ void DrellYanInfo::Reset()
     
 void DrellYanInfo::SetBranches(TTree& tree)
 {
-    tree.Branch("run"                  , &run                  );
-    tree.Branch("ls"                   , &ls                   );
-    tree.Branch("evt"                  , &evt                  );
+    tree.Branch("run"                  , &run                  , "run/I");
+    tree.Branch("ls"                   , &ls                   , "ls/I" );
+    tree.Branch("evt"                  , &evt                  , "evt/I");
     tree.Branch("sample"               , &sample               );
     tree.Branch("dataset"              , &dataset              );
     tree.Branch("filename"             , &filename             );
@@ -228,6 +228,51 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("gen_p4"     , "LorentzVector", &gen_p4     );
     tree.Branch("gen_lep1_p4", "LorentzVector", &gen_lep1_p4);
     tree.Branch("gen_lep2_p4", "LorentzVector", &gen_lep2_p4);
+}
+
+std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
+{
+    out << "run                  = " << info.run                  << std::endl;
+    out << "ls                   = " << info.ls                   << std::endl;
+    out << "evt                  = " << info.evt                  << std::endl;
+    out << "sample               = " << info.sample               << std::endl;
+    out << "dataset              = " << info.dataset              << std::endl;
+    out << "filename             = " << info.filename             << std::endl;
+    out << "is_real_data         = " << info.is_real_data         << std::endl;
+    out << "scale1fb             = " << info.scale1fb             << std::endl;
+    out << "scale1fb_cms2        = " << info.scale1fb_cms2        << std::endl;
+    out << "xsec                 = " << info.xsec                 << std::endl;
+    out << "nevts_aod            = " << info.nevts_aod            << std::endl;
+    out << "nevts_cms2           = " << info.nevts_cms2           << std::endl;
+    out << "nevts_file           = " << info.nevts_file           << std::endl;
+    out << "kfactor              = " << info.kfactor              << std::endl;
+    out << "nvtxs                = " << info.nvtxs                << std::endl;
+    out << "pfmet                = " << info.pfmet                << std::endl;
+    out << "pfmet_phi            = " << info.pfmet_phi            << std::endl;
+    out << "pu_nvtxs             = " << info.pu_nvtxs             << std::endl;
+    out << "pu_ntrueint          = " << info.pu_ntrueint          << std::endl;
+    out << "trig_dmu             = " << info.trig_dmu             << std::endl;
+    out << "trig_del             = " << info.trig_del             << std::endl;
+    out << "trig_smu             = " << info.trig_smu             << std::endl;
+    out << "trig_sel             = " << info.trig_sel             << std::endl;
+    out << "trig                 = " << info.trig                 << std::endl;
+    out << "gen_hyp_type         = " << info.gen_hyp_type         << std::endl;
+    out << "is_gen_ee            = " << info.is_gen_ee            << std::endl;
+    out << "is_gen_mm            = " << info.is_gen_mm            << std::endl;
+    out << "is_gen_tt            = " << info.is_gen_tt            << std::endl;
+    out << "is_gen_ee_includetau = " << info.is_gen_ee_includetau << std::endl;
+    out << "is_gen_mm_includetau = " << info.is_gen_mm_includetau << std::endl;
+    out << "is_gen_fromz         = " << info.is_gen_fromz         << std::endl;
+    out << "is_gen_acc_den       = " << info.is_gen_acc_den       << std::endl;
+    out << "is_gen_acc_num       = " << info.is_gen_acc_num       << std::endl;
+    out << "gen_p4.mass()        = " << info.gen_p4.mass()        << std::endl;
+    out << "gen_lep1_p4.pt()     = " << info.gen_lep1_p4.pt()     << std::endl;
+    out << "gen_lep1_id          = " << info.gen_lep1_id          << std::endl;
+    out << "gen_lep1_charge      = " << info.gen_lep1_charge      << std::endl;
+    out << "gen_lep2_p4.pt()     = " << info.gen_lep2_p4.pt()     << std::endl;
+    out << "gen_lep2_id          = " << info.gen_lep2_id          << std::endl;
+    out << "gen_lep2_charge      = " << info.gen_lep2_charge      << std::endl;
+    return out;
 }
 
 // -------------------------------------------------//
@@ -295,10 +340,9 @@ DrellYanNtupleMaker::DrellYanNtupleMaker
     , m_file(*TFile::Open(output_filename.c_str(), "RECREATE"))
     , m_tree(*new TTree("tree", "DY Exercise TTree"))
 {
-    std::cout << gDirectory->GetName() << std::endl;
+//     std::cout << gDirectory->GetName() << std::endl;
     // setup TTree
 //     m_tree.SetDirectory(&m_file);
-    m_info.SetBranches(m_tree);
 }
 
 // destroy:
@@ -312,6 +356,7 @@ DrellYanNtupleMaker::~DrellYanNtupleMaker()
 
 void DrellYanNtupleMaker::BeginJob()
 {
+    m_info.SetBranches(m_tree);
 }
 
 // ------------------------------------ //
@@ -358,16 +403,6 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             << tas::evt_run()       << ", "
             << tas::evt_lumiBlock() << ", "
             << tas::evt_event()     << std::endl;
-        std::cout << "sample         = " << m_info.sample        << "\n";
-        std::cout << "dataset        = " << m_info.dataset       << "\n";
-        std::cout << "filename       = " << m_info.filename      << "\n";
-        std::cout << "is_real_data   = " << m_info.is_real_data  << "\n";
-        std::cout << "nevts_aod      = " << m_info.nevts_aod     << "\n";
-        std::cout << "nevts_cms2     = " << m_info.nevts_cms2    << "\n";
-        std::cout << "nevts_file     = " << m_info.nevts_file    << "\n";
-        std::cout << "scale1fb_cms2  = " << m_info.scale1fb_cms2 << "\n";
-        std::cout << "scale1fb       = " << m_info.scale1fb      << "\n";
-        std::cout << "xsec           = " << m_info.xsec          << "\n";
     }
 
     // gen information 
@@ -384,7 +419,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             }
         );
 
-//         if (m_verbose) {std::cout << "number of gen hyps = " << gen_hyps_clean.size() << std::endl;}
+        if (m_verbose) {std::cout << "number of gen hyps = " << gen_hyps_clean.size() << std::endl;}
         if (!gen_hyps_clean.empty())
         {
             const at::GenHyp& gen_hyp = gen_hyps_clean.front();
@@ -406,31 +441,12 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             m_info.gen_lep2_p4          = gen_hyp.Lep2().p4;
             m_info.gen_lep2_id          = gen_hyp.Lep2().id;
             m_info.gen_lep2_charge      = gen_hyp.Lep2().charge;
-
-            if (m_verbose)
-            {
-                std::cout << "gen_hyp_type         = " << m_info.gen_hyp_type         << "\n";
-                std::cout << "is_gen_ee            = " << m_info.is_gen_ee            << "\n";
-                std::cout << "is_gen_mm            = " << m_info.is_gen_mm            << "\n";
-                std::cout << "is_gen_tt            = " << m_info.is_gen_tt            << "\n";
-                std::cout << "is_gen_ee_includetau = " << m_info.is_gen_ee_includetau << "\n";
-                std::cout << "is_gen_mm_includetau = " << m_info.is_gen_mm_includetau << "\n";
-                std::cout << "is_gen_fromz         = " << m_info.is_gen_fromz         << "\n";
-                std::cout << "is_gen_acc_den       = " << m_info.is_gen_acc_den       << "\n";
-                std::cout << "is_gen_acc_num       = " << m_info.is_gen_acc_num       << "\n";
-                std::cout << "gen_p4.mass()        = " << m_info.gen_p4.mass()        << "\n";
-                std::cout << "gen_lep1_p4.pt()     = " << m_info.gen_lep1_p4.pt()     << "\n";
-                std::cout << "gen_lep1_id          = " << m_info.gen_lep1_id          << "\n";
-                std::cout << "gen_lep1_charge      = " << m_info.gen_lep1_charge      << "\n";
-                std::cout << "gen_lep2_p4.pt()     = " << m_info.gen_lep2_p4.pt()     << "\n";
-                std::cout << "gen_lep2_id          = " << m_info.gen_lep2_id          << "\n";
-                std::cout << "gen_lep2_charge      = " << m_info.gen_lep2_charge      << "\n";
-            }
         }
     }
 
     // fill the tree
     // ---------------------- // 
+    if (m_verbose) {std::cout << m_info << std::endl;}
 
     m_tree.Fill();
 
