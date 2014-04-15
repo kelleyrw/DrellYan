@@ -84,6 +84,14 @@ public:
     int gen_lep2_id;
     int gen_lep2_charge;
 
+    // selections
+    bool passes_ossf;
+    bool passes_mwin;
+    bool passes_svtx;
+    bool passes_trig;
+    bool passes_idiso;
+    bool passes_full;
+
     // some reco event level info
     int nvtxs;
     float pfmet;
@@ -160,6 +168,12 @@ DrellYanInfo::DrellYanInfo()
     , gen_lep2_p4          ( 0, 0, 0, 0 ) 
     , gen_lep2_id          ( -999999    ) 
     , gen_lep2_charge      ( -999999    ) 
+    , passes_ossf          ( false      )
+    , passes_mwin          ( false      )
+    , passes_svtx          ( false      )
+    , passes_trig          ( false      )
+    , passes_idiso         ( false      )
+    , passes_full          ( false      )
     , nvtxs                ( -999999    ) 
     , pfmet                ( -999999    ) 
     , pfmet_phi            ( -999999    ) 
@@ -230,6 +244,12 @@ void DrellYanInfo::Reset()
     gen_lep2_p4          = LorentzVector(0, 0, 0, 0); 
     gen_lep2_id          = -999999; 
     gen_lep2_charge      = -999999; 
+    passes_ossf          = false;
+    passes_mwin          = false;
+    passes_svtx          = false;
+    passes_trig          = false;
+    passes_idiso         = false;
+    passes_full          = false;
     nvtxs                = -999999; 
     pfmet                = -999999; 
     pfmet_phi            = -999999; 
@@ -295,6 +315,12 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("gen_lep1_charge"      , &gen_lep1_charge      );
     tree.Branch("gen_lep2_id"          , &gen_lep2_id          );
     tree.Branch("gen_lep2_charge"      , &gen_lep2_charge      );
+    tree.Branch("passes_ossf"          , &passes_ossf          );
+    tree.Branch("passes_mwin"          , &passes_mwin          );
+    tree.Branch("passes_svtx"          , &passes_svtx          );
+    tree.Branch("passes_trig"          , &passes_trig          );
+    tree.Branch("passes_idiso"         , &passes_idiso         );
+    tree.Branch("passes_full"          , &passes_full          );
     tree.Branch("nvtxs"                , &nvtxs                );
     tree.Branch("pfmet"                , &pfmet                );
     tree.Branch("pfmet_phi"            , &pfmet_phi            );
@@ -368,6 +394,12 @@ std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
     out << "gen_lep2_p4.pt()     = " << info.gen_lep2_p4.pt()     << std::endl;
     out << "gen_lep2_id          = " << info.gen_lep2_id          << std::endl;
     out << "gen_lep2_charge      = " << info.gen_lep2_charge      << std::endl;
+    out << "passes_ossf          = " << info.passes_ossf          << std::endl;
+    out << "passes_mwin          = " << info.passes_mwin          << std::endl;
+    out << "passes_svtx          = " << info.passes_svtx          << std::endl;
+    out << "passes_trig          = " << info.passes_trig          << std::endl;
+    out << "passes_idiso         = " << info.passes_idiso         << std::endl;
+    out << "passes_full          = " << info.passes_full          << std::endl;
     out << "nvtxs                = " << info.nvtxs                << std::endl;
     out << "pfmet                = " << info.pfmet                << std::endl;
     out << "pfmet_phi            = " << info.pfmet_phi            << std::endl;
@@ -477,16 +509,7 @@ DrellYanNtupleMaker::~DrellYanNtupleMaker()
 }
 
 // ------------------------------------ //
-// Stuff to do before job starts
-// ------------------------------------ //
-
-void DrellYanNtupleMaker::BeginJob()
-{
-    m_info.SetBranches(m_tree);
-}
-
-// ------------------------------------ //
-// Stuff to do before job starts
+// helper functions and classes 
 // ------------------------------------ //
 
 struct Selection
@@ -535,25 +558,24 @@ std::ostream& operator<<(std::ostream& out, Selection::Info si)
 //     assert(s_Selections.size()==Selection::static_size);
 //     return s_Selections;
 // }
-static std::vector<Selection::Info> selections
-{
-    {"ossf" , "OSSF"               , false, -1},
-    {"mwin" , "Mass Window"        , false, -1},
-    {"svtx" , "Same Vertex"        , false, -1},
-    {"trig" , "Passes Trigger"     , false, -1},
-    {"idiso", "Passes ID/Isolation", false, -1},
-    {"full" , "Full Selection"     , false, -1}
-};
             
-void UpdateSelection(const Selection::value_type sel_type, const int hyp_idx)
+void UpdateSelection(Selection::Info& sel, const int hyp_idx)
 {
 //     std::cout << "selection before " << Selections()[sel_type] << std::endl;
 //     Selections()[sel_type].passes  = true; 
 //     Selections()[sel_type].hyp_idx = dy::ChooseBetterHypothesis(hyp_idx, Selections()[sel_type].hyp_idx); 
 //     std::cout << "selection after  " << Selections()[sel_type] << std::endl;
-    assert(selections.size()==Selection::static_size);
-    selections[sel_type].passes  = (hyp_idx >= 0); 
-    selections[sel_type].hyp_idx = dy::ChooseBetterHypothesis(hyp_idx, selections[sel_type].hyp_idx); 
+    sel.passes  = (hyp_idx >= 0); 
+    sel.hyp_idx = dy::ChooseBetterHypothesis(hyp_idx, sel.hyp_idx); 
+}
+
+// ------------------------------------ //
+// Stuff to do before job starts
+// ------------------------------------ //
+
+void DrellYanNtupleMaker::BeginJob()
+{
+    m_info.SetBranches(m_tree);
 }
 
 // ------------------------------------ //
@@ -655,11 +677,25 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
 
     // reco information 
     // ---------------------- // 
+    std::vector<Selection::Info> selections;
+    selections.push_back(Selection::Info{"ossf"  , "OSSF"                , false , -1});
+    selections.push_back(Selection::Info{"mwin"  , "Mass Window"         , false , -1});
+    selections.push_back(Selection::Info{"svtx"  , "Same Vertex"         , false , -1});
+    selections.push_back(Selection::Info{"trig"  , "Passes Trigger"      , false , -1});
+    selections.push_back(Selection::Info{"idiso" , "Passes ID/Isolation" , false , -1});
+    selections.push_back(Selection::Info{"full"  , "Full Selection"      , false , -1});
+    assert(selections.size()==Selection::static_size);
 
     // loop over hypotheses
-    int best_hyp = -1;
+    if (m_verbose) {std::cout << "looping over " << tas::hyp_type().size() << " hypotheses" << std::endl;}
+
     for (size_t hyp_idx = 0; hyp_idx < tas::hyp_type().size(); ++hyp_idx)
     {                
+        if (m_verbose)
+        {
+            std::cout << "hyp " << hyp_idx << " of " << tas::hyp_type().size() << std::endl;
+        }
+
         // convenience variables
         const float dilep_mass = tas::hyp_p4().at(hyp_idx).mass();
         const int flavor_type  = tas::hyp_type().at(hyp_idx);
@@ -677,66 +713,51 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         }
         else
         {
-//             UpdateSelection(Selection::ossf, hyp_idx);
+            UpdateSelection(selections[Selection::ossf], hyp_idx);
         }
-//             Selections()[Selection::ossf].passes  = true;
-//             Selections()[Selection::ossf].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::ossf].hyp_idx, hyp_idx);
     
-//         // 60 < m_ll << 120 GeV
+        // 60 < m_ll << 120 GeV
         if (not (60 < dilep_mass && dilep_mass < 120.0))        
         {
             if (m_verbose) {std::cout << "not SF" << std::endl;}
             continue;
         }
-//         else
-//         {
-//             Selections()[Selection::mwin].passes  = true;
-//             Selections()[Selection::mwin].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::mwin].hyp_idx, hyp_idx);
-//         }
-//     
+        {
+            UpdateSelection(selections[Selection::mwin], hyp_idx);
+        }
+    
         // both leptons from first vertex
         if (not hypsFromFirstGoodVertex(hyp_idx))
         {
             if (m_verbose) {std::cout << "did not pass same vertex" << std::endl;}
             continue;
         }
-//         else
-//         {
-//             Selections()[Selection::svtx].passes  = true;
-//             Selections()[Selection::svtx].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::svtx].hyp_idx, hyp_idx);
-//         }
-//     
+        {
+            UpdateSelection(selections[Selection::svtx], hyp_idx);
+        }
+
         // trigger
         if (not dy::passesTrigger(tas::hyp_type().at(hyp_idx)))
         {
             if (m_verbose) {std::cout << "did not pass trigger" << std::endl;}
             continue;
         }
-//         else
-//         {
-//             Selections()[Selection::svtx].passes  = true;
-//             Selections()[Selection::svtx].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::svtx].hyp_idx, hyp_idx);
-//         }
-//     
+        {
+            UpdateSelection(selections[Selection::trig], hyp_idx);
+        }
+
         // l1 and l2 pass selection
         if (not dy::isSelectedHypothesis(hyp_idx))
         {
             if (m_verbose) {std::cout << "not selected" << std::endl;}
             continue;
         }
-//         else
-//         {
-//             Selections()[Selection::idiso].passes  = true;
-//             Selections()[Selection::idiso].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::idiso].hyp_idx, hyp_idx);
-//         }
+        {
+            UpdateSelection(selections[Selection::idiso], hyp_idx);
+        }
     
         // if here, fully selected
-//         UpdateSelection(Selection::full, hyp_idx);
-//         Selections()[Selection::full].passes  = true;
-//         Selections()[Selection::full].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::full].hyp_idx, hyp_idx);
-
-        // if we're here, then good event :)
-        best_hyp = dy::ChooseBetterHypothesis(best_hyp, hyp_idx);
+        UpdateSelection(selections[Selection::full], hyp_idx);
 
     } // end loop over hypothesis
 
@@ -750,15 +771,31 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         }
     }
 
-    // only continue if hyp has been selected
+    // only continue if a hyp has been selected
+    // the order of the selction matters
     // all: 0, mm: 1, em: 2, ee: 3
-    const int hyp_idx = best_hyp;
+    int hyp_idx = -1;
+    for (const auto& s : selections)
+    {
+        hyp_idx = (s.passes ? s.hyp_idx : hyp_idx);
+    }
+
     if (hyp_idx < 0)
     {
         if (m_verbose) {std::cout << "no good hypthesis chosen" << std::endl;}
     }
     else
     {
+        if (m_verbose) {std::cout << "best hypthesis chosen = " << hyp_idx << std::endl;}
+
+        // selections:
+        m_info.passes_ossf  = selections[Selection::ossf ].passes;
+        m_info.passes_mwin  = selections[Selection::mwin ].passes;
+        m_info.passes_svtx  = selections[Selection::svtx ].passes;
+        m_info.passes_trig  = selections[Selection::trig ].passes;
+        m_info.passes_idiso = selections[Selection::idiso].passes;
+        m_info.passes_full  = selections[Selection::full ].passes;
+
         // reco hyp variables
         m_info.pfmet     = tas::evt_pfmet_type1cor();
         m_info.pfmet_phi = tas::evt_pfmetPhi_type1cor();

@@ -21,22 +21,17 @@ void SetYieldAxisLabel(TH1* const hist)
 void BookHists(rt::TH1Container& hc)
 {
     // gen level plots
-    hc.Add(new TH1D("h_gen_yield"    , "Yield count of gen level l^{+}l^{-}"                               ,   4, -1,  3));
-    hc.Add(new TH1D("h_gen_raw_yield", "Yield raw count of gen level l^{+}l^{-} (#taus #rightarrow e/#mu)" ,   4, -1,  3));
-    hc.Add(new TH1D("h_gen_mee"      , "Generator level dielectron mass;m_{ee} (GeV)"                      , 150, 0, 150));
-    hc.Add(new TH1D("h_gen_mmm"      , "Generator level dilmuon mass;m_{#mu#mu} (GeV)"                     , 150, 0, 150));
-    hc.Add(new TH1D("h_gen_mll"      , "Generator level dilepton mass;m_{ll} (GeV)"                        , 150, 0, 150));
+    hc.Add(new TH1D("h_gen_yield"          , "Yield count of gen level l^{+}l^{-}"                              ,   4, -1,  3));
+    hc.Add(new TH1D("h_gen_notau_yield"    , "Yield count of gen level l^{+}l^{-} (no #taus)"                   ,   4, -1,  3));
+    hc.Add(new TH1D("h_gen_tau_yield"      , "Yield count of gen level l^{+}l^{-} (#taus #rightarrow e/#mu)"    ,   4, -1,  3));
+    hc.Add(new TH1D("h_gen_raw_yield"      , "Yield raw count of gen level l^{+}l^{-} (#taus #rightarrow e/#mu)",   4, -1,  3));
+    hc.Add(new TH1D("h_gen_raw_notau_yield", "Yield raw count of gen level l^{+}l^{-} (no #taus)"               ,   4, -1,  3));
+    hc.Add(new TH1D("h_gen_raw_tau_yield"  , "Yield raw count of gen level l^{+}l^{-} (#taus #rightarrow e/#mu)",   4, -1,  3));
 
-    hc.Add(new TH1D("h_gen_notau_yield", "Yield count of gen level l^{+}l^{-} (no #taus)"          ,   4, -1,  3));
-    hc.Add(new TH1D("h_gen_notau_mee"  , "Generator level dielectron mass (no #taus);m_{ee} (GeV)" , 150, 0, 150));
-    hc.Add(new TH1D("h_gen_notau_mmm"  , "Generator level dilmuon mass (no #taus);m_{#mu#mu} (GeV)", 150, 0, 150));
-    hc.Add(new TH1D("h_gen_notau_mll"  , "Generator level dilepton mass (no #taus);m_{ll} (GeV)"   , 150, 0, 150));
 
-    hc.Add(new TH1D("h_gen_tau_yield", "Yield count of gen level l^{+}l^{-} (#taus #rightarrow e/#mu)"          ,   4, -1,  3));
-    hc.Add(new TH1D("h_gen_tau_mee"  , "Generator level dielectron mass (#taus #rightarrow e/#mu);m_{ee} (GeV)" , 150, 0, 150));
-    hc.Add(new TH1D("h_gen_tau_mmm"  , "Generator level dilmuon mass (#taus #rightarrow e/#mu);m_{#mu#mu} (GeV)", 150, 0, 150));
-    hc.Add(new TH1D("h_gen_tau_mll"  , "Generator level dilepton mass (#taus #rightarrow e/#mu);m_{ll} (GeV)"   , 150, 0, 150));
-
+    hc.Add(new TH1D("h_gen_mee"      , "Generator level dielectron mass;m_{ee} (GeV)" , 150, 0, 150));
+    hc.Add(new TH1D("h_gen_mmm"      , "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
+    hc.Add(new TH1D("h_gen_mll"      , "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
 
     // acceptance plots
 /*     hc.Add(new TH1D("h_acc_gen_den", "Acceptence denominator;Channel;Event Count"        , 4, -1, 3)); */
@@ -69,11 +64,13 @@ void BookHists(rt::TH1Container& hc)
     /*     } */
 
     // change axis labels
-    SetYieldAxisLabel(hc["h_gen_yield"      ]);
-    SetYieldAxisLabel(hc["h_gen_raw_yield"  ]);
-    SetYieldAxisLabel(hc["h_gen_notau_yield"]);
-    SetYieldAxisLabel(hc["h_gen_tau_yield"  ]);
-    SetYieldAxisLabel(hc["h_reco_full_yield"]);
+    SetYieldAxisLabel(hc["h_gen_yield"          ]);
+    SetYieldAxisLabel(hc["h_gen_notau_yield"    ]);
+    SetYieldAxisLabel(hc["h_gen_tau_yield"      ]);
+    SetYieldAxisLabel(hc["h_gen_raw_yield"      ]);
+    SetYieldAxisLabel(hc["h_gen_raw_notau_yield"]);
+    SetYieldAxisLabel(hc["h_gen_raw_tau_yield"  ]);
+    SetYieldAxisLabel(hc["h_reco_full_yield"    ]);
 /*     SetYieldAxisLabel(hc["h_acc_gen_den"    ]); */
 /*     SetYieldAxisLabel(hc["h_acc_gen_num"    ]); */
 /*     SetYieldAxisLabel(hc["h_acc_rec_num"    ]); */
@@ -132,9 +129,9 @@ void CreatePlots
     chain.Draw("1>>+h_gen_yield", WrapLumi(is_gen_mm_includetau), "goff");
     chain.Draw("2>>+h_gen_yield", WrapLumi(is_gen_ee_includetau), "goff");
 
-    chain.Draw("0>> h_gen_raw_yield", is_gen_ll, "goff");
-    chain.Draw("1>>+h_gen_raw_yield", is_gen_mm, "goff");
-    chain.Draw("2>>+h_gen_raw_yield", is_gen_ee, "goff");
+    chain.Draw("0>> h_gen_raw_yield", is_gen_ll_includetau, "goff");
+    chain.Draw("1>>+h_gen_raw_yield", is_gen_mm_includetau, "goff");
+    chain.Draw("2>>+h_gen_raw_yield", is_gen_ee_includetau, "goff");
 
     chain.Draw("gen_p4.mass()>>h_gen_mee", WrapLumi(is_gen_ee), "goff");
     chain.Draw("gen_p4.mass()>>h_gen_mmm", WrapLumi(is_gen_mm), "goff");
@@ -144,11 +141,17 @@ void CreatePlots
     chain.Draw("0>>h_gen_notau_yield" , WrapLumi(is_gen_ll), "goff");
     chain.Draw("1>>+h_gen_notau_yield", WrapLumi(is_gen_mm), "goff");
     chain.Draw("2>>+h_gen_notau_yield", WrapLumi(is_gen_ee), "goff");
+    chain.Draw("0>> h_gen_raw_notau_yield", is_gen_ll, "goff");
+    chain.Draw("1>>+h_gen_raw_notau_yield", is_gen_mm, "goff");
+    chain.Draw("2>>+h_gen_raw_notau_yield", is_gen_ee, "goff");
 
     // gen yields only including taus
     chain.Draw("0>>h_gen_tau_yield" , WrapLumi(is_gen_ll_onlytau), "goff");
     chain.Draw("1>>+h_gen_tau_yield", WrapLumi(is_gen_mm_onlytau), "goff");
     chain.Draw("2>>+h_gen_tau_yield", WrapLumi(is_gen_ee_onlytau), "goff");
+    chain.Draw("0>> h_gen_raw_tau_yield", is_gen_ll_onlytau, "goff");
+    chain.Draw("1>>+h_gen_raw_tau_yield", is_gen_mm_onlytau, "goff");
+    chain.Draw("2>>+h_gen_raw_tau_yield", is_gen_ee_onlytau, "goff");
 
     // raw full yields
     chain.Draw("0>> h_reco_full_yield", WrapLumi(is_ll), "goff");
