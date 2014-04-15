@@ -162,6 +162,17 @@ void FillRecoHists(rt::TH1Container& hc, const int hyp_idx, const Selection::val
     }
     rt::Fill1D(hc[hist_prefix+"yield"], 0.0, event_scale);
     rt::Fill1D(hc["h_reco_cutflow_ll"], sel, event_scale);
+
+    const std::string hist_raw_prefix = "h_reco_raw_" + Selections()[sel].name + "_";
+    if (is_mm)
+    {
+        rt::Fill1D(hc[hist_raw_prefix+"yield"], 1.0, 1.0);
+    }
+    if (is_ee)
+    {
+        rt::Fill1D(hc[hist_raw_prefix+"yield"], 2.0, 1.0);
+    }
+    rt::Fill1D(hc[hist_raw_prefix+"yield"], 0.0, 1.0);
 }
 
 void DrellYanLooper::BeginJob()
@@ -201,6 +212,9 @@ void DrellYanLooper::BeginJob()
         hc.Add(new TH1D(Form("h_reco_%s_mmm"  , sel.name.c_str()), Form("%s dilmuon mass;m_{#mu#mu} (GeV)"       , sel.title.c_str()), 150, 0, 150));
         hc.Add(new TH1D(Form("h_reco_%s_mll"  , sel.name.c_str()), Form("%s dilepton mass;m_{ll} (GeV)"          , sel.title.c_str()), 150, 0, 150));
         SetYieldAxisLabel(hc["h_reco_"+sel.name+"_yield"]);
+
+        hc.Add(new TH1D(Form("h_reco_raw_%s_yield", sel.name.c_str()), Form("%s rqw_yield count of reco level l^{+}l^{-}", sel.title.c_str()),   4, -1,  3));
+        SetYieldAxisLabel(hc["h_reco_raw_"+sel.name+"_yield"]);
     }
 
     // change axis labels
@@ -368,18 +382,18 @@ void DrellYanLooper::Analyze(const long event)
     // ---------------------- // 
 
     // require at least 3 tracks in the event
-//     if (tas::trks_trk_p4().size() < 3)
-//     {
-//         if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
-//         return;
-//     }
+    if (tas::trks_trk_p4().size() < 3)
+    {
+        if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
+        return;
+    }
 
     // require standard cleaning 
-//     if (!cleaning_standardNovember2011()) 
-//     {
-//         if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
-//         return;
-//     }
+    if (!cleaning_standardNovember2011()) 
+    {
+        if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
+        return;
+    }
 
     // reco level plots
     // ---------------------- // 
@@ -539,6 +553,21 @@ void DrellYanLooper::EndJob()
         t_reco_yields.setRowLabel(s.title, i);
     }
     std::cout << t_reco_yields << std::endl;
+
+    CTable t_reco_raw_yields;
+    t_reco_raw_yields.useTitle();
+    t_reco_raw_yields.setTitle("yields for Drell-Yan Exercise");
+    t_reco_raw_yields.setTable() ("ee", "mm", "ll");
+    for (size_t i = 0; i < Selections().size(); ++i)
+    {
+        const auto s = Selections()[i];
+        const dy::Yield yield = dy::GetYieldFromHist(*hc["h_reco_raw_"+s.name+"_yield"]);
+        t_reco_raw_yields.setCell(yield.ee.pm("4.1"), i, 0);
+        t_reco_raw_yields.setCell(yield.mm.pm("4.1"), i, 1);
+        t_reco_raw_yields.setCell(yield.ll.pm("4.1"), i, 2);
+        t_reco_raw_yields.setRowLabel(s.title, i);
+    }
+    std::cout << t_reco_raw_yields << std::endl;
 
     std::cout << "[DrellYanLooper] Saving hists to output file: " << m_output_filename << std::endl;
     hc.Write(m_output_filename);
