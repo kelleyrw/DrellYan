@@ -66,20 +66,6 @@ public:
     float kfactor;
     float filt_eff;
 
-    // some reco event level info
-    int nvtxs;
-    float pfmet;
-    float pfmet_phi;
-    int pu_nvtxs;
-    float pu_ntrueint;
-
-    // trigger
-    bool trig_dmu;
-    bool trig_del;
-    bool trig_smu;
-    bool trig_sel;
-    bool trig;
-
     // Gen hypothesis specific info 
     int gen_hyp_type;
     bool is_gen_ee;
@@ -97,51 +83,116 @@ public:
     LorentzVector gen_lep2_p4;
     int gen_lep2_id;
     int gen_lep2_charge;
+
+    // some reco event level info
+    int nvtxs;
+    float pfmet;
+    float pfmet_phi;
+    int pu_nvtxs;
+    float pu_ntrueint;
+
+    // trigger
+    bool trig_dmu;
+    bool trig_del;
+    bool trig_smu;
+    bool trig_sel;
+    bool trig;
+
+    // reco hyp variables
+    int hyp_type;
+    LorentzVector hyp_p4;
+    bool is_ee;
+    bool is_mm;
+    bool is_ll;
+
+    // reco lepton variables
+    LorentzVector lep1_p4;
+    int lep1_id;
+    int lep1_charge;
+    double lep1_iso;
+    double lep1_d0;
+    double lep1_dz;
+    bool lep1_passes_id;
+    bool lep1_passes_iso;
+    bool lep1_passes_sel;
+
+    LorentzVector lep2_p4;
+    int lep2_id;
+    int lep2_charge;
+    double lep2_iso;
+    double lep2_d0;
+    double lep2_dz;
+    bool lep2_passes_id;
+    bool lep2_passes_iso;
+    bool lep2_passes_sel;
 };
 
 DrellYanInfo::DrellYanInfo()
-    : run                  (-999999   ) 
-    , ls                   (-999999   ) 
-    , evt                  (-999999   ) 
-    , sample               (-999999   ) 
-    , dataset              (""        ) 
-    , filename             (""        ) 
-    , is_real_data         (false     ) 
-    , scale1fb             (1.0       ) 
-    , scale1fb_cms2        (1.0       ) 
-    , lumi                 (1.0       ) 
-    , xsec                 (-999999   ) 
-    , nevts_aod            (-999999   ) 
-    , nevts_cms2           (-999999   ) 
-    , nevts_file           (-999999   ) 
-    , kfactor              (-999999   ) 
-    , filt_eff             (-999999   ) 
-    , nvtxs                (-999999   ) 
-    , pfmet                (-999999   ) 
-    , pfmet_phi            (-999999   ) 
-    , pu_nvtxs             (-999999   ) 
-    , pu_ntrueint          (-999999   ) 
-    , trig_dmu             (false     ) 
-    , trig_del             (false     ) 
-    , trig_smu             (false     ) 
-    , trig_sel             (false     ) 
-    , trig                 (false     ) 
-    , gen_hyp_type         (false     ) 
-    , is_gen_ee            (false     ) 
-    , is_gen_mm            (false     ) 
-    , is_gen_tt            (false     ) 
-    , is_gen_ee_includetau (false     ) 
-    , is_gen_mm_includetau (false     ) 
-    , is_gen_fromz         (false     ) 
-    , is_gen_acc_den       (false     ) 
-    , is_gen_acc_num       (false     ) 
-    , gen_p4               (0, 0, 0, 0) 
-    , gen_lep1_p4          (0, 0, 0, 0) 
-    , gen_lep1_id          (-999999   ) 
-    , gen_lep1_charge      (-999999   ) 
-    , gen_lep2_p4          (0, 0, 0, 0) 
-    , gen_lep2_id          (-999999   ) 
-    , gen_lep2_charge      (-999999   ) 
+    : run                  ( -999999    ) 
+    , ls                   ( -999999    ) 
+    , evt                  ( -999999    ) 
+    , sample               ( -999999    ) 
+    , dataset              ( ""         ) 
+    , filename             ( ""         ) 
+    , is_real_data         ( false      ) 
+    , scale1fb             ( 1.0        ) 
+    , scale1fb_cms2        ( 1.0        ) 
+    , lumi                 ( 1.0        ) 
+    , xsec                 ( -999999    ) 
+    , nevts_aod            ( -999999    ) 
+    , nevts_cms2           ( -999999    ) 
+    , nevts_file           ( -999999    ) 
+    , kfactor              ( -999999    ) 
+    , filt_eff             ( -999999    ) 
+    , gen_hyp_type         ( false      ) 
+    , is_gen_ee            ( false      ) 
+    , is_gen_mm            ( false      ) 
+    , is_gen_tt            ( false      ) 
+    , is_gen_ee_includetau ( false      ) 
+    , is_gen_mm_includetau ( false      ) 
+    , is_gen_fromz         ( false      ) 
+    , is_gen_acc_den       ( false      ) 
+    , is_gen_acc_num       ( false      ) 
+    , gen_p4               ( 0, 0, 0, 0 ) 
+    , gen_lep1_p4          ( 0, 0, 0, 0 ) 
+    , gen_lep1_id          ( -999999    ) 
+    , gen_lep1_charge      ( -999999    ) 
+    , gen_lep2_p4          ( 0, 0, 0, 0 ) 
+    , gen_lep2_id          ( -999999    ) 
+    , gen_lep2_charge      ( -999999    ) 
+    , nvtxs                ( -999999    ) 
+    , pfmet                ( -999999    ) 
+    , pfmet_phi            ( -999999    ) 
+    , pu_nvtxs             ( -999999    ) 
+    , pu_ntrueint          ( -999999    ) 
+    , trig_dmu             ( false      ) 
+    , trig_del             ( false      ) 
+    , trig_smu             ( false      ) 
+    , trig_sel             ( false      ) 
+    , trig                 ( false      ) 
+    , hyp_type             ( -99999     ) 
+    , hyp_p4               ( 0, 0, 0, 0 ) 
+    , is_ee                ( false      ) 
+    , is_mm                ( false      ) 
+    , is_ll                ( false      ) 
+    , lep1_p4              ( 0, 0, 0, 0 ) 
+    , lep1_id              ( -999999    ) 
+    , lep1_charge          ( -999999    ) 
+    , lep1_iso             ( -999999    ) 
+    , lep1_d0              ( -999999    ) 
+    , lep1_dz              ( -999999    ) 
+    , lep1_passes_id       ( false      ) 
+    , lep1_passes_iso      ( false      ) 
+    , lep1_passes_sel      ( false      ) 
+    , lep2_p4              ( 0, 0, 0, 0 ) 
+    , lep2_id              ( -999999    ) 
+    , lep2_charge          ( -999999    ) 
+    , lep2_iso             ( -999999    ) 
+    , lep2_d0              ( -999999    ) 
+    , lep2_dz              ( -999999    ) 
+    , lep2_passes_id       ( false      ) 
+    , lep2_passes_iso      ( false      ) 
+    , lep2_passes_sel      ( false      ) 
 {
 }
 
@@ -163,16 +214,6 @@ void DrellYanInfo::Reset()
     nevts_file           = -999999; 
     kfactor              = -999999; 
     filt_eff             = -999999; 
-    nvtxs                = -999999; 
-    pfmet                = -999999; 
-    pfmet_phi            = -999999; 
-    pu_nvtxs             = -999999; 
-    pu_ntrueint          = -999999; 
-    trig_dmu             = false; 
-    trig_del             = false; 
-    trig_smu             = false; 
-    trig_sel             = false; 
-    trig                 = false; 
     gen_hyp_type         = false; 
     is_gen_ee            = false; 
     is_gen_mm            = false; 
@@ -189,6 +230,39 @@ void DrellYanInfo::Reset()
     gen_lep2_p4          = LorentzVector(0, 0, 0, 0); 
     gen_lep2_id          = -999999; 
     gen_lep2_charge      = -999999; 
+    nvtxs                = -999999; 
+    pfmet                = -999999; 
+    pfmet_phi            = -999999; 
+    pu_nvtxs             = -999999; 
+    pu_ntrueint          = -999999; 
+    trig_dmu             = false; 
+    trig_del             = false; 
+    trig_smu             = false; 
+    trig_sel             = false; 
+    trig                 = false; 
+    hyp_type             = -99999;
+    hyp_p4               = LorentzVector(0, 0, 0, 0 );
+    is_ee                = false;
+    is_mm                = false; 
+    is_ll                = false; 
+    lep1_p4              = LorentzVector(0, 0, 0, 0); 
+    lep1_id              = -999999;
+    lep1_charge          = -999999;
+    lep1_iso             = -999999;
+    lep1_d0              = -999999;
+    lep1_dz              = -999999;
+    lep1_passes_id       = false; 
+    lep1_passes_iso      = false; 
+    lep1_passes_sel      = false; 
+    lep2_p4              = LorentzVector(0, 0, 0, 0); 
+    lep2_id              = -999999;
+    lep2_charge          = -999999;
+    lep2_iso             = -999999;
+    lep2_d0              = -999999;
+    lep2_dz              = -999999;
+    lep2_passes_id       = false;
+    lep2_passes_iso      = false;
+    lep2_passes_sel      = false;
 }
     
 void DrellYanInfo::SetBranches(TTree& tree)
@@ -200,11 +274,6 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("dataset"              , &dataset              );
     tree.Branch("filename"             , &filename             );
     tree.Branch("is_real_data"         , &is_real_data         );
-    tree.Branch("nvtxs"                , &nvtxs                );
-    tree.Branch("pfmet"                , &pfmet                );
-    tree.Branch("pfmet_phi"            , &pfmet_phi            );
-    tree.Branch("pu_nvtxs"             , &pu_nvtxs             );
-    tree.Branch("pu_ntrueint"          , &pu_ntrueint          );
     tree.Branch("scale1fb"             , &scale1fb             );
     tree.Branch("scale1fb_cms2"        , &scale1fb_cms2        );
     tree.Branch("lumi"                 , &lumi                 );
@@ -213,11 +282,6 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("nevts_cms2"           , &nevts_cms2           );
     tree.Branch("nevts_file"           , &nevts_file           );
     tree.Branch("filt_eff"             , &filt_eff             );
-    tree.Branch("trig_dmu"             , &trig_dmu             );
-    tree.Branch("trig_del"             , &trig_del             );
-    tree.Branch("trig_smu"             , &trig_smu             );
-    tree.Branch("trig_sel"             , &trig_sel             );
-    tree.Branch("trig"                 , &trig                 );
     tree.Branch("gen_hyp_type"         , &gen_hyp_type         );
     tree.Branch("is_gen_ee"            , &is_gen_ee            );
     tree.Branch("is_gen_mm"            , &is_gen_mm            );
@@ -231,10 +295,43 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("gen_lep1_charge"      , &gen_lep1_charge      );
     tree.Branch("gen_lep2_id"          , &gen_lep2_id          );
     tree.Branch("gen_lep2_charge"      , &gen_lep2_charge      );
+    tree.Branch("nvtxs"                , &nvtxs                );
+    tree.Branch("pfmet"                , &pfmet                );
+    tree.Branch("pfmet_phi"            , &pfmet_phi            );
+    tree.Branch("pu_nvtxs"             , &pu_nvtxs             );
+    tree.Branch("pu_ntrueint"          , &pu_ntrueint          );
+    tree.Branch("trig_dmu"             , &trig_dmu             );
+    tree.Branch("trig_del"             , &trig_del             );
+    tree.Branch("trig_smu"             , &trig_smu             );
+    tree.Branch("trig_sel"             , &trig_sel             );
+    tree.Branch("trig"                 , &trig                 );
+    tree.Branch("hyp_type"             , &hyp_type             );
+    tree.Branch("is_ee"                , &is_ee                );
+    tree.Branch("is_mm"                , &is_mm                );
+    tree.Branch("is_ll"                , &is_ll                );
+    tree.Branch("lep1_id"              , &lep1_id              );
+    tree.Branch("lep1_charge"          , &lep1_charge          );
+    tree.Branch("lep1_iso"             , &lep1_iso             );
+    tree.Branch("lep1_d0"              , &lep1_d0              );
+    tree.Branch("lep1_dz"              , &lep1_dz              );
+    tree.Branch("lep1_passes_id"       , &lep1_passes_id       );
+    tree.Branch("lep1_passes_iso"      , &lep1_passes_iso      );
+    tree.Branch("lep1_passes_sel"      , &lep1_passes_sel      );
+    tree.Branch("lep2_id"              , &lep2_id              );
+    tree.Branch("lep2_charge"          , &lep2_charge          );
+    tree.Branch("lep2_iso"             , &lep2_iso             );
+    tree.Branch("lep2_d0"              , &lep2_d0              );
+    tree.Branch("lep2_dz"              , &lep2_dz              );
+    tree.Branch("lep2_passes_id"       , &lep2_passes_id       );
+    tree.Branch("lep2_passes_iso"      , &lep2_passes_iso      );
+    tree.Branch("lep2_passes_sel"      , &lep2_passes_sel      );
 
-    tree.Branch("gen_p4"     , "LorentzVector", &gen_p4     );
-    tree.Branch("gen_lep1_p4", "LorentzVector", &gen_lep1_p4);
-    tree.Branch("gen_lep2_p4", "LorentzVector", &gen_lep2_p4);
+    tree.Branch("hyp_p4"      , "LorentzVector" , &hyp_p4     );
+    tree.Branch("lep1_p4"     , "LorentzVector" , &lep1_p4    );
+    tree.Branch("lep2_p4"     , "LorentzVector" , &lep2_p4    );
+    tree.Branch("gen_p4"      , "LorentzVector" , &gen_p4     );
+    tree.Branch("gen_lep1_p4" , "LorentzVector" , &gen_lep1_p4);
+    tree.Branch("gen_lep2_p4" , "LorentzVector" , &gen_lep2_p4);
 }
 
 std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
@@ -255,16 +352,6 @@ std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
     out << "nevts_file           = " << info.nevts_file           << std::endl;
     out << "kfactor              = " << info.kfactor              << std::endl;
     out << "filt_eff             = " << info.filt_eff             << std::endl;
-    out << "nvtxs                = " << info.nvtxs                << std::endl;
-    out << "pfmet                = " << info.pfmet                << std::endl;
-    out << "pfmet_phi            = " << info.pfmet_phi            << std::endl;
-    out << "pu_nvtxs             = " << info.pu_nvtxs             << std::endl;
-    out << "pu_ntrueint          = " << info.pu_ntrueint          << std::endl;
-    out << "trig_dmu             = " << info.trig_dmu             << std::endl;
-    out << "trig_del             = " << info.trig_del             << std::endl;
-    out << "trig_smu             = " << info.trig_smu             << std::endl;
-    out << "trig_sel             = " << info.trig_sel             << std::endl;
-    out << "trig                 = " << info.trig                 << std::endl;
     out << "gen_hyp_type         = " << info.gen_hyp_type         << std::endl;
     out << "is_gen_ee            = " << info.is_gen_ee            << std::endl;
     out << "is_gen_mm            = " << info.is_gen_mm            << std::endl;
@@ -281,6 +368,39 @@ std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
     out << "gen_lep2_p4.pt()     = " << info.gen_lep2_p4.pt()     << std::endl;
     out << "gen_lep2_id          = " << info.gen_lep2_id          << std::endl;
     out << "gen_lep2_charge      = " << info.gen_lep2_charge      << std::endl;
+    out << "nvtxs                = " << info.nvtxs                << std::endl;
+    out << "pfmet                = " << info.pfmet                << std::endl;
+    out << "pfmet_phi            = " << info.pfmet_phi            << std::endl;
+    out << "pu_nvtxs             = " << info.pu_nvtxs             << std::endl;
+    out << "pu_ntrueint          = " << info.pu_ntrueint          << std::endl;
+    out << "trig_dmu             = " << info.trig_dmu             << std::endl;
+    out << "trig_del             = " << info.trig_del             << std::endl;
+    out << "trig_smu             = " << info.trig_smu             << std::endl;
+    out << "trig_sel             = " << info.trig_sel             << std::endl;
+    out << "trig                 = " << info.trig                 << std::endl;
+    out << "hyp_type             = " << info.hyp_type             << std::endl;
+    out << "hyp_p4.mass()        = " << info.hyp_p4.mass()        << std::endl;
+    out << "is_ee                = " << info.is_ee                << std::endl;
+    out << "is_mm                = " << info.is_mm                << std::endl;
+    out << "is_ll                = " << info.is_ll                << std::endl;
+    out << "lep1_p4.pt()         = " << info.lep1_p4.pt()         << std::endl;
+    out << "lep1_id              = " << info.lep1_id              << std::endl;
+    out << "lep1_charge          = " << info.lep1_charge          << std::endl;
+    out << "lep1_iso             = " << info.lep1_iso             << std::endl;
+    out << "lep1_d0              = " << info.lep1_d0              << std::endl;
+    out << "lep1_dz              = " << info.lep1_dz              << std::endl;
+    out << "lep1_passes_id       = " << info.lep1_passes_id       << std::endl;
+    out << "lep1_passes_iso      = " << info.lep1_passes_iso      << std::endl;
+    out << "lep1_passes_sel      = " << info.lep1_passes_sel      << std::endl;
+    out << "lep2_p4.pt()         = " << info.lep2_p4.pt()         << std::endl;
+    out << "lep2_id              = " << info.lep2_id              << std::endl;
+    out << "lep2_charge          = " << info.lep2_charge          << std::endl;
+    out << "lep2_iso             = " << info.lep2_iso             << std::endl;
+    out << "lep2_d0              = " << info.lep2_d0              << std::endl;
+    out << "lep2_dz              = " << info.lep2_dz              << std::endl;
+    out << "lep2_passes_id       = " << info.lep2_passes_id       << std::endl;
+    out << "lep2_passes_iso      = " << info.lep2_passes_iso      << std::endl;
+    out << "lep2_passes_sel      = " << info.lep2_passes_sel      << std::endl;
     return out;
 }
 
@@ -366,6 +486,77 @@ void DrellYanNtupleMaker::BeginJob()
 }
 
 // ------------------------------------ //
+// Stuff to do before job starts
+// ------------------------------------ //
+
+struct Selection
+{
+    enum value_type
+    {
+        ossf,
+        mwin,
+        svtx,
+        trig,
+        idiso,
+        full,
+        static_size
+    };
+
+    struct Info
+    {
+        std::string name;
+        std::string title;
+        bool passes;
+        int hyp_idx;
+    };
+};
+
+std::ostream& operator<<(std::ostream& out, Selection::Info si)
+{
+    out << "{"  << si.name
+        << ", " << si.title
+        << ", " << si.passes
+        << ", " << si.hyp_idx
+        << "}";
+    return out;
+}
+
+// std::vector<Selection::Info> Selections()
+// {
+//     static std::vector<Selection::Info> s_Selections = 
+//     {
+//         {"ossf" , "OSSF"               , false, -1},
+//         {"mwin" , "Mass Window"        , false, -1},
+//         {"svtx" , "Same Vertex"        , false, -1},
+//         {"trig" , "Passes Trigger"     , false, -1},
+//         {"idiso", "Passes ID/Isolation", false, -1},
+//         {"full" , "Full Selection"     , false, -1}
+//     };
+//     assert(s_Selections.size()==Selection::static_size);
+//     return s_Selections;
+// }
+static std::vector<Selection::Info> selections =
+{
+    {"ossf" , "OSSF"               , false, -1},
+    {"mwin" , "Mass Window"        , false, -1},
+    {"svtx" , "Same Vertex"        , false, -1},
+    {"trig" , "Passes Trigger"     , false, -1},
+    {"idiso", "Passes ID/Isolation", false, -1},
+    {"full" , "Full Selection"     , false, -1}
+};
+            
+void UpdateSelection(const Selection::value_type sel_type, const int hyp_idx)
+{
+//     std::cout << "selection before " << Selections()[sel_type] << std::endl;
+//     Selections()[sel_type].passes  = true; 
+//     Selections()[sel_type].hyp_idx = dy::ChooseBetterHypothesis(hyp_idx, Selections()[sel_type].hyp_idx); 
+//     std::cout << "selection after  " << Selections()[sel_type] << std::endl;
+    assert(selections.size()==Selection::static_size);
+    selections[sel_type].passes  = (hyp_idx >= 0); 
+    selections[sel_type].hyp_idx = dy::ChooseBetterHypothesis(hyp_idx, selections[sel_type].hyp_idx); 
+}
+
+// ------------------------------------ //
 // Stuff to do on each event 
 // ------------------------------------ //
 
@@ -405,6 +596,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         m_info.kfactor       = tas::evt_kfactor();
         m_info.filt_eff      = tas::evt_filt_eff();
     }
+
     // gen information 
     // ---------------------- // 
 
@@ -424,7 +616,24 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         {
             const at::GenHyp& gen_hyp = gen_hyps_clean.front();
 
+            // for dytt, only require tau tau events
+            if (m_sample_info.sample == dy::Sample::dytt and not gen_hyp.IsTauTau())
+            {
+                if (m_verbose) {std::cout << "fails dy --> tau tau requirement" << std::endl;}
+                return;
+            }
+
             // gen info:
+            if (tas::puInfo_nPUvertices().size()==3)
+            {
+                m_info.pu_nvtxs    = tas::puInfo_nPUvertices().at(1);
+                m_info.pu_ntrueint = tas::puInfo_trueNumInteractions().at(1);
+            }
+            else
+            {   
+                m_info.pu_nvtxs    = tas::puInfo_nPUvertices().at(0);
+                m_info.pu_ntrueint = tas::puInfo_trueNumInteractions().at(0);
+            }
             m_info.gen_hyp_type         = static_cast<int>(gen_hyp.Type());
             m_info.is_gen_ee            = gen_hyp.IsEE();
             m_info.is_gen_mm            = gen_hyp.IsMuMu();
@@ -442,6 +651,178 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             m_info.gen_lep2_id          = gen_hyp.Lep2().id;
             m_info.gen_lep2_charge      = gen_hyp.Lep2().charge;
         }
+    }
+
+    // reco information 
+    // ---------------------- // 
+
+    // loop over hypotheses
+    int best_hyp = -1;
+    for (size_t hyp_idx = 0; hyp_idx < tas::hyp_type().size(); ++hyp_idx)
+    {                
+        // convenience variables
+        const float dilep_mass = tas::hyp_p4().at(hyp_idx).mass();
+        const int flavor_type  = tas::hyp_type().at(hyp_idx);
+        const bool is_ee       = (flavor_type == 3);
+        const bool is_mm       = (flavor_type == 0);
+        const bool is_ll       = is_ee or is_mm; 
+
+        // apply selections
+
+        // OSSF
+        if (tas::hyp_lt_charge().at(hyp_idx) == tas::hyp_ll_charge().at(hyp_idx) or not is_ll)
+        {
+            if (m_verbose) {std::cout << "not OSSF" << std::endl;}
+            continue;
+        }
+        else
+        {
+            UpdateSelection(Selection::ossf, hyp_idx);
+        }
+//             Selections()[Selection::ossf].passes  = true;
+//             Selections()[Selection::ossf].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::ossf].hyp_idx, hyp_idx);
+    
+//         // 60 < m_ll << 120 GeV
+        if (not (60 < dilep_mass && dilep_mass < 120.0))        
+        {
+            if (m_verbose) {std::cout << "not SF" << std::endl;}
+            continue;
+        }
+//         else
+//         {
+//             Selections()[Selection::mwin].passes  = true;
+//             Selections()[Selection::mwin].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::mwin].hyp_idx, hyp_idx);
+//         }
+//     
+        // both leptons from first vertex
+        if (not hypsFromFirstGoodVertex(hyp_idx))
+        {
+            if (m_verbose) {std::cout << "did not pass same vertex" << std::endl;}
+            continue;
+        }
+//         else
+//         {
+//             Selections()[Selection::svtx].passes  = true;
+//             Selections()[Selection::svtx].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::svtx].hyp_idx, hyp_idx);
+//         }
+//     
+        // trigger
+        if (not dy::passesTrigger(tas::hyp_type().at(hyp_idx)))
+        {
+            if (m_verbose) {std::cout << "did not pass trigger" << std::endl;}
+            continue;
+        }
+//         else
+//         {
+//             Selections()[Selection::svtx].passes  = true;
+//             Selections()[Selection::svtx].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::svtx].hyp_idx, hyp_idx);
+//         }
+//     
+        // l1 and l2 pass selection
+        if (not dy::isSelectedHypothesis(hyp_idx))
+        {
+            if (m_verbose) {std::cout << "not selected" << std::endl;}
+            continue;
+        }
+//         else
+//         {
+//             Selections()[Selection::idiso].passes  = true;
+//             Selections()[Selection::idiso].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::idiso].hyp_idx, hyp_idx);
+//         }
+    
+        // if here, fully selected
+        UpdateSelection(Selection::full, hyp_idx);
+//         Selections()[Selection::full].passes  = true;
+//         Selections()[Selection::full].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::full].hyp_idx, hyp_idx);
+
+        // if we're here, then good event :)
+        best_hyp = dy::ChooseBetterHypothesis(best_hyp, hyp_idx);
+
+    } // end loop over hypothesis
+
+    if (m_verbose)
+    {
+        for (const auto& selection : selections)
+        {
+            std::cout << "selection " << selection.name << " = " 
+                << selection.passes << "\t" 
+                << selection.hyp_idx << "\n";
+        }
+    }
+
+    // only continue if hyp has been selected
+    // all: 0, mm: 1, em: 2, ee: 3
+    const int hyp_idx = best_hyp;
+    if (hyp_idx < 0)
+    {
+        if (m_verbose) {std::cout << "no good hypthesis chosen" << std::endl;}
+    }
+    else
+    {
+        // reco hyp variables
+        m_info.pfmet     = tas::evt_pfmet_type1cor();
+        m_info.pfmet_phi = tas::evt_pfmetPhi_type1cor();
+        m_info.nvtxs     = numberOfGoodVertices();
+
+        // reco hyp variables
+        m_info.hyp_type = tas::hyp_type().at(hyp_idx);
+        m_info.hyp_p4   = tas::hyp_p4().at(hyp_idx);
+        m_info.is_ee    = (m_info.hyp_type==3);
+        m_info.is_mm    = (m_info.hyp_type==0);
+        m_info.is_ll    = (m_info.is_ee or m_info.is_mm);
+
+        // trigger
+        m_info.trig_dmu = (m_info.is_mm && dy::passesTriggerDoubleLep(m_info.hyp_type));
+        m_info.trig_del = (m_info.is_ee && dy::passesTriggerDoubleLep(m_info.hyp_type));
+        m_info.trig_smu = (m_info.is_mm && dy::passesTriggerSingleLep(m_info.hyp_type));
+        m_info.trig_sel = (m_info.is_ee && dy::passesTriggerSingleLep(m_info.hyp_type));
+        m_info.trig     = dy::passesTrigger(m_info.hyp_type);
+
+        // reco lepton variables
+        // NOTE: set lepton info (lep1 is higher pT lepton, lep2 is lower pT lepton)
+        LorentzVector lep1_p4;
+        LorentzVector lep2_p4;
+        int lep1_id;
+        int lep1_idx;
+        int lep2_id;
+        int lep2_idx;
+        if (tas::hyp_lt_p4().at(hyp_idx).pt() > tas::hyp_ll_p4().at(hyp_idx).pt())
+        {
+            lep1_p4  = cms2.hyp_lt_p4().at(hyp_idx);
+            lep1_id  = cms2.hyp_lt_id().at(hyp_idx);
+            lep1_idx = cms2.hyp_lt_index().at(hyp_idx); 
+            lep2_p4  = cms2.hyp_ll_p4().at(hyp_idx);
+            lep2_id  = cms2.hyp_ll_id().at(hyp_idx);    
+            lep2_idx = cms2.hyp_ll_index().at(hyp_idx); 
+        }
+        else
+        {
+            lep1_p4  = cms2.hyp_ll_p4().at(hyp_idx);
+            lep1_id  = cms2.hyp_ll_id().at(hyp_idx);
+            lep1_idx = cms2.hyp_ll_index().at(hyp_idx); 
+            lep2_p4  = cms2.hyp_lt_p4().at(hyp_idx);
+            lep2_id  = cms2.hyp_lt_id().at(hyp_idx);    
+            lep2_idx = cms2.hyp_lt_index().at(hyp_idx); 
+        }
+        m_info.lep1_p4         = lep1_p4; 
+        m_info.lep1_id         = lep1_id;
+        m_info.lep1_charge     = -1*lep1_id/abs(lep1_id);
+        m_info.lep1_iso        = dy::leptonIsolation(lep1_id, lep1_idx);
+        m_info.lep1_d0         = dy::leptonD0(lep1_id, lep1_idx);
+        m_info.lep1_dz         = dy::leptonDz(lep1_id, lep1_idx);
+        m_info.lep1_passes_id  = dy::isGoodLepton(lep1_id, lep1_idx);
+        m_info.lep1_passes_iso = dy::isIsolatedLepton(lep1_id, lep1_idx);
+        m_info.lep1_passes_sel = m_info.lep1_passes_id && m_info.lep1_passes_iso;
+
+        m_info.lep2_p4         = lep2_p4; 
+        m_info.lep2_id         = lep2_id;
+        m_info.lep2_charge     = -1*lep2_id/abs(lep2_id);
+        m_info.lep2_iso        = dy::leptonIsolation(lep2_id, lep2_idx);
+        m_info.lep2_d0         = dy::leptonD0(lep2_id, lep2_idx);
+        m_info.lep2_dz         = dy::leptonDz(lep2_id, lep2_idx);
+        m_info.lep2_passes_id  = dy::isGoodLepton(lep2_id, lep2_idx);
+        m_info.lep2_passes_iso = dy::isIsolatedLepton(lep2_id, lep2_idx);
+        m_info.lep2_passes_sel = m_info.lep2_passes_id && m_info.lep2_passes_iso;
     }
 
     // fill the tree
