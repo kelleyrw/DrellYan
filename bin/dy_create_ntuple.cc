@@ -58,11 +58,13 @@ public:
     bool is_real_data;
     float scale1fb;
     float scale1fb_cms2;
+    float lumi;
     float xsec;
     float nevts_aod;
     float nevts_cms2;
     float nevts_file;
     float kfactor;
+    float filt_eff;
 
     // some reco event level info
     int nvtxs;
@@ -105,32 +107,34 @@ DrellYanInfo::DrellYanInfo()
     , dataset              (""        ) 
     , filename             (""        ) 
     , is_real_data         (false     ) 
-    , scale1fb             (-999999   ) 
-    , scale1fb_cms2        (-999999   ) 
+    , scale1fb             (1.0       ) 
+    , scale1fb_cms2        (1.0       ) 
+    , lumi                 (1.0       ) 
     , xsec                 (-999999   ) 
     , nevts_aod            (-999999   ) 
     , nevts_cms2           (-999999   ) 
     , nevts_file           (-999999   ) 
     , kfactor              (-999999   ) 
+    , filt_eff             (-999999   ) 
     , nvtxs                (-999999   ) 
     , pfmet                (-999999   ) 
     , pfmet_phi            (-999999   ) 
     , pu_nvtxs             (-999999   ) 
     , pu_ntrueint          (-999999   ) 
-    , trig_dmu             (-999999   ) 
-    , trig_del             (-999999   ) 
-    , trig_smu             (-999999   ) 
-    , trig_sel             (-999999   ) 
-    , trig                 (-999999   ) 
-    , gen_hyp_type         (-999999   ) 
-    , is_gen_ee            (-999999   ) 
-    , is_gen_mm            (-999999   ) 
-    , is_gen_tt            (-999999   ) 
-    , is_gen_ee_includetau (-999999   ) 
-    , is_gen_mm_includetau (-999999   ) 
-    , is_gen_fromz         (-999999   ) 
-    , is_gen_acc_den       (-999999   ) 
-    , is_gen_acc_num       (-999999   ) 
+    , trig_dmu             (false     ) 
+    , trig_del             (false     ) 
+    , trig_smu             (false     ) 
+    , trig_sel             (false     ) 
+    , trig                 (false     ) 
+    , gen_hyp_type         (false     ) 
+    , is_gen_ee            (false     ) 
+    , is_gen_mm            (false     ) 
+    , is_gen_tt            (false     ) 
+    , is_gen_ee_includetau (false     ) 
+    , is_gen_mm_includetau (false     ) 
+    , is_gen_fromz         (false     ) 
+    , is_gen_acc_den       (false     ) 
+    , is_gen_acc_num       (false     ) 
     , gen_p4               (0, 0, 0, 0) 
     , gen_lep1_p4          (0, 0, 0, 0) 
     , gen_lep1_id          (-999999   ) 
@@ -150,32 +154,34 @@ void DrellYanInfo::Reset()
     dataset              = ""; 
     filename             = ""; 
     is_real_data         = false; 
-    scale1fb             = -999999; 
-    scale1fb_cms2        = -999999; 
+    scale1fb             = 1.0; 
+    scale1fb_cms2        = 1.0; 
+    lumi                 = 1.0; 
     xsec                 = -999999; 
     nevts_aod            = -999999; 
     nevts_cms2           = -999999; 
     nevts_file           = -999999; 
     kfactor              = -999999; 
+    filt_eff             = -999999; 
     nvtxs                = -999999; 
     pfmet                = -999999; 
     pfmet_phi            = -999999; 
     pu_nvtxs             = -999999; 
     pu_ntrueint          = -999999; 
-    trig_dmu             = -999999; 
-    trig_del             = -999999; 
-    trig_smu             = -999999; 
-    trig_sel             = -999999; 
-    trig                 = -999999; 
-    gen_hyp_type         = -999999; 
-    is_gen_ee            = -999999; 
-    is_gen_mm            = -999999; 
-    is_gen_tt            = -999999; 
-    is_gen_ee_includetau = -999999; 
-    is_gen_mm_includetau = -999999; 
-    is_gen_fromz         = -999999; 
-    is_gen_acc_den       = -999999; 
-    is_gen_acc_num       = -999999; 
+    trig_dmu             = false; 
+    trig_del             = false; 
+    trig_smu             = false; 
+    trig_sel             = false; 
+    trig                 = false; 
+    gen_hyp_type         = false; 
+    is_gen_ee            = false; 
+    is_gen_mm            = false; 
+    is_gen_tt            = false; 
+    is_gen_ee_includetau = false; 
+    is_gen_mm_includetau = false; 
+    is_gen_fromz         = false; 
+    is_gen_acc_den       = false; 
+    is_gen_acc_num       = false; 
     gen_p4               = LorentzVector(0, 0, 0, 0); 
     gen_lep1_p4          = LorentzVector(0, 0, 0, 0); 
     gen_lep1_id          = -999999; 
@@ -187,9 +193,9 @@ void DrellYanInfo::Reset()
     
 void DrellYanInfo::SetBranches(TTree& tree)
 {
-    tree.Branch("run"                  , &run                  , "run/I");
-    tree.Branch("ls"                   , &ls                   , "ls/I" );
-    tree.Branch("evt"                  , &evt                  , "evt/I");
+    tree.Branch("run"                  , &run                  );
+    tree.Branch("ls"                   , &ls                   );
+    tree.Branch("evt"                  , &evt                  );
     tree.Branch("sample"               , &sample               );
     tree.Branch("dataset"              , &dataset              );
     tree.Branch("filename"             , &filename             );
@@ -201,11 +207,12 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("pu_ntrueint"          , &pu_ntrueint          );
     tree.Branch("scale1fb"             , &scale1fb             );
     tree.Branch("scale1fb_cms2"        , &scale1fb_cms2        );
+    tree.Branch("lumi"                 , &lumi                 );
     tree.Branch("xsec"                 , &xsec                 );
     tree.Branch("nevts_aod"            , &nevts_aod            );
     tree.Branch("nevts_cms2"           , &nevts_cms2           );
     tree.Branch("nevts_file"           , &nevts_file           );
-    tree.Branch("kfactor"              , &kfactor              );
+    tree.Branch("filt_eff"             , &filt_eff             );
     tree.Branch("trig_dmu"             , &trig_dmu             );
     tree.Branch("trig_del"             , &trig_del             );
     tree.Branch("trig_smu"             , &trig_smu             );
@@ -241,11 +248,13 @@ std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
     out << "is_real_data         = " << info.is_real_data         << std::endl;
     out << "scale1fb             = " << info.scale1fb             << std::endl;
     out << "scale1fb_cms2        = " << info.scale1fb_cms2        << std::endl;
+    out << "lumi                 = " << info.lumi                 << std::endl;
     out << "xsec                 = " << info.xsec                 << std::endl;
     out << "nevts_aod            = " << info.nevts_aod            << std::endl;
     out << "nevts_cms2           = " << info.nevts_cms2           << std::endl;
     out << "nevts_file           = " << info.nevts_file           << std::endl;
     out << "kfactor              = " << info.kfactor              << std::endl;
+    out << "filt_eff             = " << info.filt_eff             << std::endl;
     out << "nvtxs                = " << info.nvtxs                << std::endl;
     out << "pfmet                = " << info.pfmet                << std::endl;
     out << "pfmet_phi            = " << info.pfmet_phi            << std::endl;
@@ -340,9 +349,6 @@ DrellYanNtupleMaker::DrellYanNtupleMaker
     , m_file(*TFile::Open(output_filename.c_str(), "RECREATE"))
     , m_tree(*new TTree("tree", "DY Exercise TTree"))
 {
-//     std::cout << gDirectory->GetName() << std::endl;
-    // setup TTree
-//     m_tree.SetDirectory(&m_file);
 }
 
 // destroy:
@@ -394,7 +400,10 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         m_info.nevts_file    = m_num_events;
         m_info.scale1fb_cms2 = tas::evt_scale1fb();
         m_info.scale1fb      = m_info.scale1fb_cms2 * m_info.nevts_cms2/m_info.nevts_file;
+        m_info.lumi          = m_lumi; 
         m_info.xsec          = tas::evt_xsec_excl();
+        m_info.kfactor       = tas::evt_kfactor();
+        m_info.filt_eff      = tas::evt_filt_eff();
     }
     // gen information 
     // ---------------------- // 
@@ -480,7 +489,6 @@ try
     std::string sample_pset    = "psets/dy_samples_cfg.py";
     std::string input_file     = "";
     std::string output_file    = "";
-    std::string label          = "test";
     std::string run_list       = "json/Cert_190782-190949_8TeV_06Aug2012ReReco_Collisions12_cms2.txt";
     double lumi                = 0.082;
     bool verbose               = false;
@@ -498,7 +506,6 @@ try
         ("input"      , po::value<std::string>(&input_file)             , "input ROOT file (or csv)"                               )
         ("output"     , po::value<std::string>(&output_file)            , "output ROOT file"                                       )
         ("nevts"      , po::value<long long>(&number_of_events)         , "maximum number of events to skim"                       )
-        ("label"      , po::value<std::string>(&label)                  , "unique output label to keep differnet jobs straight"    )
         ("run_list"   , po::value<std::string>(&run_list)               , "good run list (empty == none)"                          )
         ("lumi"       , po::value<double>(&lumi)                        , "luminosity (default -1)"                                )
         ("verbose"    , po::value<bool>(&verbose)                       , "verbosity toggle"                                       )
@@ -536,7 +543,6 @@ try
     std::cout << "sample_pset      = " << sample_pset      << "\n";
     std::cout << "input            = " << input_file       << "\n";
     std::cout << "output           = " << output_file      << "\n";
-    std::cout << "label            = " << label            << "\n";
     std::cout << "nevts            = " << number_of_events << "\n";
     std::cout << "run_list         = " << run_list         << "\n";
     std::cout << "lumi             = " << lumi             << "\n";
@@ -565,7 +571,7 @@ try
     // check the output
     if (output_file.empty())
     {
-        output_file = Form("babies/%s/%s_baby.root", label.c_str(), sample_info.name.c_str());
+        output_file = Form("babies/%s_baby.root", sample_info.name.c_str());
     }
     lt::mkdir(lt::dirname(output_file), /*force=*/true);
 
