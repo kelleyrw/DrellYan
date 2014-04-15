@@ -535,7 +535,7 @@ std::ostream& operator<<(std::ostream& out, Selection::Info si)
 //     assert(s_Selections.size()==Selection::static_size);
 //     return s_Selections;
 // }
-static std::vector<Selection::Info> selections =
+static std::vector<Selection::Info> selections
 {
     {"ossf" , "OSSF"               , false, -1},
     {"mwin" , "Mass Window"        , false, -1},
@@ -677,7 +677,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         }
         else
         {
-            UpdateSelection(Selection::ossf, hyp_idx);
+//             UpdateSelection(Selection::ossf, hyp_idx);
         }
 //             Selections()[Selection::ossf].passes  = true;
 //             Selections()[Selection::ossf].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::ossf].hyp_idx, hyp_idx);
@@ -731,7 +731,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
 //         }
     
         // if here, fully selected
-        UpdateSelection(Selection::full, hyp_idx);
+//         UpdateSelection(Selection::full, hyp_idx);
 //         Selections()[Selection::full].passes  = true;
 //         Selections()[Selection::full].hyp_idx = dy::ChooseBetterHypothesis(Selections()[Selection::full].hyp_idx, hyp_idx);
 
