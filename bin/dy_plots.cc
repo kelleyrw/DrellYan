@@ -368,18 +368,18 @@ void DrellYanLooper::Analyze(const long event)
     // ---------------------- // 
 
     // require at least 3 tracks in the event
-    if (tas::trks_trk_p4().size() < 3)
-    {
-        if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
-        return;
-    }
+//     if (tas::trks_trk_p4().size() < 3)
+//     {
+//         if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
+//         return;
+//     }
 
     // require standard cleaning 
-    if (!cleaning_standardNovember2011()) 
-    {
-        if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
-        return;
-    }
+//     if (!cleaning_standardNovember2011()) 
+//     {
+//         if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
+//         return;
+//     }
 
     // reco level plots
     // ---------------------- // 

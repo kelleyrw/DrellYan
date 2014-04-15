@@ -43,7 +43,13 @@ void BookHists(rt::TH1Container& hc)
 /*     hc.Add(new TH1D("h_reco_ossf_mmm"  , "OSSF dilmuon mass;m_{#mu#mu} (GeV)"       , 150, 0, 150)); */
 /*     hc.Add(new TH1D("h_reco_ossf_mll"  , "OSSF dilepton mass;m_{ll} (GeV)"          , 150, 0, 150)); */
 
-    hc.Add(new TH1D("h_reco_full_yield", "Full yield count of reco level l^{+}l^{-}",   4, -1,  3));
+    hc.Add(new TH1D("h_reco_ossf_yield" , "OSSF yield count of reco level l^{+}l^{-}"  ,  4, -1,  3));
+    hc.Add(new TH1D("h_reco_mwin_yield" , "mwin yield count of reco level l^{+}l^{-}"  ,  4, -1,  3));
+    hc.Add(new TH1D("h_reco_svtx_yield" , "svtx yield count of reco level l^{+}l^{-}"  ,  4, -1,  3));
+    hc.Add(new TH1D("h_reco_trig_yield" , "trig yield count of reco level l^{+}l^{-}"  ,  4, -1,  3));
+    hc.Add(new TH1D("h_reco_idiso_yield", "Id/ISO yield count of reco level l^{+}l^{-}",  4, -1,  3));
+    hc.Add(new TH1D("h_reco_full_yield" , "Full yield count of reco level l^{+}l^{-}"  ,  4, -1,  3));
+
     hc.Add(new TH1D("h_reco_full_mee"  , "Full dielectron mass;m_{ee} (GeV)"        , 150, 0, 150));
     hc.Add(new TH1D("h_reco_full_mmm"  , "Full dilmuon mass;m_{#mu#mu} (GeV)"       , 150, 0, 150));
     hc.Add(new TH1D("h_reco_full_mll"  , "Full dilepton mass;m_{ll} (GeV)"          , 150, 0, 150));
@@ -70,6 +76,11 @@ void BookHists(rt::TH1Container& hc)
     SetYieldAxisLabel(hc["h_gen_raw_yield"      ]);
     SetYieldAxisLabel(hc["h_gen_raw_notau_yield"]);
     SetYieldAxisLabel(hc["h_gen_raw_tau_yield"  ]);
+    SetYieldAxisLabel(hc["h_reco_ossf_yield"    ]);
+    SetYieldAxisLabel(hc["h_reco_mwin_yield"    ]);
+    SetYieldAxisLabel(hc["h_reco_svtx_yield"    ]);
+    SetYieldAxisLabel(hc["h_reco_trig_yield"    ]);
+    SetYieldAxisLabel(hc["h_reco_idiso_yield"   ]);
     SetYieldAxisLabel(hc["h_reco_full_yield"    ]);
 /*     SetYieldAxisLabel(hc["h_acc_gen_den"    ]); */
 /*     SetYieldAxisLabel(hc["h_acc_gen_num"    ]); */
@@ -154,9 +165,29 @@ void CreatePlots
     chain.Draw("2>>+h_gen_raw_tau_yield", is_gen_ee_onlytau, "goff");
 
     // raw full yields
-    chain.Draw("0>> h_reco_full_yield", WrapLumi(is_ll), "goff");
-    chain.Draw("1>>+h_reco_full_yield", WrapLumi(is_mm), "goff");
-    chain.Draw("2>>+h_reco_full_yield", WrapLumi(is_ee), "goff");
+    chain.Draw("0>> h_reco_ossf_yield" , WrapLumi(is_ll && "passes_ossf"), "goff");
+    chain.Draw("1>>+h_reco_ossf_yield" , WrapLumi(is_mm && "passes_ossf"), "goff");
+    chain.Draw("2>>+h_reco_ossf_yield" , WrapLumi(is_ee && "passes_ossf"), "goff");
+                                                                       
+    chain.Draw("0>> h_reco_mwin_yield" , WrapLumi(is_ll && "passes_mwin"), "goff");
+    chain.Draw("1>>+h_reco_mwin_yield" , WrapLumi(is_mm && "passes_mwin"), "goff");
+    chain.Draw("2>>+h_reco_mwin_yield" , WrapLumi(is_ee && "passes_mwin"), "goff");
+                                                                       
+    chain.Draw("0>> h_reco_svtx_yield" , WrapLumi(is_ll && "passes_svtx"), "goff");
+    chain.Draw("1>>+h_reco_svtx_yield" , WrapLumi(is_mm && "passes_svtx"), "goff");
+    chain.Draw("2>>+h_reco_svtx_yield" , WrapLumi(is_ee && "passes_svtx"), "goff");
+                                                                       
+    chain.Draw("0>> h_reco_trig_yield" , WrapLumi(is_ll && "passes_trig"), "goff");
+    chain.Draw("1>>+h_reco_trig_yield" , WrapLumi(is_mm && "passes_trig"), "goff");
+    chain.Draw("2>>+h_reco_trig_yield" , WrapLumi(is_ee && "passes_trig"), "goff");
+                                                                        
+    chain.Draw("0>> h_reco_idiso_yield", WrapLumi(is_ll && "passes_idiso"), "goff");
+    chain.Draw("1>>+h_reco_idiso_yield", WrapLumi(is_mm && "passes_idiso"), "goff");
+    chain.Draw("2>>+h_reco_idiso_yield", WrapLumi(is_ee && "passes_idiso"), "goff");
+                                                                        
+    chain.Draw("0>> h_reco_full_yield" , WrapLumi(is_ll && "passes_full"), "goff");
+    chain.Draw("1>>+h_reco_full_yield" , WrapLumi(is_mm && "passes_full"), "goff");
+    chain.Draw("2>>+h_reco_full_yield" , WrapLumi(is_ee && "passes_full"), "goff");
 
     hc.SetDirectory(NULL);
 

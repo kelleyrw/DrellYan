@@ -544,20 +544,20 @@ std::ostream& operator<<(std::ostream& out, Selection::Info si)
     return out;
 }
 
-// std::vector<Selection::Info> Selections()
-// {
-//     static std::vector<Selection::Info> s_Selections = 
-//     {
-//         {"ossf" , "OSSF"               , false, -1},
-//         {"mwin" , "Mass Window"        , false, -1},
-//         {"svtx" , "Same Vertex"        , false, -1},
-//         {"trig" , "Passes Trigger"     , false, -1},
-//         {"idiso", "Passes ID/Isolation", false, -1},
-//         {"full" , "Full Selection"     , false, -1}
-//     };
-//     assert(s_Selections.size()==Selection::static_size);
-//     return s_Selections;
-// }
+std::vector<Selection::Info>& Selections()
+{
+    static std::vector<Selection::Info> s_Selections = 
+    {
+        {"ossf" , "OSSF"               , false, -1},
+        {"mwin" , "Mass Window"        , false, -1},
+        {"svtx" , "Same Vertex"        , false, -1},
+        {"trig" , "Passes Trigger"     , false, -1},
+        {"idiso", "Passes ID/Isolation", false, -1},
+        {"full" , "Full Selection"     , false, -1}
+    };
+    assert(s_Selections.size()==Selection::static_size);
+    return s_Selections;
+}
             
 void UpdateSelection(Selection::Info& sel, const int hyp_idx)
 {
@@ -677,14 +677,14 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
 
     // reco information 
     // ---------------------- // 
-    std::vector<Selection::Info> selections;
-    selections.push_back(Selection::Info{"ossf"  , "OSSF"                , false , -1});
-    selections.push_back(Selection::Info{"mwin"  , "Mass Window"         , false , -1});
-    selections.push_back(Selection::Info{"svtx"  , "Same Vertex"         , false , -1});
-    selections.push_back(Selection::Info{"trig"  , "Passes Trigger"      , false , -1});
-    selections.push_back(Selection::Info{"idiso" , "Passes ID/Isolation" , false , -1});
-    selections.push_back(Selection::Info{"full"  , "Full Selection"      , false , -1});
-    assert(selections.size()==Selection::static_size);
+//     std::vector<Selection::Info> selections;
+//     selections.push_back(Selection::Info{"ossf"  , "OSSF"                , false , -1});
+//     selections.push_back(Selection::Info{"mwin"  , "Mass Window"         , false , -1});
+//     selections.push_back(Selection::Info{"svtx"  , "Same Vertex"         , false , -1});
+//     selections.push_back(Selection::Info{"trig"  , "Passes Trigger"      , false , -1});
+//     selections.push_back(Selection::Info{"idiso" , "Passes ID/Isolation" , false , -1});
+//     selections.push_back(Selection::Info{"full"  , "Full Selection"      , false , -1});
+//     assert(selections.size()==Selection::static_size);
 
     // loop over hypotheses
     if (m_verbose) {std::cout << "looping over " << tas::hyp_type().size() << " hypotheses" << std::endl;}
@@ -701,19 +701,23 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         const int flavor_type  = tas::hyp_type().at(hyp_idx);
         const bool is_ee       = (flavor_type == 3);
         const bool is_mm       = (flavor_type == 0);
-        const bool is_ll       = is_ee or is_mm; 
 
         // apply selections
 
         // OSSF
-        if (tas::hyp_lt_charge().at(hyp_idx) == tas::hyp_ll_charge().at(hyp_idx) or not is_ll)
+        if (tas::hyp_lt_charge().at(hyp_idx) == tas::hyp_ll_charge().at(hyp_idx))
         {
-            if (m_verbose) {std::cout << "not OSSF" << std::endl;}
+            if (m_verbose) {std::cout << "not OS" << std::endl;}
+            continue;
+        }
+        else if (not(is_ee or is_mm))
+        {
+            if (m_verbose) {std::cout << "not SF" << std::endl;}
             continue;
         }
         else
         {
-            UpdateSelection(selections[Selection::ossf], hyp_idx);
+            UpdateSelection(Selections()[Selection::ossf], hyp_idx);
         }
     
         // 60 < m_ll << 120 GeV
@@ -723,7 +727,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             continue;
         }
         {
-            UpdateSelection(selections[Selection::mwin], hyp_idx);
+            UpdateSelection(Selections()[Selection::mwin], hyp_idx);
         }
     
         // both leptons from first vertex
@@ -733,7 +737,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             continue;
         }
         {
-            UpdateSelection(selections[Selection::svtx], hyp_idx);
+            UpdateSelection(Selections()[Selection::svtx], hyp_idx);
         }
 
         // trigger
@@ -743,7 +747,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             continue;
         }
         {
-            UpdateSelection(selections[Selection::trig], hyp_idx);
+            UpdateSelection(Selections()[Selection::trig], hyp_idx);
         }
 
         // l1 and l2 pass selection
@@ -753,17 +757,17 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             continue;
         }
         {
-            UpdateSelection(selections[Selection::idiso], hyp_idx);
+            UpdateSelection(Selections()[Selection::idiso], hyp_idx);
         }
     
         // if here, fully selected
-        UpdateSelection(selections[Selection::full], hyp_idx);
+        UpdateSelection(Selections()[Selection::full], hyp_idx);
 
     } // end loop over hypothesis
 
     if (m_verbose)
     {
-        for (const auto& selection : selections)
+        for (const auto& selection : Selections())
         {
             std::cout << "selection " << selection.name << " = " 
                 << selection.passes << "\t" 
@@ -775,7 +779,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
     // the order of the selction matters
     // all: 0, mm: 1, em: 2, ee: 3
     int hyp_idx = -1;
-    for (const auto& s : selections)
+    for (const auto& s : Selections())
     {
         hyp_idx = (s.passes ? s.hyp_idx : hyp_idx);
     }
@@ -789,12 +793,12 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         if (m_verbose) {std::cout << "best hypthesis chosen = " << hyp_idx << std::endl;}
 
         // selections:
-        m_info.passes_ossf  = selections[Selection::ossf ].passes;
-        m_info.passes_mwin  = selections[Selection::mwin ].passes;
-        m_info.passes_svtx  = selections[Selection::svtx ].passes;
-        m_info.passes_trig  = selections[Selection::trig ].passes;
-        m_info.passes_idiso = selections[Selection::idiso].passes;
-        m_info.passes_full  = selections[Selection::full ].passes;
+        m_info.passes_ossf  = Selections()[Selection::ossf ].passes;
+        m_info.passes_mwin  = Selections()[Selection::mwin ].passes;
+        m_info.passes_svtx  = Selections()[Selection::svtx ].passes;
+        m_info.passes_trig  = Selections()[Selection::trig ].passes;
+        m_info.passes_idiso = Selections()[Selection::idiso].passes;
+        m_info.passes_full  = Selections()[Selection::full ].passes;
 
         // reco hyp variables
         m_info.pfmet     = tas::evt_pfmet_type1cor();
