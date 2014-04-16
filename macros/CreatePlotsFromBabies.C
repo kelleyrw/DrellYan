@@ -63,9 +63,9 @@ void BookHists(rt::TH1Container& hc)
     SetYieldAxisLabel(hc["h_reco_trig_yield"    ]);
     SetYieldAxisLabel(hc["h_reco_idiso_yield"   ]);
     SetYieldAxisLabel(hc["h_reco_full_yield"    ]);
-    SetYieldAxisLabel(hc["h_acc_gen_den"    ]);
-    SetYieldAxisLabel(hc["h_acc_gen_num"    ]);
-    SetYieldAxisLabel(hc["h_acc_rec_num"    ]);
+    SetYieldAxisLabel(hc["h_acc_gen_den"        ]);
+    SetYieldAxisLabel(hc["h_acc_gen_num"        ]);
+    SetYieldAxisLabel(hc["h_acc_rec_num"        ]);
 
     // sumw2()
     hc.Sumw2();

@@ -15,9 +15,6 @@
 #include "CMS2/NtupleMacrosCore/interface/mcSelections.h"
 #include "CMS2/NtupleMacrosCore/interface/eventSelections.h"
 
-// CMSSW includes
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-
 // tools 
 #include "Analysis/DrellYan/interface/Sample.h"
 #include "Analysis/DrellYan/interface/Yield.h"
@@ -29,9 +26,6 @@
 
 // typedefs
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
-typedef std::vector<LorentzVector> vecLorentzVector;
-typedef std::vector<float> vecd;
-typedef std::vector<int> veci;
 
 // -------------------------------------------------//
 // Class to hold the ntuple information 
@@ -101,10 +95,6 @@ public:
     float pu_ntrueint;
 
     // trigger
-    bool trig_dmu;
-    bool trig_del;
-    bool trig_smu;
-    bool trig_sel;
     bool trig;
 
     // reco hyp variables
@@ -181,10 +171,6 @@ DrellYanInfo::DrellYanInfo()
     , pfmet_phi            ( -999999    ) 
     , pu_nvtxs             ( -999999    ) 
     , pu_ntrueint          ( -999999    ) 
-    , trig_dmu             ( false      ) 
-    , trig_del             ( false      ) 
-    , trig_smu             ( false      ) 
-    , trig_sel             ( false      ) 
     , trig                 ( false      ) 
     , hyp_type             ( -99999     ) 
     , hyp_p4               ( 0, 0, 0, 0 ) 
@@ -258,10 +244,6 @@ void DrellYanInfo::Reset()
     pfmet_phi            = -999999; 
     pu_nvtxs             = -999999; 
     pu_ntrueint          = -999999; 
-    trig_dmu             = false; 
-    trig_del             = false; 
-    trig_smu             = false; 
-    trig_sel             = false; 
     trig                 = false; 
     hyp_type             = -99999;
     hyp_p4               = LorentzVector(0, 0, 0, 0 );
@@ -330,10 +312,6 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("pfmet_phi"            , &pfmet_phi            );
     tree.Branch("pu_nvtxs"             , &pu_nvtxs             );
     tree.Branch("pu_ntrueint"          , &pu_ntrueint          );
-    tree.Branch("trig_dmu"             , &trig_dmu             );
-    tree.Branch("trig_del"             , &trig_del             );
-    tree.Branch("trig_smu"             , &trig_smu             );
-    tree.Branch("trig_sel"             , &trig_sel             );
     tree.Branch("trig"                 , &trig                 );
     tree.Branch("hyp_type"             , &hyp_type             );
     tree.Branch("is_ee"                , &is_ee                );
@@ -410,10 +388,6 @@ std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
     out << "pfmet_phi            = " << info.pfmet_phi            << std::endl;
     out << "pu_nvtxs             = " << info.pu_nvtxs             << std::endl;
     out << "pu_ntrueint          = " << info.pu_ntrueint          << std::endl;
-    out << "trig_dmu             = " << info.trig_dmu             << std::endl;
-    out << "trig_del             = " << info.trig_del             << std::endl;
-    out << "trig_smu             = " << info.trig_smu             << std::endl;
-    out << "trig_sel             = " << info.trig_sel             << std::endl;
     out << "trig                 = " << info.trig                 << std::endl;
     out << "hyp_type             = " << info.hyp_type             << std::endl;
     out << "hyp_p4.mass()        = " << info.hyp_p4.mass()        << std::endl;
@@ -753,16 +727,6 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         }
     }
 
-
-    // only continue if a hyp has been selected
-    // the order of the selction matters
-    // all: 0, mm: 1, em: 2, ee: 3
-    int best_hyp = -1;
-    for (const auto& s : selections)
-    {
-        best_hyp = (s.passes ? s.hyp_idx : best_hyp);
-    }
-
     // require at least 3 tracks in the event
     const bool clean_tracks   = (tas::trks_trk_p4().size() >= 3);
     if (not clean_tracks)
@@ -775,6 +739,16 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
     if (not clean_standard)
     {
         if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
+    }
+
+
+    // only continue if a hyp has been selected
+    // the order of the selction matters
+    // all: 0, mm: 1, em: 2, ee: 3
+    int best_hyp = -1;
+    for (const auto& s : selections)
+    {
+        best_hyp = (s.passes ? s.hyp_idx : best_hyp);
     }
 
     const int hyp_idx = best_hyp;
@@ -807,11 +781,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         m_info.is_ll    = (m_info.is_ee or m_info.is_mm);
 
         // trigger
-        m_info.trig_dmu = (m_info.is_mm && dy::passesTriggerDoubleLep(m_info.hyp_type));
-        m_info.trig_del = (m_info.is_ee && dy::passesTriggerDoubleLep(m_info.hyp_type));
-        m_info.trig_smu = (m_info.is_mm && dy::passesTriggerSingleLep(m_info.hyp_type));
-        m_info.trig_sel = (m_info.is_ee && dy::passesTriggerSingleLep(m_info.hyp_type));
-        m_info.trig     = dy::passesTrigger(m_info.hyp_type);
+        m_info.trig = dy::passesTrigger(m_info.hyp_type);
 
         // reco lepton variables
         // NOTE: set lepton info (lep1 is higher pT lepton, lep2 is lower pT lepton)

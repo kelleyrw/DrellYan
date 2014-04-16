@@ -323,34 +323,7 @@ float dy::muonIsoValuePF2012(const unsigned int imu)
 // passes dilepton trigger
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-bool dy::passesTriggerSingleLep(const int hyp_type)
-{
-    //----------------------------------------
-    // no trigger requirements applied to MC
-    //----------------------------------------
-
-    if (not tas::evt_isRealData())
-    {
-        return true; 
-    }
-
-    //---------------------------------
-    // triggers for dilepton datasets
-    //---------------------------------
-
-    switch(hyp_type)
-    {
-        /*mu mu*/case 0: return passUnprescaledHLTTriggerPattern("HLT_Mu24_eta2p1_v"); break;
-        /*e mu*/ case 1: return false; break;
-        /*e mu*/ case 2: return false; break;
-        /*e e*/  case 3: return passUnprescaledHLTTriggerPattern("HLT_Ele22_CaloIdL_CaloIsoVL_v"); break;
-        default: return false;
-    }
-    
-    return false;
-}
-
-bool dy::passesTriggerDoubleLep(const int hyp_type)
+bool dy::passesTrigger(const int hyp_type)
 {
     //----------------------------------------
     // no trigger requirements applied to MC
@@ -375,11 +348,6 @@ bool dy::passesTriggerDoubleLep(const int hyp_type)
     }
     
     return false;
-}
-
-bool dy::passesTrigger(const int hyp_type)
-{
-    return dy::passesTriggerDoubleLep(hyp_type);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////     

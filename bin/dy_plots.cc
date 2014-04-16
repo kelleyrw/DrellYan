@@ -14,9 +14,6 @@
 #include "CMS2/NtupleMacrosCore/interface/mcSelections.h"
 #include "CMS2/NtupleMacrosCore/interface/eventSelections.h"
 
-// CMSSW includes
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-
 // tools 
 #include "Analysis/DrellYan/interface/Sample.h"
 #include "Analysis/DrellYan/interface/Yield.h"
@@ -108,12 +105,12 @@ std::vector<Selection::Info> Selections()
 //     static const Selection::Info s_Selections[Selection::static_size] = 
     static const std::vector<Selection::Info> s_Selections = 
     {
-        {"ossf" , "OSSF"                         },
-        {"mwin" , "Mass Window"                  },
-        {"svtx" , "Same Vertex"                  },
-        {"trig" , "Passes Trigger"               },
-        {"idiso", "Passes ID/Isolation"          },
-        {"full" , "Full Selection"               }
+        {"ossf" , "OSSF"                },
+        {"mwin" , "Mass Window"         },
+        {"svtx" , "Same Vertex"         },
+        {"trig" , "Passes Trigger"      },
+        {"idiso", "Passes ID/Isolation" },
+        {"full" , "Full Selection"      }
     };
     assert(s_Selections.size()==Selection::static_size);
     return s_Selections;

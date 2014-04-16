@@ -19,6 +19,92 @@ git checkout scram_compliant
 cd $CMSSW_BASE/src
 scram b -j20
 
+To make the histograms directly from cms2 ntuples
+cd $CMSSW_BASE/src/Analysis/DrellYan
+./scripts/dy_create_plots.py  --label full 
+
+To make the histograms directly from babies
+
+# to make babies
+cd $CMSSW_BASE/src/Analysis/DrellYan
+./scripts/dy_create_ntuples.py
+
+to make the plots from the ntuples, add the following lines to your .rootlogon.C (or load them manually):
+cd $CMSSW_BASE/src/Analysis/DrellYan
+gROOT->ProcessLine(".x $CMSSW_BASE/src/AnalysisTools/utils/load_analysis_tools.C");
+gROOT->ProcessLine(".x $CMSSW_BASE/src/Analysis/DrellYan/macros/load_dy_tools.C");
+
+# from root:
+cd $CMSSW_BASE/src/Analysis/DrellYan
+[rwk7t@tensor DrellYan]$  root -b         
+Loading CMSSW FWLite.
+Loading AnalysisTools
+Loading DY tools
+root [0] .L macros/CreatePlotsFromBabies.C++
+Info in <TUnixSystem::ACLiC>: creating shared library /Users/rwk7t/temp/.rootbuild//Users/rwk7t/Development/newbies/CMSSW_6_1_2_drellyan/src/Analysis/DrellYan/./macros/CreatePlotsFromBabies_C.so
+root [1] CreatePlotsFromBabies("test_babies")
+[CreatePlotsFromBabies] create histograms for data
+[CreatePlotsFromBabies] create histograms for dyll
+[CreatePlotsFromBabies] create histograms for dytt
+[CreatePlotsFromBabies] create histograms for wjets
+[CreatePlotsFromBabies] create histograms for ttdil
+[CreatePlotsFromBabies] create histograms for ttslq
+[CreatePlotsFromBabies] create histograms for tthad
+[CreatePlotsFromBabies] create histograms for qcdmu15
+[CreatePlotsFromBabies] create histograms for ww2l2nu
+[CreatePlotsFromBabies] create histograms for wz2l2q
+[CreatePlotsFromBabies] create histograms for wz3lnu
+[CreatePlotsFromBabies] create histograms for zz2l2nu
+[CreatePlotsFromBabies] create histograms for zz2l2q
+[CreatePlotsFromBabies] create histograms for zz4l
+
+To make a yield table
+root [2] .L macros/CreateYieldTable.C++
+root [4] CreateYieldTable("full")
++----------------------------------------------------------------------------------+
+| yields for Drell-Yan Exercise                                                    |
++----------------------------------------------------------------------------------+
+
+                        |               ee |                mm |                ll | 
+ dyll                   | 20542.3 +/- 92.8 | 24306.4 +/- 100.9 | 44848.7 +/- 137.1 | 
+ dyll (no tau --> e/mu) | 20522.6 +/- 92.8 | 24286.7 +/- 100.9 | 44809.3 +/- 137.1 | 
+ dytt                   | 19.7 +/-  2.9    | 19.7 +/-  2.9     | 39.4 +/-  4.1     | 
+ wjets                  |  8.8 +/-  6.2    |  0.0 +/-  0.0     |  8.8 +/-  6.2     | 
+ ttdil                  | 31.4 +/-  0.4    | 35.1 +/-  0.4     | 66.5 +/-  0.5     | 
+ ttslq                  |  0.2 +/-  0.1    |  0.1 +/-  0.0     |  0.3 +/-  0.1     | 
+ tthad                  |  0.0 +/-  0.0    |  0.0 +/-  0.0     |  0.0 +/-  0.0     | 
+ qcdmu15                |  0.0 +/-  0.0    |  0.0 +/-  0.0     |  0.0 +/-  0.0     | 
+ ww2l2nu                |  6.4 +/-  0.1    |  7.5 +/-  0.1     | 13.9 +/-  0.1     | 
+ wz2l2q                 | 11.7 +/-  0.1    | 13.3 +/-  0.1     | 25.0 +/-  0.1     | 
+ wz3lnu                 |  5.8 +/-  0.0    |  6.8 +/-  0.0     | 12.6 +/-  0.0     | 
+ zz2l2nu                |  2.4 +/-  0.0    |  2.9 +/-  0.0     |  5.3 +/-  0.0     | 
+ zz2l2q                 | 15.6 +/-  0.1    | 17.6 +/-  0.1     | 33.2 +/-  0.1     | 
+ zz4l                   |  1.4 +/-  0.0    |  1.8 +/-  0.0     |  3.2 +/-  0.0     | 
+ Background Pred        | 103.5 +/-  6.8   | 104.7 +/-  2.9    | 208.2 +/-  7.4    | 
+ MC Pred                | 20645.8 +/- 93.0 | 24411.1 +/- 100.9 | 45056.9 +/- 137.3 | 
+ data                   | 18666 +/-  137   | 22184 +/-  149    | 40850 +/-  202    | 
+
+To make overlay plots 
+root [5] .L macros/OverlayPlots.C++
+Info in <TUnixSystem::ACLiC>: creating shared library /Users/rwk7t/temp/.rootbuild//Users/rwk7t/Development/newbies/CMSSW_6_1_2_drellyan/src/Analysis/DrellYan/./macros/OverlayPlots_C.so
+root [8] OverlayPlots("full")
+
+To make cross section:
+root [9] .L macros/CreateCrossSectionTable.C++
+root [10] CreateCrossSectionTable("full")
++---------------------------------------------------+
+| Cross-Sectoin for Drell-Yan Exercise              |
++---------------------------------------------------+
+
+            |                ee |                mm | 
+ N_obs      | 18666 +/-  137    | 22184 +/-  149    | 
+ N_mc       | 20645.8 +/- 93.0  | 24411.1 +/- 100.9 | 
+ N_dyll     | 20542.3 +/- 92.8  | 24306.4 +/- 100.9 | 
+ N_bkgd     | 103.5 +/-  6.8    | 104.7 +/-  2.9    | 
+ N_sig      | 18562.5 +/- 136.8 | 22079.3 +/- 149.0 | 
+ Acc        | 0.220 +/- 0.001   | 0.261 +/- 0.001   | 
+ Sigma (nb) | 1.028 +/- 0.000   | 1.031 +/- 0.000   | 
+
 [1] http://www.t2.ucsd.edu/twiki2/pub/UCSDTier2/AnalysisTutorial/AN2012_067_v6.pdf 
 
 
