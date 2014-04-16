@@ -68,6 +68,7 @@ public:
 
     // Gen hypothesis specific info 
     int gen_hyp_type;
+    bool is_gen_z;
     bool is_gen_ee;
     bool is_gen_mm;
     bool is_gen_tt;
@@ -153,6 +154,7 @@ DrellYanInfo::DrellYanInfo()
     , kfactor              ( -999999    ) 
     , filt_eff             ( -999999    ) 
     , gen_hyp_type         ( false      ) 
+    , is_gen_z             ( false      ) 
     , is_gen_ee            ( false      ) 
     , is_gen_mm            ( false      ) 
     , is_gen_tt            ( false      ) 
@@ -229,6 +231,7 @@ void DrellYanInfo::Reset()
     kfactor              = -999999; 
     filt_eff             = -999999; 
     gen_hyp_type         = false; 
+    is_gen_z             = false; 
     is_gen_ee            = false; 
     is_gen_mm            = false; 
     is_gen_tt            = false; 
@@ -303,6 +306,7 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("nevts_file"           , &nevts_file           );
     tree.Branch("filt_eff"             , &filt_eff             );
     tree.Branch("gen_hyp_type"         , &gen_hyp_type         );
+    tree.Branch("is_gen_z"             , &is_gen_z             );
     tree.Branch("is_gen_ee"            , &is_gen_ee            );
     tree.Branch("is_gen_mm"            , &is_gen_mm            );
     tree.Branch("is_gen_tt"            , &is_gen_tt            );
@@ -379,6 +383,7 @@ std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
     out << "kfactor              = " << info.kfactor              << std::endl;
     out << "filt_eff             = " << info.filt_eff             << std::endl;
     out << "gen_hyp_type         = " << info.gen_hyp_type         << std::endl;
+    out << "is_gen_z             = " << info.is_gen_z             << std::endl;
     out << "is_gen_ee            = " << info.is_gen_ee            << std::endl;
     out << "is_gen_mm            = " << info.is_gen_mm            << std::endl;
     out << "is_gen_tt            = " << info.is_gen_tt            << std::endl;
@@ -638,6 +643,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
                 m_info.pu_ntrueint = tas::puInfo_trueNumInteractions().at(0);
             }
             m_info.gen_hyp_type         = static_cast<int>(gen_hyp.Type());
+            m_info.is_gen_z             = gen_hyp.IsFromZ();
             m_info.is_gen_ee            = gen_hyp.IsEE();
             m_info.is_gen_mm            = gen_hyp.IsMuMu();
             m_info.is_gen_tt            = gen_hyp.IsTauTau();

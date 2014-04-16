@@ -20,7 +20,6 @@ default_pset     = "psets/dy_samples_cfg.py"
 # parameter options
 parser = OptionParser()
 parser.add_option("--nevts"      , dest="nevts"      , default=-1               , help="REQUIRED: python configuration file"                 )
-parser.add_option("--label"      , dest="label"      , default="test"           , help="unique output label to keep differnet jobs straight" )
 parser.add_option("--run_list"   , dest="run_list"   , default=default_run_list , help="good run list (empty == none)"                       )
 parser.add_option("--lumi"       , dest="lumi"       , default=default_lumi     , help="luminosity (default 0.082 fb^-1)"                    )
 parser.add_option("--sample_pset", dest="sample_pset", default=default_pset     , help="sample pset to use"                                  )
@@ -78,7 +77,7 @@ def MakeBaby(sample):
 		cmd += " --verbose 1"
 
 	# logname
-	log_dir_name  = "logs/babies/%s" % options.label
+	log_dir_name  = "logs/babies"
 	log_file_name = "%s/%s.log" % (log_dir_name, sample)
 	cmd += " >& %s &" % log_file_name
 	if (not options.test and not os.path.exists(log_dir_name)):
