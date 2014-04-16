@@ -27,6 +27,7 @@
 // if no matching track found, return bogus value of -999999
 // calc w.r.t first good vertex
 ////////////////////////////////////////////////////////////////////////////////////////////     
+
 float dy::leptonD0(const int id, const int idx)
 {
     const int vtxidx = firstGoodVertex();
@@ -98,6 +99,7 @@ float dy::leptonDz(const int id, const int idx)
 ////////////////////////////////////////////////////////////////////////////////////////////     
 // good lepton (passes ID)
 ////////////////////////////////////////////////////////////////////////////////////////////     
+
 bool dy::isGoodLepton(const int id, const int idx)
 {
     using namespace tas;
@@ -178,6 +180,7 @@ bool dy::isGoodLepton(const int id, const int idx)
 ////////////////////////////////////////////////////////////////////////////////////////////     
 // 2012 isolated lepton
 ////////////////////////////////////////////////////////////////////////////////////////////     
+
 bool dy::isIsolatedLepton(const int id, const int idx)
 {
     const float iso = dy::leptonIsolation(id, idx);
@@ -203,6 +206,7 @@ bool dy::isIsolatedLepton(const int id, const int idx)
 ////////////////////////////////////////////////////////////////////////////////////////////     
 // 2012 lepton isolation value
 ////////////////////////////////////////////////////////////////////////////////////////////     
+
 double dy::leptonIsolation(const int id, const int idx)
 {
     // electrons
@@ -252,6 +256,7 @@ float dy::EffectiveArea04(int id, int idx)
 // calculate PF-based isolation for electrons with rho*Aeff correction
 // using cone size 03
 ///////////////////////////////////////////////////////////////////////////////////////////
+
 float dy::electronIsolationPF2012(const int idx)
 {
     return dy::electronIsolationPF2012_cone03(idx);
@@ -302,6 +307,7 @@ float dy::electronIsolationPF2012_cone04(const int idx)
 ///////////////////////////////////////////////////////////////////////////////////////////
 // calculate PF-based isolation for muon with Delta-Beta correction using cone size 04
 ///////////////////////////////////////////////////////////////////////////////////////////
+
 float dy::muonIsoValuePF2012(const unsigned int imu)
 {
     const float chiso     = tas::mus_isoR04_pf_ChargedHadronPt().at(imu);
@@ -334,7 +340,7 @@ bool dy::passesTriggerSingleLep(const int hyp_type)
 
     switch(hyp_type)
     {
-        /*mu mu*/case 0: return passUnprescaledHLTTriggerPattern("HLT_Mu15_eta2p1_v"); break;
+        /*mu mu*/case 0: return passUnprescaledHLTTriggerPattern("HLT_Mu24_eta2p1_v"); break;
         /*e mu*/ case 1: return false; break;
         /*e mu*/ case 2: return false; break;
         /*e e*/  case 3: return passUnprescaledHLTTriggerPattern("HLT_Ele22_CaloIdL_CaloIsoVL_v"); break;
@@ -361,7 +367,7 @@ bool dy::passesTriggerDoubleLep(const int hyp_type)
 
     switch(hyp_type)
     {
-        /*mu mu*/case 0: return passUnprescaledHLTTriggerPattern("HLT_Mu17_Mu8_v"); break;
+        /*mu mu*/case 0: return (passUnprescaledHLTTriggerPattern("HLT_Mu17_Mu8_v") or passUnprescaledHLTTriggerPattern("HLT_Mu17_TkMu8_v")); break;
         /*e mu*/ case 1: return false; break;
         /*e mu*/ case 2: return false; break;
         /*e e*/  case 3: return passUnprescaledHLTTriggerPattern("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"); break;
@@ -379,6 +385,7 @@ bool dy::passesTrigger(const int hyp_type)
 ////////////////////////////////////////////////////////////////////////////////////////////     
 // 2012 selected lepton (passes ID and isolation)
 ////////////////////////////////////////////////////////////////////////////////////////////     
+
 bool dy::isSelectedLepton(const int id, const int idx)
 {
     return (dy::isGoodLepton(id, idx) && dy::isIsolatedLepton(id, idx));
@@ -387,6 +394,7 @@ bool dy::isSelectedLepton(const int id, const int idx)
 ////////////////////////////////////////////////////////////////////////////////////////////     
 // 2012 selected hypothesis (passes ID and isolation)
 ////////////////////////////////////////////////////////////////////////////////////////////     
+
 bool dy::isSelectedHypothesis(const int idx)
 {
     if (!dy::isSelectedLepton(tas::hyp_lt_id().at(idx), tas::hyp_lt_index().at(idx)))
@@ -403,6 +411,7 @@ bool dy::isSelectedHypothesis(const int idx)
 ////////////////////////////////////////////////////////////////////////////////////////////     
 // disambiguate between two passing hypotheses 
 ////////////////////////////////////////////////////////////////////////////////////////////     
+
 int dy::ChooseBetterHypothesis(const int hyp1_idx, const int hyp2_idx)
 {
     // both are dummy (< 0)
@@ -473,6 +482,7 @@ int dy::ChooseBetterHypothesis(const int hyp1_idx, const int hyp2_idx)
 // Gen hypotheses 
 // 1 mumu; 2 emu; 3 ee; -1 other;
 ////////////////////////////////////////////////////////////////////////////////////////////     
+
 int dy::GenDileptonType()
 {
     unsigned int nmus  = 0;
