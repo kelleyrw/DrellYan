@@ -429,7 +429,7 @@ void DrellYanLooper::Analyze(const long event)
         FillRecoHists(hc, hyp_idx, Selection::mwin, event_scale);
     
         // both leptons from first vertex
-        if (not hypsFromFirstGoodVertex(hyp_idx))
+        if (not dy::hypsFromFirstGoodVertex(hyp_idx))
         {
             if (m_verbose) {std::cout << "did not pass same vertex" << std::endl;}
             continue;

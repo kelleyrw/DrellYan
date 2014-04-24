@@ -688,7 +688,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         UpdateSelection(selections[Selection::mwin], hyp_idx);
     
         // both leptons from first vertex
-        if (not hypsFromFirstGoodVertex(hyp_idx))
+        if (not dy::hypsFromFirstGoodVertex(hyp_idx))
         {
             if (m_verbose) {std::cout << "did not pass same vertex" << std::endl;}
             continue;
