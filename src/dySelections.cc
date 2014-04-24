@@ -356,6 +356,7 @@ bool dy::passesTrigger(const int flavor_type)
 // by checking if both leptons are within dz
 // of dz_cut (default 1.0 cm) of the same PV
 ///////////////////////////////////////////////////////////////////////////////////////////
+
 bool dy::hypsFromFirstGoodVertex(const int hyp_idx, const double dz_cut)
 {
     const double lt_dz = dy::leptonDz(tas::hyp_lt_id().at(hyp_idx), tas::hyp_lt_index().at(hyp_idx));
