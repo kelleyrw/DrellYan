@@ -86,6 +86,13 @@ class DrellYanInfo
         bool passes_idiso;
         bool passes_full;
 
+        int nhyps_ossf;
+        int nhyps_mwin;
+        int nhyps_svtx;
+        int nhyps_trig;
+        int nhyps_idiso;
+        int nhyps_full;
+
         // some reco event level info
         int nvtxs;
         float pfmet;
@@ -165,6 +172,12 @@ DrellYanInfo::DrellYanInfo()
     , passes_trig          ( false      )
     , passes_idiso         ( false      )
     , passes_full          ( false      )
+    , nhyps_ossf           ( 0          )
+    , nhyps_mwin           ( 0          )
+    , nhyps_svtx           ( 0          )
+    , nhyps_trig           ( 0          )
+    , nhyps_idiso          ( 0          )
+    , nhyps_full           ( 0          )
     , nvtxs                ( -999999    ) 
     , pfmet                ( -999999    ) 
     , pfmet_phi            ( -999999    ) 
@@ -238,6 +251,12 @@ void DrellYanInfo::Reset()
     passes_trig          = false;
     passes_idiso         = false;
     passes_full          = false;
+    nhyps_ossf           = false;
+    nhyps_mwin           = false;
+    nhyps_svtx           = false;
+    nhyps_trig           = false;
+    nhyps_idiso          = false;
+    nhyps_full           = false;
     nvtxs                = -999999; 
     pfmet                = -999999; 
     pfmet_phi            = -999999; 
@@ -306,6 +325,12 @@ void DrellYanInfo::SetBranches(TTree& tree)
     tree.Branch("passes_trig"          , &passes_trig          );
     tree.Branch("passes_idiso"         , &passes_idiso         );
     tree.Branch("passes_full"          , &passes_full          );
+    tree.Branch("nhyps_ossf"           , &nhyps_ossf           );
+    tree.Branch("nhyps_mwin"           , &nhyps_mwin           );
+    tree.Branch("nhyps_svtx"           , &nhyps_svtx           );
+    tree.Branch("nhyps_trig"           , &nhyps_trig           );
+    tree.Branch("nhyps_idiso"          , &nhyps_idiso          );
+    tree.Branch("nhyps_full"           , &nhyps_full           );
     tree.Branch("nvtxs"                , &nvtxs                );
     tree.Branch("pfmet"                , &pfmet                );
     tree.Branch("pfmet_phi"            , &pfmet_phi            );
@@ -382,6 +407,12 @@ std::ostream& operator<< (std::ostream& out, const DrellYanInfo& info)
     out << "passes_trig          = " << info.passes_trig          << std::endl;
     out << "passes_idiso         = " << info.passes_idiso         << std::endl;
     out << "passes_full          = " << info.passes_full          << std::endl;
+    out << "nhyps_ossf           = " << info.nhyps_ossf           << std::endl;
+    out << "nhyps_mwin           = " << info.nhyps_mwin           << std::endl;
+    out << "nhyps_svtx           = " << info.nhyps_svtx           << std::endl;
+    out << "nhyps_trig           = " << info.nhyps_trig           << std::endl;
+    out << "nhyps_idiso          = " << info.nhyps_idiso          << std::endl;
+    out << "nhyps_full           = " << info.nhyps_full           << std::endl;
     out << "nvtxs                = " << info.nvtxs                << std::endl;
     out << "pfmet                = " << info.pfmet                << std::endl;
     out << "pfmet_phi            = " << info.pfmet_phi            << std::endl;
@@ -508,6 +539,7 @@ struct Selection
         std::string name;
         std::string title;
         bool passes;
+        int count;
         int hyp_idx;
     };
 };
@@ -517,6 +549,7 @@ std::ostream& operator<<(std::ostream& out, Selection::Info si)
     out << "{"  << si.name
         << ", " << si.title
         << ", " << si.passes
+        << ", " << si.count
         << ", " << si.hyp_idx
         << "}";
     return out;
@@ -524,6 +557,7 @@ std::ostream& operator<<(std::ostream& out, Selection::Info si)
 
 void UpdateSelection(Selection::Info& sel, const int hyp_idx)
 {
+    sel.count++;
     sel.passes  = (hyp_idx >= 0); 
     sel.hyp_idx = dy::ChooseBetterHypothesis(hyp_idx, sel.hyp_idx); 
 }
@@ -640,12 +674,12 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
 
     // selections
     std::vector<Selection::Info> selections;
-    selections.push_back(Selection::Info{"ossf"  , "OSSF"                , false , -1});
-    selections.push_back(Selection::Info{"mwin"  , "Mass Window"         , false , -1});
-    selections.push_back(Selection::Info{"svtx"  , "Same Vertex"         , false , -1});
-    selections.push_back(Selection::Info{"trig"  , "Passes Trigger"      , false , -1});
-    selections.push_back(Selection::Info{"idiso" , "Passes ID/Isolation" , false , -1});
-    selections.push_back(Selection::Info{"full"  , "Full Selection"      , false , -1});
+    selections.push_back(Selection::Info{"ossf"  , "OSSF"                , false , 0, -1});
+    selections.push_back(Selection::Info{"mwin"  , "Mass Window"         , false , 0, -1});
+    selections.push_back(Selection::Info{"svtx"  , "Same Vertex"         , false , 0, -1});
+    selections.push_back(Selection::Info{"trig"  , "Passes Trigger"      , false , 0, -1});
+    selections.push_back(Selection::Info{"idiso" , "Passes ID/Isolation" , false , 0, -1});
+    selections.push_back(Selection::Info{"full"  , "Full Selection"      , false , 0, -1});
     assert(selections.size()==Selection::static_size);
 
     // loop over hypotheses
@@ -766,6 +800,13 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         m_info.passes_trig  = selections[Selection::trig ].passes;
         m_info.passes_idiso = selections[Selection::idiso].passes;
         m_info.passes_full  = selections[Selection::full ].passes;
+
+        m_info.nhyps_ossf  = selections[Selection::ossf ].count;
+        m_info.nhyps_mwin  = selections[Selection::mwin ].count;
+        m_info.nhyps_svtx  = selections[Selection::svtx ].count;
+        m_info.nhyps_trig  = selections[Selection::trig ].count;
+        m_info.nhyps_idiso = selections[Selection::idiso].count;
+        m_info.nhyps_full  = selections[Selection::full ].count;
 
         // reco hyp variables
         m_info.pfmet     = tas::evt_pfmet_type1cor();
