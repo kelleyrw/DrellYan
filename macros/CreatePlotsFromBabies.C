@@ -80,7 +80,6 @@ TCut ApplyScale(const TCut& cut)
 TCut ApplyScaleWithTriggerSF(const TCut& cut)
 {
     const double sf   = 0.95*0.95;
-    //const double sf   = 1.0; 
     const TCut result = Form("lumi*scale1fb*%f*(%s)", sf, cut.GetTitle());
     return result;
 }
@@ -156,7 +155,7 @@ void CreatePlots
     chain.Draw("2>>+h_acc_rec_num", ApplyScale(reco_acc_num && is_gen_ll_includetau), "goff");
 
     // gen yields not including taus
-    chain.Draw("0>>h_gen_notau_yield" , ApplyScale(is_gen_ll), "goff");
+    chain.Draw("0>> h_gen_notau_yield", ApplyScale(is_gen_ll), "goff");
     chain.Draw("1>>+h_gen_notau_yield", ApplyScale(is_gen_mm), "goff");
     chain.Draw("2>>+h_gen_notau_yield", ApplyScale(is_gen_ee), "goff");
     chain.Draw("0>> h_gen_raw_notau_yield", is_gen_ll, "goff");
@@ -205,9 +204,9 @@ void CreatePlots
         chain.Draw("2>>+h_reco_full_yield" , ApplyScaleWithTriggerSF(is_ee && "passes_full"), "goff");
     }
 
-    chain.Draw("hyp_p4.mass()>>h_gen_mee", ApplyScale(is_ll && "passes_full"), "goff");
-    chain.Draw("hyp_p4.mass()>>h_gen_mmm", ApplyScale(is_mm && "passes_full"), "goff");
-    chain.Draw("hyp_p4.mass()>>h_gen_mll", ApplyScale(is_ee && "passes_full"), "goff");
+    chain.Draw("hyp_p4.mass()>>h_reco_full_mee", ApplyScale(is_ll && "passes_full"), "goff");
+    chain.Draw("hyp_p4.mass()>>h_reco_full_mmm", ApplyScale(is_mm && "passes_full"), "goff");
+    chain.Draw("hyp_p4.mass()>>h_reco_full_mll", ApplyScale(is_ee && "passes_full"), "goff");
 
 
     hc.SetDirectory(NULL);

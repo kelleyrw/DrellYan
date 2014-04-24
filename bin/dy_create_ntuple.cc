@@ -33,97 +33,96 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<float> > LorentzVector;
 
 class DrellYanInfo
 {
-public:
+    public:
 
-    // constructors and destructor
-    DrellYanInfo();
+        // constructors and destructor
+        DrellYanInfo();
 
-    void Reset();
-    void SetBranches(TTree& tree);
-//     void SetAliases(TTree& tree) const;
+        void Reset();
+        void SetBranches(TTree& tree);
 
-    // event level info
-    int run;
-    int ls;
-    int evt;
-    int sample;
-    std::string dataset;
-    std::string filename;
-    bool is_real_data;
-    float scale1fb;
-    float scale1fb_cms2;
-    float lumi;
-    float xsec;
-    float nevts_aod;
-    float nevts_cms2;
-    float nevts_file;
-    float kfactor;
-    float filt_eff;
+        // event level info
+        int run;
+        int ls;
+        int evt;
+        int sample;
+        std::string dataset;
+        std::string filename;
+        bool is_real_data;
+        float scale1fb;
+        float scale1fb_cms2;
+        float lumi;
+        float xsec;
+        float nevts_aod;
+        float nevts_cms2;
+        float nevts_file;
+        float kfactor;
+        float filt_eff;
 
-    // Gen hypothesis specific info 
-    int gen_hyp_type;
-    bool is_gen_z;
-    bool is_gen_ee;
-    bool is_gen_mm;
-    bool is_gen_tt;
-    bool is_gen_ee_includetau;
-    bool is_gen_mm_includetau;
-    bool is_gen_fromz;
-    bool is_gen_acc_den;
-    bool is_gen_acc_num;
-    LorentzVector gen_p4;
-    LorentzVector gen_lep1_p4;
-    int gen_lep1_id;
-    int gen_lep1_charge;
-    LorentzVector gen_lep2_p4;
-    int gen_lep2_id;
-    int gen_lep2_charge;
+        // Gen hypothesis specific info 
+        int gen_hyp_type;
+        bool is_gen_z;
+        bool is_gen_ee;
+        bool is_gen_mm;
+        bool is_gen_tt;
+        bool is_gen_ee_includetau;
+        bool is_gen_mm_includetau;
+        bool is_gen_fromz;
+        bool is_gen_acc_den;
+        bool is_gen_acc_num;
+        LorentzVector gen_p4;
+        LorentzVector gen_lep1_p4;
+        int gen_lep1_id;
+        int gen_lep1_charge;
+        LorentzVector gen_lep2_p4;
+        int gen_lep2_id;
+        int gen_lep2_charge;
 
-    // selections
-    bool passes_ossf;
-    bool passes_mwin;
-    bool passes_svtx;
-    bool passes_trig;
-    bool passes_idiso;
-    bool passes_full;
+        // selections
+        bool passes_ossf;
+        bool passes_mwin;
+        bool passes_svtx;
+        bool passes_trig;
+        bool passes_idiso;
+        bool passes_full;
 
-    // some reco event level info
-    int nvtxs;
-    float pfmet;
-    float pfmet_phi;
-    int pu_nvtxs;
-    float pu_ntrueint;
+        // some reco event level info
+        int nvtxs;
+        float pfmet;
+        float pfmet_phi;
+        int pu_nvtxs;
+        float pu_ntrueint;
 
-    // trigger
-    bool trig;
+        // trigger
+        bool trig;
 
-    // reco hyp variables
-    int hyp_type;
-    LorentzVector hyp_p4;
-    bool is_ee;
-    bool is_mm;
-    bool is_ll;
+        // reco hyp variables
+        int hyp_type;
+        LorentzVector hyp_p4;
+        bool is_ee;
+        bool is_mm;
+        bool is_ll;
 
-    // reco lepton variables
-    LorentzVector lep1_p4;
-    int lep1_id;
-    int lep1_charge;
-    double lep1_iso;
-    double lep1_d0;
-    double lep1_dz;
-    bool lep1_passes_id;
-    bool lep1_passes_iso;
-    bool lep1_passes_sel;
+        // reco lepton variables
+        LorentzVector lep1_p4;
+        int lep1_id;
+        int lep1_charge;
+        double lep1_iso;
+        double lep1_d0;
+        double lep1_dz;
+        bool lep1_passes_id;
+        bool lep1_passes_iso;
+        bool lep1_passes_sel;
 
-    LorentzVector lep2_p4;
-    int lep2_id;
-    int lep2_charge;
-    double lep2_iso;
-    double lep2_d0;
-    double lep2_dz;
-    bool lep2_passes_id;
-    bool lep2_passes_iso;
-    bool lep2_passes_sel;
+        LorentzVector lep2_p4;
+        int lep2_id;
+        int lep2_charge;
+        double lep2_iso;
+        double lep2_d0;
+        double lep2_dz;
+        bool lep2_passes_id;
+        bool lep2_passes_iso;
+        bool lep2_passes_sel;
 };
 
 DrellYanInfo::DrellYanInfo()
