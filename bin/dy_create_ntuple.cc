@@ -49,15 +49,15 @@ class DrellYanInfo
         std::string dataset;
         std::string filename;
         bool is_real_data;
-        float scale1fb;
-        float scale1fb_cms2;
-        float lumi;
-        float xsec;
-        float nevts_aod;
-        float nevts_cms2;
-        float nevts_file;
-        float kfactor;
-        float filt_eff;
+        double scale1fb;
+        double scale1fb_cms2;
+        double lumi;
+        double xsec;
+        double nevts_aod;
+        double nevts_cms2;
+        double nevts_file;
+        double kfactor;
+        double filt_eff;
 
         // Gen hypothesis specific info 
         int gen_hyp_type;
@@ -95,10 +95,10 @@ class DrellYanInfo
 
         // some reco event level info
         int nvtxs;
-        float pfmet;
-        float pfmet_phi;
+        double pfmet;
+        double pfmet_phi;
         int pu_nvtxs;
-        float pu_ntrueint;
+        double pu_ntrueint;
 
         // trigger
         bool trig;
@@ -460,8 +460,8 @@ class DrellYanNtupleMaker
             const std::string& output_filename, 
             const double lumi,
             const long num_events,
-            const float min_pt,
-            const float max_eta,
+            const double min_pt,
+            const double max_eta,
             const bool verbose
         );
 
@@ -480,8 +480,8 @@ class DrellYanNtupleMaker
         std::string m_output_filename;
         double m_lumi;
         long m_num_events;
-        float m_min_pt;
-        float m_max_eta;
+        double m_min_pt;
+        double m_max_eta;
         bool m_verbose;
         DrellYanInfo m_info;
         TFile& m_file;
@@ -495,8 +495,8 @@ DrellYanNtupleMaker::DrellYanNtupleMaker
     const std::string& output_filename, 
     const double lumi,
     const long num_events,
-    const float min_pt,
-    const float max_eta,
+    const double min_pt,
+    const double max_eta,
     const bool verbose
 )
     : m_sample_info(sample_info)
@@ -688,10 +688,10 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         }
 
         // convenience variables
-        const float dilep_mass = tas::hyp_p4().at(hyp_idx).mass();
-        const int flavor_type  = tas::hyp_type().at(hyp_idx);
-        const bool is_ee       = (flavor_type == 3);
-        const bool is_mm       = (flavor_type == 0);
+        const double dilep_mass = tas::hyp_p4().at(hyp_idx).mass();
+        const int flavor_type   = tas::hyp_type().at(hyp_idx);
+        const bool is_ee        = (flavor_type == 3);
+        const bool is_mm        = (flavor_type == 0);
 
         // apply selections
 
