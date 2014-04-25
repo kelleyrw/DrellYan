@@ -58,7 +58,7 @@ namespace dy
     // checks whether the leptons of a given
     // hypothesis come from the same good vertex
     // by checking if both leptons are within dz
-    // of 1cm of the same PV
+    // of dz_cut (default 1.0 cm) of the same PV
     ///////////////////////////////////////////////////////////////////////////////////////////
     bool hypsFromFirstGoodVertex(const int hyp_idx, const double dz_cut = 1.0/*cm*/);
 

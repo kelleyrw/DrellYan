@@ -620,12 +620,6 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         // gen gen hypotheses
         const std::vector<at::GenHyp> gen_hyps       = at::GetGenHyps(/*min_pt=*/0.0, /*max_eta=*/1000.0);
         const std::vector<at::GenHyp> gen_hyps_clean = lt::filter_container(gen_hyps, [](const at::GenHyp& h) {return (h.IsOSSF());});
-//         const std::vector<at::GenHyp> gen_hyps_clean = lt::filter_container(gen_hyps,
-//             [](const at::GenHyp& h)
-//             {
-//                 return (h.IsOS() and (h.IsEE_IncludeTaus() or h.IsMuMu_IncludeTaus()));
-//             }
-//         );
 
         if (m_verbose) {std::cout << "number of gen hyps = " << gen_hyps_clean.size() << std::endl;}
         if (!gen_hyps_clean.empty())
@@ -661,10 +655,10 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
             m_info.is_gen_acc_den       = (gen_hyp.IsFromZ() and not gen_hyp.IsTauTau() and (60 < gen_hyp.P4().mass() && gen_hyp.P4().mass() < 120));
             m_info.is_gen_acc_num       = (m_info.is_gen_acc_den and gen_hyp.IsAccepted(m_min_pt, m_max_eta));
             m_info.gen_p4               = gen_hyp.P4();
-            m_info.gen_lep1_p4          = gen_hyp.Lep1().p4;
+            m_info.gen_lep1_p4          = gen_hyp.IsTauTau() ? gen_hyp.Lep1().d_p4 : gen_hyp.Lep1().p4;
             m_info.gen_lep1_id          = gen_hyp.Lep1().id;
             m_info.gen_lep1_charge      = gen_hyp.Lep1().charge;
-            m_info.gen_lep2_p4          = gen_hyp.Lep2().p4;
+            m_info.gen_lep2_p4          = gen_hyp.IsTauTau() ? gen_hyp.Lep2().d_p4 : gen_hyp.Lep2().p4;
             m_info.gen_lep2_id          = gen_hyp.Lep2().id;
             m_info.gen_lep2_charge      = gen_hyp.Lep2().charge;
         }
