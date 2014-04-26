@@ -98,7 +98,7 @@ process.dy_samples = cms.VPSet(
     	latex       = cms.string("$WZ \\\\rightarrow 3\\\\ell + \\\\nu$"), 
     	ntuple_path = cms.string(mc_path + "/WZJetsTo3LNu_TuneZ2_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1/V05-03-23/merged_ntuple_1[0-9].root"),
     	color       = cms.int32 (625), #kRed-7,
-    	eff         = cms.double(2937874.0/3215990.0),
+    	eff         = cms.double(2017979.0/2017979.0),
     ),
     cms.PSet(
     	name        = cms.string("zz2l2nu"), 

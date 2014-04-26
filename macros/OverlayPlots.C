@@ -113,6 +113,9 @@ void OverlayPlots
     rt::SetTDRStyle();
     gStyle->SetHatchesSpacing(1.00);
 
+    // subtract Z --> tau tau for Z --> ee/mm
+    sample_hist_map[dy::GetSampleInfo(dy::Sample::dyll)] -= sample_hist_map[dy::GetSampleInfo(dy::Sample::dytt)];
+
     // title
     const double lumi = 0.082;
     const std::string title = Form("CMS2 Drell-Yan Exercise, #sqrt{s} = 8 TeV, L_{int} = %1.3f fb^{-1}", lumi);
@@ -129,8 +132,8 @@ void OverlayPlots
     p["p_reco_full_mmm_log" ] = CreateOverlay(sample_hist_map, "reco_full_mmm"   , Form("%s;m_{#mu#mu} (GeV);Events" , title.c_str()), "sb::off dt::stack lg::top_left logy", 1, 3e5, 1);
     p["p_reco_ossf_mmm"     ] = CreateOverlay(sample_hist_map, "reco_ossf_mmm"   , Form("%s;m_{#mu#mu} (GeV);Events" , title.c_str()), "sb::off dt::stack lg::top_left");
     p["p_reco_ossf_mmm_log" ] = CreateOverlay(sample_hist_map, "reco_ossf_mmm"   , Form("%s;m_{#mu#mu} (GeV);Events" , title.c_str()), "sb::off dt::stack lg::top_left logy", 5, 3e6, 1);
-    p["p_gen_mee"           ] = CreateOverlay(sample_hist_map, "gen_mee"         , Form("%s;m_{#mu#mu} (GeV);Events" , title.c_str()), "sb::off dt::stack lg::top_left");
-    p["p_gen_mee_log"       ] = CreateOverlay(sample_hist_map, "gen_mee"         , Form("%s;m_{#mu#mu} (GeV);Events" , title.c_str()), "sb::off dt::stack lg::top_left logy", 1e-1, 3e5, 1);
+    p["p_gen_mee"           ] = CreateOverlay(sample_hist_map, "gen_mee"         , Form("%s;m_{ee} (GeV);Events"     , title.c_str()), "sb::off dt::stack lg::top_left");
+    p["p_gen_mee_log"       ] = CreateOverlay(sample_hist_map, "gen_mee"         , Form("%s;m_{ee} (GeV);Events"     , title.c_str()), "sb::off dt::stack lg::top_left logy", 1e-1, 3e5, 1);
     p["p_reco_full_mee"     ] = CreateOverlay(sample_hist_map, "reco_full_mee"   , Form("%s;m_{ee} (GeV);Events"     , title.c_str()), "sb::off dt::stack lg::top_left");
     p["p_reco_full_mee_log" ] = CreateOverlay(sample_hist_map, "reco_full_mee"   , Form("%s;m_{ee} (GeV);Events"     , title.c_str()), "sb::off dt::stack lg::top_left logy", 5, 3e5, 1);
     p["p_reco_ossf_mee"     ] = CreateOverlay(sample_hist_map, "reco_ossf_mee"   , Form("%s;m_{ee} (GeV);Events"     , title.c_str()), "sb::off dt::stack lg::top_left");
