@@ -619,7 +619,12 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
     {
         // gen gen hypotheses
         const std::vector<at::GenHyp> gen_hyps       = at::GetGenHyps(/*min_pt=*/0.0, /*max_eta=*/1000.0);
-        const std::vector<at::GenHyp> gen_hyps_clean = lt::filter_container(gen_hyps, [](const at::GenHyp& h) {return (h.IsOSSF());});
+        const std::vector<at::GenHyp> gen_hyps_clean = lt::filter_container(gen_hyps,
+            [](const at::GenHyp& h)
+            {
+                return (h.IsOS() && (h.IsMuMu_IncludeTaus() || h.IsEE_IncludeTaus()));
+            }
+        );
 
         if (m_verbose) {std::cout << "number of gen hyps = " << gen_hyps_clean.size() << std::endl;}
         if (!gen_hyps_clean.empty())

@@ -245,13 +245,13 @@ void DrellYanLooper::Analyze(const long event)
     // ---------------------- // 
 
     double event_scale = 1.0;
-    if (!tas::evt_isRealData())
-    {
+    if (!tas::evt_isRealData())                                                
+    {                                                                          
         const double nevts_cms2  = m_sample_info.filter_eff * tas::evt_nEvts(); // number of events run in CMSSW job to make ntuple
         const double nevts_scale = nevts_cms2/m_num_events;                     // scale up the weight to account fo lower stats
         const double scale1fb    = tas::evt_scale1fb();                         // scale1fb stored in event
-        event_scale              = m_lumi * scale1fb * nevts_scale;
-    }
+        event_scale              = m_lumi * scale1fb * nevts_scale;            
+    }                                                                          
     if (m_verbose) {std::cout << "event_scale = " << event_scale << "\n";}
 
     // generator level plots
@@ -378,19 +378,19 @@ void DrellYanLooper::Analyze(const long event)
     // Event Cleaning
     // ---------------------- // 
 
-    // require at least 3 tracks in the event
-    if (tas::trks_trk_p4().size() < 3)
-    {
-        if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
-        return;
-    }
-
-    // require standard cleaning 
-    if (!cleaning_standardNovember2011()) 
-    {
-        if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
-        return;
-    }
+//     // require at least 3 tracks in the event                                  
+//     if (tas::trks_trk_p4().size() < 3)                                         
+//     {                                                                          
+//         if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
+//         return;                                                                
+//     }                                                                          
+//                                                                                
+//     // require standard cleaning                                               
+//     if (!cleaning_standardNovember2011())                                      
+//     {                                                                          
+//         if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
+//         return;                                                                
+//     }                                                                          
 
     // reco level plots
     // ---------------------- // 
