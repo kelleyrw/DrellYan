@@ -121,7 +121,7 @@ bool dy::isGoodLepton(const int lep_id, const int lep_idx)
         if (fabs(d0) > 0.02/*cm*/)                 {return false;} // Its tracker track has transverse impact parameter dxy < 200 µm w.r.t. the primary vertex
         if (fabs(dz) > 0.1/*cm*/)                  {return false;} // The longitudinal distance of the tracker track wrt. the primary vertex is dz < 5 mm
         if (els_exp_innerlayers().at(lep_idx) > 1) {return false;} // # missing hits on the track < 1
-        if (vtx_fit_conversion)                    {return false;} // reject convertions
+        if (vtx_fit_conversion)                    {return false;} // reject conversions
 
         // |1/E - 1/p|
         const double ooemoop = fabs((1.0/els_ecalEnergy().at(lep_idx)) - (els_eOverPIn().at(lep_idx)/els_ecalEnergy().at(lep_idx)));
@@ -154,9 +154,9 @@ bool dy::isGoodLepton(const int lep_id, const int lep_idx)
         const bool is_global  = ((mus_type().at(lep_idx) & (1<<1)) != 0);
         const bool is_pfmu    = ((mus_type().at(lep_idx) & (1<<5)) != 0);
         const int ctfidx      = mus_trkidx().at(lep_idx);
-        const double d0        = leptonD0(lep_id, lep_idx);
-        const double dz        = leptonDz(lep_id, lep_idx);
-        const double chi2ndof  = mus_gfit_chi2().at(lep_idx)/mus_gfit_ndof().at(lep_idx);
+        const double d0       = leptonD0(lep_id, lep_idx);
+        const double dz       = leptonDz(lep_id, lep_idx);
+        const double chi2ndof = mus_gfit_chi2().at(lep_idx)/mus_gfit_ndof().at(lep_idx);
 
         if (mus_p4().at(lep_idx).pt() < 25/*GeV*/)          {return false;} // p_T > 2.5 GeV
         if (fabs(mus_p4().at(lep_idx).eta()) > 2.1)         {return false;} // |eta| < 2.1
@@ -230,11 +230,14 @@ double dy::leptonIsolation(const int lep_id, const int lep_idx)
 
 double dy::EffectiveArea03(const int lep_id, const int lep_idx)
 {
+    // only applies to electrons
     if (abs(lep_id)!=11)
+    {
         return -999990.0;
+    }
 
     // use SC eta
-    double eta = fabs(tas::els_etaSC().at(lep_idx));
+    const double eta = fabs(tas::els_etaSC().at(lep_idx));
 
     // get effective area from electronSelections.h
     return fastJetEffArea03_v2(eta);
@@ -242,11 +245,14 @@ double dy::EffectiveArea03(const int lep_id, const int lep_idx)
 
 double dy::EffectiveArea04(int lep_id, int lep_idx)
 {
+    // only applies to electrons
     if (abs(lep_id)!=11)
+    {
         return -999990.0;
+    }
 
     // use SC eta
-    double eta = fabs(tas::els_etaSC().at(lep_idx));
+    const double eta = fabs(tas::els_etaSC().at(lep_idx));
 
     // get effective area from electronSelections.h
     return fastJetEffArea04_v2(eta);
@@ -485,8 +491,8 @@ int dy::GenDileptonType()
             for(size_t d_idx = 0; d_idx < tas::genps_lepdaughter_id().at(genps_idx).size(); ++d_idx)
             {
                 const int daughter = abs(tas::genps_lepdaughter_id().at(genps_idx).at(d_idx));
-                if (daughter == 11) {nels++;}
-                if (daughter == 13) {nmus++;}
+                if (daughter == 12) {nels++;}
+                if (daughter == 14) {nmus++;}
             }
         }
     }
