@@ -119,7 +119,7 @@ bool dy::isGoodLepton(const int lep_id, const int lep_idx)
         if (1.4442 < aeta_sc and aeta_sc < 1.566)  {return false;} // reject crack electons defined by 1.4442 < |eta_{sc}| < 1.566
         if (aeta_sc > 2.5)                         {return false;} // |eta_{sc}| < 2.5
         if (fabs(d0) > 0.02/*cm*/)                 {return false;} // Its tracker track has transverse impact parameter dxy < 200 µm w.r.t. the primary vertex
-        if (fabs(dz) > 0.1/*cm*/)                  {return false;} // The longitudinal distance of the tracker track wrt. the primary vertex is dz < 5 mm
+        if (fabs(dz) > 0.1/*cm*/)                  {return false;} // The longitudinal distance of the tracker track wrt. the primary vertex is dz < 1 mm
         if (els_exp_innerlayers().at(lep_idx) > 1) {return false;} // # missing hits on the track < 1
         if (vtx_fit_conversion)                    {return false;} // reject conversions
 
