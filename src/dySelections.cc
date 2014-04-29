@@ -112,7 +112,7 @@ bool dy::isGoodLepton(const int lep_id, const int lep_idx)
     {
         const double d0               = leptonD0(lep_id, lep_idx);
         const double dz               = leptonDz(lep_id, lep_idx);
-        const double aeta_sc          = fabs(els_p4().at(lep_idx).eta());
+        const double aeta_sc          = fabs(els_etaSC().at(lep_idx));
         const bool vtx_fit_conversion = isMITConversion(lep_idx, /*nWrongHitsMax*/0, /*probMin*/1e-6, /*dlMin*/2.0, /*matchCTF*/true, /*requireArbitratedMerged*/false);
 
         if (els_p4().at(lep_idx).Et() < 25/*GeV*/) {return false;} // E_T > 2.5 GeV
