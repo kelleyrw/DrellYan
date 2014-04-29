@@ -153,7 +153,7 @@ bool dy::isGoodLepton(const int lep_id, const int lep_idx)
     {
         const bool is_global  = ((mus_type().at(lep_idx) & (1<<1)) != 0);
         const bool is_pfmu    = ((mus_type().at(lep_idx) & (1<<5)) != 0);
-        const int ctfidx      = mus_trkidx().at(lep_idx);
+        const int trk_idx     = mus_trkidx().at(lep_idx);
         const double d0       = leptonD0(lep_id, lep_idx);
         const double dz       = leptonDz(lep_id, lep_idx);
         const double chi2ndof = mus_gfit_chi2().at(lep_idx)/mus_gfit_ndof().at(lep_idx);
@@ -167,8 +167,8 @@ bool dy::isGoodLepton(const int lep_id, const int lep_idx)
         if (mus_gfit_validSTAHits().at(lep_idx) <= 0)       {return false;} // At least one muon chamber hit included in the global-muon track fit 
         if (fabs(d0) > 0.02/*cm*/)                          {return false;} // Its tracker track has transverse impact parameter dxy < 200 µm w.r.t. the primary vertex
         if (fabs(dz) > 0.5/*cm*/)                           {return false;} // The longitudinal distance of the tracker track wrt. the primary vertex is dz < 5 mm
-        if (trks_valid_pixelhits().at(ctfidx) <= 0)         {return false;} // Number of pixel hits > 0
-        if (trks_nlayers().at(ctfidx) <= 5)                 {return false;} // Cut on number of tracker layers with hits > 5
+        if (trks_valid_pixelhits().at(trk_idx) <= 0)        {return false;} // Number of pixel hits > 0
+        if (trks_nlayers().at(trk_idx) <= 5)                {return false;} // Cut on number of tracker layers with hits > 5
 
         // if we're here, then it passes
         return true;
