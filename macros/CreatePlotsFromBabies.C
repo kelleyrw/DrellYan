@@ -87,7 +87,8 @@ TCut ApplyScaleWithTriggerSF(const TCut& cut)
 void CreatePlots
 (
     const dy::Sample::Info& sample_info,
-    const std::string& label
+    const std::string& label,
+    const bool apply_sf = false
 )
 {
     // baby
@@ -191,17 +192,17 @@ void CreatePlots
     chain.Draw("1>>+h_reco_idiso_yield", ApplyScale(is_mm && "passes_idiso"), "goff");
     chain.Draw("2>>+h_reco_idiso_yield", ApplyScale(is_ee && "passes_idiso"), "goff");
                                                                         
-    if (sample_info.sample == dy::Sample::data)
-    {
-        chain.Draw("0>> h_reco_full_yield" , ApplyScale(is_ll && "passes_full"), "goff");
-        chain.Draw("1>>+h_reco_full_yield" , ApplyScale(is_mm && "passes_full"), "goff");
-        chain.Draw("2>>+h_reco_full_yield" , ApplyScale(is_ee && "passes_full"), "goff");
-    }
-    else
+    if (sample_info.sample != dy::Sample::data && apply_sf)
     {
         chain.Draw("0>> h_reco_full_yield" , ApplyScaleWithTriggerSF(is_ll && "passes_full"), "goff");
         chain.Draw("1>>+h_reco_full_yield" , ApplyScaleWithTriggerSF(is_mm && "passes_full"), "goff");
         chain.Draw("2>>+h_reco_full_yield" , ApplyScaleWithTriggerSF(is_ee && "passes_full"), "goff");
+    }
+    else
+    {
+        chain.Draw("0>> h_reco_full_yield" , ApplyScale(is_ll && "passes_full"), "goff");
+        chain.Draw("1>>+h_reco_full_yield" , ApplyScale(is_mm && "passes_full"), "goff");
+        chain.Draw("2>>+h_reco_full_yield" , ApplyScale(is_ee && "passes_full"), "goff");
     }
 
     chain.Draw("hyp_p4.mass()>>h_reco_full_mee", ApplyScale(is_ll && "passes_full"), "goff");

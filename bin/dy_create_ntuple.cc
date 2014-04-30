@@ -716,7 +716,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         // 60 < m_ll << 120 GeV
         if (not (60 < dilep_mass && dilep_mass < 120.0))        
         {
-            if (m_verbose) {std::cout << "not SF" << std::endl;}
+            if (m_verbose) {std::cout << "did not pass mass window" << std::endl;}
             continue;
         }
         UpdateSelection(selections[Selection::mwin], hyp_idx);
@@ -740,7 +740,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         // l1 and l2 pass selection
         if (not dy::isSelectedHypothesis(hyp_idx))
         {
-            if (m_verbose) {std::cout << "not selected" << std::endl;}
+            if (m_verbose) {std::cout << "did not pass ID/ISO" << std::endl;}
             continue;
         }
         UpdateSelection(selections[Selection::idiso], hyp_idx);
@@ -760,20 +760,25 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         }
     }
 
+    // Event Cleaning
+    // ---------------------- // 
+
     // require at least 3 tracks in the event
-    const bool clean_tracks   = (tas::trks_trk_p4().size() >= 3);
-    if (not clean_tracks)
-    {
-        if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
-    }
+    //const bool clean_tracks   = (tas::trks_trk_p4().size() >= 3);
+    //if (not clean_tracks)
+    //{
+    //    if (m_verbose) {std::cout << "fails # trks >= 3 requirement" << std::endl;}
+    //}
 
-    // require standard cleaning 
-    const bool clean_standard = cleaning_standardNovember2011(); 
-    if (not clean_standard)
-    {
-        if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
-    }
+    //// require standard cleaning 
+    //const bool clean_standard = cleaning_standardNovember2011(); 
+    //if (not clean_standard)
+    //{
+    //    if (m_verbose) {std::cout << "fails November2011 cleaning requirement" << std::endl;}
+    //}
 
+    // Reco Variables 
+    // ---------------------- // 
 
     // only continue if a hyp has been selected
     // the order of the selction matters
@@ -785,11 +790,12 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
     }
 
     const int hyp_idx = best_hyp;
-    if (not clean_tracks or not clean_standard or hyp_idx < 0)
-    {
-        if (m_verbose) {std::cout << "failed cleaning or no good hypthesis chosen" << std::endl;}
-    }
-    else
+//     if (not clean_tracks or not clean_standard or hyp_idx < 0)
+//     {
+//         if (m_verbose) {std::cout << "failed cleaning or no good hypthesis chosen" << std::endl;}
+//     }
+//     else
+    if (hyp_idx >= 0)
     {
         if (m_verbose) {std::cout << "best hypthesis chosen = " << hyp_idx << std::endl;}
 
@@ -829,29 +835,35 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
         LorentzVector lep2_p4;
         int lep1_id;
         int lep1_idx;
+        int lep1_charge;
         int lep2_id;
         int lep2_idx;
+        int lep2_charge;
         if (tas::hyp_lt_p4().at(hyp_idx).pt() > tas::hyp_ll_p4().at(hyp_idx).pt())
         {
-            lep1_p4  = cms2.hyp_lt_p4().at(hyp_idx);
-            lep1_id  = cms2.hyp_lt_id().at(hyp_idx);
-            lep1_idx = cms2.hyp_lt_index().at(hyp_idx); 
-            lep2_p4  = cms2.hyp_ll_p4().at(hyp_idx);
-            lep2_id  = cms2.hyp_ll_id().at(hyp_idx);    
-            lep2_idx = cms2.hyp_ll_index().at(hyp_idx); 
+            lep1_p4     = tas::hyp_lt_p4().at(hyp_idx);
+            lep1_id     = tas::hyp_lt_id().at(hyp_idx);
+            lep1_idx    = tas::hyp_lt_index().at(hyp_idx);
+            lep1_charge = tas::hyp_lt_charge().at(hyp_idx);
+            lep2_p4     = tas::hyp_ll_p4().at(hyp_idx);
+            lep2_id     = tas::hyp_ll_id().at(hyp_idx);
+            lep2_idx    = tas::hyp_ll_index().at(hyp_idx);
+            lep2_charge = tas::hyp_ll_charge().at(hyp_idx);
         }
         else
         {
-            lep1_p4  = cms2.hyp_ll_p4().at(hyp_idx);
-            lep1_id  = cms2.hyp_ll_id().at(hyp_idx);
-            lep1_idx = cms2.hyp_ll_index().at(hyp_idx); 
-            lep2_p4  = cms2.hyp_lt_p4().at(hyp_idx);
-            lep2_id  = cms2.hyp_lt_id().at(hyp_idx);    
-            lep2_idx = cms2.hyp_lt_index().at(hyp_idx); 
+            lep1_p4     = tas::hyp_ll_p4().at(hyp_idx);
+            lep1_id     = tas::hyp_ll_id().at(hyp_idx);
+            lep1_idx    = tas::hyp_ll_index().at(hyp_idx);
+            lep1_charge = tas::hyp_ll_charge().at(hyp_idx);
+            lep2_p4     = tas::hyp_lt_p4().at(hyp_idx);
+            lep2_id     = tas::hyp_lt_id().at(hyp_idx);
+            lep2_idx    = tas::hyp_lt_index().at(hyp_idx);
+            lep2_charge = tas::hyp_lt_charge().at(hyp_idx);
         }
         m_info.lep1_p4         = lep1_p4; 
         m_info.lep1_id         = lep1_id;
-        m_info.lep1_charge     = -1*lep1_id/abs(lep1_id);
+        m_info.lep1_charge     = lep1_charge; 
         m_info.lep1_iso        = dy::leptonIsolation(lep1_id, lep1_idx);
         m_info.lep1_d0         = dy::leptonD0(lep1_id, lep1_idx);
         m_info.lep1_dz         = dy::leptonDz(lep1_id, lep1_idx);
@@ -861,7 +873,7 @@ void DrellYanNtupleMaker::Analyze(const long event, const std::string& current_f
 
         m_info.lep2_p4         = lep2_p4; 
         m_info.lep2_id         = lep2_id;
-        m_info.lep2_charge     = -1*lep2_id/abs(lep2_id);
+        m_info.lep2_charge     = lep2_charge;
         m_info.lep2_iso        = dy::leptonIsolation(lep2_id, lep2_idx);
         m_info.lep2_d0         = dy::leptonD0(lep2_id, lep2_idx);
         m_info.lep2_dz         = dy::leptonDz(lep2_id, lep2_idx);

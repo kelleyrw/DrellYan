@@ -400,10 +400,10 @@ void DrellYanLooper::Analyze(const long event)
     for (size_t hyp_idx = 0; hyp_idx < tas::hyp_type().size(); ++hyp_idx)
     {                
         // convenience variables
-        const float dilep_mass = tas::hyp_p4().at(hyp_idx).mass();
-        const int flavor_type  = tas::hyp_type().at(hyp_idx);
-        const bool is_ee       = (flavor_type == 3);
-        const bool is_mm       = (flavor_type == 0);
+        const double dilep_mass = tas::hyp_p4().at(hyp_idx).mass();
+        const int flavor_type   = tas::hyp_type().at(hyp_idx);
+        const bool is_ee        = (flavor_type == 3);
+        const bool is_mm        = (flavor_type == 0);
 
         // apply selections
 
@@ -423,7 +423,7 @@ void DrellYanLooper::Analyze(const long event)
         // 60 < m_ll << 120 GeV
         if (not (60 < dilep_mass && dilep_mass < 120.0))        
         {
-            if (m_verbose) {std::cout << "not SF" << std::endl;}
+            if (m_verbose) {std::cout << "did not pass mass window" << std::endl;}
             continue;
         }
         FillRecoHists(hc, hyp_idx, Selection::mwin, event_scale);
@@ -437,7 +437,7 @@ void DrellYanLooper::Analyze(const long event)
         FillRecoHists(hc, hyp_idx, Selection::svtx, event_scale);
     
         // trigger
-        if (not dy::passesTrigger(tas::hyp_type().at(hyp_idx)))
+        if (not dy::passesTrigger(flavor_type))
         {
             if (m_verbose) {std::cout << "did not pass trigger" << std::endl;}
             continue;
@@ -447,7 +447,7 @@ void DrellYanLooper::Analyze(const long event)
         // l1 and l2 pass selection
         if (not dy::isSelectedHypothesis(hyp_idx))
         {
-            if (m_verbose) {std::cout << "not selected" << std::endl;}
+            if (m_verbose) {std::cout << "did not pass ID/ISO" << std::endl;}
             continue;
         }
         FillRecoHists(hc, hyp_idx, Selection::idiso, event_scale);
