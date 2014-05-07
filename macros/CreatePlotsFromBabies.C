@@ -28,7 +28,6 @@ void BookHists(rt::TH1Container& hc)
     hc.Add(new TH1D("h_gen_raw_notau_yield", "Yield raw count of gen level l^{+}l^{-} (no #taus)"               ,   4, -1,  3));
     hc.Add(new TH1D("h_gen_raw_tau_yield"  , "Yield raw count of gen level l^{+}l^{-} (#taus #rightarrow e/#mu)",   4, -1,  3));
 
-
     hc.Add(new TH1D("h_gen_mee", "Generator level dielectron mass;m_{ee} (GeV)" , 150, 0, 150));
     hc.Add(new TH1D("h_gen_mmm", "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
     hc.Add(new TH1D("h_gen_mll", "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));

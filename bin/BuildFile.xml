@@ -16,3 +16,6 @@
 <environment>
   <bin name="dy_create_ntuple" file="dy_create_ntuple.cc"/>
 </environment>
+<environment>
+  <bin name="singlelep_create_ntuple" file="singlelep_create_ntuple.cc"/>
+</environment>
