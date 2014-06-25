@@ -2,7 +2,7 @@ CMS2 Analysis Example
 
 Goal is the reproduce the result for DY --> ee/µµ xsec measurement using cms2 ntuples documented in AN-12-067 [1] using subset of the 2012 data with L = 82 pb^-1
 
-To checkout and compile:
+To checkout and setup:
 
 scramv1 p -n CMSSW_6_1_2_drellyan CMSSW CMSSW_6_1_2
 cd CMSSW_6_1_2_drellyan/src
@@ -11,18 +11,8 @@ cmsenv
 git clone https://github.com/kelleyrw/DrellYan.git Analysis/DrellYan
 source Analysis/DrellYan/scripts/setup.sh
 
-git clone https://github.com/kelleyrw/AnalysisTools.git 
-git checkout -t dy_V00-00-01 
-git clone https://github.com/cmstas/Dictionaries.git CMS2/Dictionaries
-git clone https://github.com/cmstas/CORE.git CMS2/NtupleMacrosCore
-cd CMS2/NtupleMacrosCore
-git pull
-git checkout scram_compliant
-./setup/setupCoreForSCRAM.sh setup/cms2_ntuple_postprocess_05.03.23.root 
-cd $CMSSW_BASE/src
-scram b -j20
-
 To make the histograms directly from cms2 ntuples
+
 cd $CMSSW_BASE/src/Analysis/DrellYan
 ./scripts/dy_create_plots.py  --label label 
 
@@ -30,11 +20,9 @@ To make the histograms directly from babies
 
 # to make babies
 cd $CMSSW_BASE/src/Analysis/DrellYan
-./scripts/dy_create_ntuples.py
+./scripts/dy_create_babies.py 
 
 to make the plots from the ntuples, add the following lines to your .rootlogon.C (or load them manually):
-cd $CMSSW_BASE/src/Analysis/DrellYan
-gROOT->ProcessLine(".x $CMSSW_BASE/src/AnalysisTools/utils/load_analysis_tools.C");
 gROOT->ProcessLine(".x $CMSSW_BASE/src/Analysis/DrellYan/macros/load_dy_tools.C");
 
 # from root:
@@ -69,9 +57,9 @@ root [4] CreateYieldTable("label")
 +----------------------------------------------------------------------------------+
 
                         |               ee |                mm |                ll | 
- dyll                   | 20542.3 +/- 92.8 | 24306.4 +/- 100.9 | 44848.7 +/- 137.1 | 
- dyll (no tau --> e/mu) | 20522.6 +/- 92.8 | 24286.7 +/- 100.9 | 44809.3 +/- 137.1 | 
- dytt                   | 19.7 +/-  2.9    | 19.7 +/-  2.9     | 39.4 +/-  4.1     | 
+ dyll                   | 20636.1 +/- 93.0 | 24306.4 +/- 100.9 | 44942.5 +/- 137.2 | 
+ dyll (no tau --> e/mu) | 20616.0 +/- 93.0 | 24286.7 +/- 100.9 | 44902.8 +/- 137.3 | 
+ dytt                   | 20.1 +/-  2.9    | 19.7 +/-  2.9     | 39.8 +/-  4.1     | 
  wjets                  |  8.8 +/-  6.2    |  0.0 +/-  0.0     |  8.8 +/-  6.2     | 
  ttdil                  | 31.4 +/-  0.4    | 35.1 +/-  0.4     | 66.5 +/-  0.5     | 
  ttslq                  |  0.2 +/-  0.1    |  0.1 +/-  0.0     |  0.3 +/-  0.1     | 
@@ -79,13 +67,45 @@ root [4] CreateYieldTable("label")
  qcdmu15                |  0.0 +/-  0.0    |  0.0 +/-  0.0     |  0.0 +/-  0.0     | 
  ww2l2nu                |  6.4 +/-  0.1    |  7.5 +/-  0.1     | 13.9 +/-  0.1     | 
  wz2l2q                 | 11.7 +/-  0.1    | 13.3 +/-  0.1     | 25.0 +/-  0.1     | 
- wz3lnu                 |  5.8 +/-  0.0    |  6.8 +/-  0.0     | 12.6 +/-  0.0     | 
+ wz3lnu                 |  6.3 +/-  0.0    |  7.5 +/-  0.0     | 13.8 +/-  0.0     | 
  zz2l2nu                |  2.4 +/-  0.0    |  2.9 +/-  0.0     |  5.3 +/-  0.0     | 
- zz2l2q                 | 15.6 +/-  0.1    | 17.6 +/-  0.1     | 33.2 +/-  0.1     | 
+ zz2l2q                 | 15.7 +/-  0.1    | 17.6 +/-  0.1     | 33.2 +/-  0.1     | 
  zz4l                   |  1.4 +/-  0.0    |  1.8 +/-  0.0     |  3.2 +/-  0.0     | 
- Background Pred        | 103.5 +/-  6.8   | 104.7 +/-  2.9    | 208.2 +/-  7.4    | 
- MC Pred                | 20645.8 +/- 93.0 | 24411.1 +/- 100.9 | 45056.9 +/- 137.3 | 
- data                   | 18666 +/-  137   | 22184 +/-  149    | 40850 +/-  202    | 
+ Background Pred        | 104.6 +/-  6.9   | 105.4 +/-  2.9    | 209.9 +/-  7.5    | 
+ MC Pred                | 20740.7 +/- 93.2 | 24411.8 +/- 100.9 | 45152.5 +/- 137.4 | 
+ data                   | 18729 +/-  137   | 22184 +/-  149    | 40913 +/-  202    | 
+
+To make a latex version, use the 4th argument:
+
+root [7] CreateYieldTable("label", "h_reco_full_yield", "", true)
+\begin{table}[ht!]
+\begin{center}
+\begin{tabular}{l|cccc} \hline\hline
+source & $ee$ & $\mu\mu$ & $\ell\ell $ \\
+\hline
+   $Z/\gamma \rightarrow \ell \ell$ & 20636.1 $\pm$  93.0 & 24306.4 $\pm$ 100.9 & 44942.5 $\pm$ 137.2 \\
+$Z\gamma\ \rightarrow ee/\mu\mu\ (no\ \tau)$ & 20616.0 $\pm$  93.0 & 24286.7 $\pm$ 100.9 & 44902.8 $\pm$ 137.3 \\
+   $Z/\gamma \rightarrow \tau \tau$ &  20.1 $\pm$   2.9 &  19.7 $\pm$   2.9 &  39.8 $\pm$   4.1 \\
+      $W+jets \rightarrow \ell \nu$ &   8.8 $\pm$   6.2 &   0.0 $\pm$   0.0 &   8.8 $\pm$   6.2 \\
+$t\overline{t} \rightarrow \ell \ell X$ &  31.4 $\pm$   0.4 &  35.1 $\pm$   0.4 &  66.5 $\pm$   0.5 \\
+$t\overline{t} \rightarrow \ell (q \rightarrow \ell) X$ &   0.2 $\pm$   0.1 &   0.1 $\pm$   0.0 &   0.3 $\pm$   0.1 \\
+$t\overline{t} \rightarrow hadrons$ &   0.0 $\pm$   0.0 &   0.0 $\pm$   0.0 &   0.0 $\pm$   0.0 \\
+             QCD ($\mu$15 enriched) &   0.0 $\pm$   0.0 &   0.0 $\pm$   0.0 &   0.0 $\pm$   0.0 \\
+      $WW \rightarrow 2\ell + 2\nu$ &   6.4 $\pm$   0.1 &   7.5 $\pm$   0.1 &  13.9 $\pm$   0.1 \\
+        $WZ \rightarrow 2\ell + 2q$ &  11.7 $\pm$   0.1 &  13.3 $\pm$   0.1 &  25.0 $\pm$   0.1 \\
+       $WZ \rightarrow 3\ell + \nu$ &   6.3 $\pm$   0.0 &   7.5 $\pm$   0.0 &  13.8 $\pm$   0.0 \\
+      $ZZ \rightarrow 2\ell + 2\nu$ &   2.4 $\pm$   0.0 &   2.9 $\pm$   0.0 &   5.3 $\pm$   0.0 \\
+        $ZZ \rightarrow 2\ell + 2q$ &  15.7 $\pm$   0.1 &  17.6 $\pm$   0.1 &  33.2 $\pm$   0.1 \\
+             $ZZ \rightarrow 4\ell$ &   1.4 $\pm$   0.0 &   1.8 $\pm$   0.0 &   3.2 $\pm$   0.0 \\
+              Background Prediction & 104.6 $\pm$   6.9 & 105.4 $\pm$   2.9 & 209.9 $\pm$   7.5 \\
+                      MC Prediction & 20740.7 $\pm$  93.2 & 24411.8 $\pm$ 100.9 & 45152.5 $\pm$ 137.4 \\
+\hline\hline
+                               data & 18729 & 22184 & 40913 \\
+\hline\hline
+\end{tabular}
+\caption{Drell-Yan Exercise Yields}
+\end{center}
+\end{table}
 
 To make a yield table (gen)
  root [2] CreateYieldTable("label", "h_gen_yield")
@@ -94,22 +114,22 @@ To make a yield table (gen)
 +--------------------------------------------------------------------------------------+
 
                         |                 ee |                 mm |                 ll | 
- dyll                   | 100041.5 +/- 204.7 | 99462.1 +/- 204.1  | 199503.6 +/- 289.1 | 
- dyll (no tau --> e/mu) | 96574.7 +/- 208.2  | 96400.9 +/- 207.2  | 192975.6 +/- 293.8 | 
- dytt                   | 3466.7 +/- 38.1    | 3061.2 +/- 35.8    | 6528.0 +/- 52.3    | 
+ dyll                   | 99815.7 +/- 204.5  | 99462.1 +/- 204.1  | 199277.8 +/- 288.9 | 
+ dyll (no tau --> e/mu) | 96574.7 +/- 207.8  | 96400.9 +/- 207.2  | 192975.6 +/- 293.5 | 
+ dytt                   | 3240.9 +/- 36.8    | 3061.2 +/- 35.8    | 6302.2 +/- 51.4    | 
  wjets                  |  0.0 +/-  0.0      |  0.0 +/-  0.0      |  0.0 +/-  0.0      | 
- ttdil                  | 231.4 +/-  1.0     | 230.4 +/-  1.0     | 461.8 +/-  1.4     | 
+ ttdil                  | 310.1 +/-  1.1     | 309.0 +/-  1.1     | 619.1 +/-  1.6     | 
  ttslq                  |  0.0 +/-  0.0      |  0.0 +/-  0.0      |  0.0 +/-  0.0      | 
  tthad                  |  0.0 +/-  0.0      |  0.0 +/-  0.0      |  0.0 +/-  0.0      | 
  qcdmu15                |  0.0 +/-  0.0      |  0.0 +/-  0.0      |  0.0 +/-  0.0      | 
- ww2l2nu                | 55.0 +/-  0.2      | 54.5 +/-  0.2      | 109.5 +/-  0.3     | 
- wz2l2q                 | 62.7 +/-  0.1      | 62.7 +/-  0.1      | 125.4 +/-  0.2     | 
- wz3lnu                 | 27.4 +/-  0.1      | 27.2 +/-  0.1      | 54.6 +/-  0.1      | 
+ ww2l2nu                | 74.0 +/-  0.2      | 73.2 +/-  0.2      | 147.2 +/-  0.3     | 
+ wz2l2q                 | 62.5 +/-  0.1      | 62.7 +/-  0.1      | 125.2 +/-  0.2     | 
+ wz3lnu                 | 31.3 +/-  0.1      | 31.2 +/-  0.1      | 62.5 +/-  0.1      | 
  zz2l2nu                | 10.3 +/-  0.0      | 10.3 +/-  0.0      | 20.6 +/-  0.0      | 
- zz2l2q                 | 69.2 +/-  0.2      | 69.0 +/-  0.2      | 138.2 +/-  0.2     | 
+ zz2l2q                 | 69.1 +/-  0.2      | 69.0 +/-  0.2      | 138.1 +/-  0.2     | 
  zz4l                   |  5.1 +/-  0.0      |  8.1 +/-  0.0      | 13.2 +/-  0.0      | 
- Background Pred        | 3927.8 +/- 38.1    | 3523.5 +/- 35.8    | 7451.3 +/- 52.3    | 
- MC Pred                | 103969.3 +/- 208.2 | 102985.6 +/- 207.2 | 206954.9 +/- 293.8 | 
+ Background Pred        | 3803.4 +/- 36.9    | 3624.8 +/- 35.8    | 7428.2 +/- 51.4    | 
+ MC Pred                | 103619.1 +/- 207.8 | 103087.0 +/- 207.2 | 206706.0 +/- 293.5 | 
  data                   |    0 +/-    0      |    0 +/-    0      |    0 +/-    0      | 
 
 To make overlay plots 

@@ -62,6 +62,8 @@ void CreateCrossSectionTable
     const dy::Yield y_bk_pred    = dy::GetBackgroundPred(label, hist_name);
     const dy::Yield y_dy_pred    = yields[dy::Sample::dyll];
     const dy::Yield y_mc_pred    = y_dy_pred + y_bk_pred;
+    const dy::Yield y_den_acc    = dy::GetYieldFromLabel(dy::Sample::dyll, label, "h_acc_gen_den");
+    const dy::Yield y_num_acc    = dy::GetYieldFromLabel(dy::Sample::dyll, label, "h_acc_rec_num");
     const dy::Yield y_acc        = dy::GetYieldFromLabel(dy::Sample::dyll, label, "h_acc_rec");
     const dy::Yield y_nsig       = y_data - y_bk_pred; 
 
@@ -100,14 +102,16 @@ void CreateCrossSectionTable
         t_yields.useTitle();
         t_yields.setTitle("Cross-Sectoin for Drell-Yan Exercise");
         t_yields.setTable()
-        (                                   "ee",                    "mm") 
-        ("N_obs"       ,    y_data.ee.pm("4.0") ,     y_data.mm.pm("4.0")) 
-        ("N_mc"        , y_mc_pred.ee.pm("4.1") ,  y_mc_pred.mm.pm("4.1")) 
-        ("N_dyll"      , y_dy_pred.ee.pm("4.1") ,  y_dy_pred.mm.pm("4.1")) 
-        ("N_bkgd"      , y_bk_pred.ee.pm("4.1") ,  y_bk_pred.mm.pm("4.1")) 
-        ("N_sig"       ,    y_nsig.ee.pm("4.1") ,     y_nsig.mm.pm("4.1")) 
-        ("Acc"         ,     y_acc.ee.pm("4.3") ,      y_acc.mm.pm("4.3")) 
-        ("Sigma (nb)"  ,      xsec.ee.pm("4.3") ,       xsec.mm.pm("4.3")) 
+        (                                  "ee",                    "mm") 
+        ("N_obs"       ,    y_data.ee.pm("4.0"),     y_data.mm.pm("4.0")) 
+        ("N_mc"        , y_mc_pred.ee.pm("4.1"),  y_mc_pred.mm.pm("4.1")) 
+        ("N_dyll"      , y_dy_pred.ee.pm("4.1"),  y_dy_pred.mm.pm("4.1")) 
+        ("N_bkgd"      , y_bk_pred.ee.pm("4.1"),  y_bk_pred.mm.pm("4.1")) 
+        ("N_sig"       ,    y_nsig.ee.pm("4.1"),     y_nsig.mm.pm("4.1")) 
+        ("Num Acc"     , y_num_acc.ee.pm("4.3"),  y_num_acc.mm.pm("4.3")) 
+        ("Den Acc"     , y_den_acc.ee.pm("4.3"),  y_den_acc.mm.pm("4.3")) 
+        ("Acc"         ,     y_acc.ee.pm("4.3"),      y_acc.mm.pm("4.3")) 
+        ("Sigma (nb)"  ,      xsec.ee.pm("4.3"),       xsec.mm.pm("4.3")) 
         ;
 
         // print it

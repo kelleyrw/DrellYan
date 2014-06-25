@@ -10,3 +10,7 @@ git checkout scram_compliant
 ./setup/setupCoreForSCRAM.sh setup/cms2_ntuple_postprocess_05.03.23.root 
 cd $CMSSW_BASE/src
 scram b -j20
+
+if [ echo $? -eq 0 ]; then 
+    echo -e "\nsetup complete!!"
+fi
