@@ -4,12 +4,13 @@ Goal is the reproduce the result for DY --> ee/µµ xsec measurement using cms2 
 
 To checkout and compile:
 
-scramv1 p -n CMSSW_5_3_2_patch4_drellyan CMSSW CMSSW_5_3_2_patch4
-cd CMSSW_5_3_2_patch4_drellyan/src
+scramv1 p -n CMSSW_6_1_2_drellyan CMSSW CMSSW_6_1_2
+cd CMSSW_6_1_2_drellyan/src
 cmsenv
 
 git clone https://github.com/kelleyrw/DrellYan.git Analysis/DrellYan
 git clone https://github.com/kelleyrw/AnalysisTools.git 
+git checkout -t dy_V00-00-01 
 git clone https://github.com/cmstas/Dictionaries.git CMS2/Dictionaries
 git clone https://github.com/cmstas/CORE.git CMS2/NtupleMacrosCore
 cd CMS2/NtupleMacrosCore

@@ -146,7 +146,7 @@ void OverlayPlots
     // print yield explicitly
     // this is a kludge to the the x error bars the right size for the yeild plot
     gStyle->SetErrorX(0.3);
-    rt::Print(p["p_reco_full_yield"      ], Form("%s/p_reco_full_yield"      , plots_path.c_str()), suffix);
+    rt::Print(p["p_reco_full_yield"], Form("%s/p_reco_full_yield", plots_path.c_str()), suffix);
     rt::Print(p["p_reco_ossf_yield"], Form("%s/p_reco_ossf_yield", plots_path.c_str()), suffix);
     gStyle->SetErrorX();
 }

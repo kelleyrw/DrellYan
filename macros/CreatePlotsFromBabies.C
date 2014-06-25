@@ -45,9 +45,9 @@ void BookHists(rt::TH1Container& hc)
     hc.Add(new TH1D("h_reco_idiso_yield", "Id/ISO yield count of reco level l^{+}l^{-}",  4, -1,  3));
     hc.Add(new TH1D("h_reco_full_yield" , "Full yield count of reco level l^{+}l^{-}"  ,  4, -1,  3));
 
-    hc.Add(new TH1D("h_reco_full_mee"  , "Full dielectron mass;m_{ee} (GeV)"        , 150, 0, 150));
-    hc.Add(new TH1D("h_reco_full_mmm"  , "Full dilmuon mass;m_{#mu#mu} (GeV)"       , 150, 0, 150));
-    hc.Add(new TH1D("h_reco_full_mll"  , "Full dilepton mass;m_{ll} (GeV)"          , 150, 0, 150));
+    hc.Add(new TH1D("h_reco_full_mee"  , "Full dielectron mass;m_{ee} (GeV)" , 80, 40, 120));
+    hc.Add(new TH1D("h_reco_full_mmm"  , "Full dilmuon mass;m_{#mu#mu} (GeV)", 80, 40, 120));
+    hc.Add(new TH1D("h_reco_full_mll"  , "Full dilepton mass;m_{ll} (GeV)"   , 80, 40, 120));
 
     // change axis labels
     SetYieldAxisLabel(hc["h_gen_yield"          ]);
