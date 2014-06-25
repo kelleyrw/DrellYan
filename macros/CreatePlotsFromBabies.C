@@ -221,12 +221,12 @@ void CreatePlots
     hc.Write(Form("plots/%s/%s_plots.root", label.c_str(), sample_info.name.c_str()));
 }
 
-void CreatePlotsFromBabies(const std::string& label)
+void CreatePlotsFromBabies(const std::string& label, const bool apply_sf = false)
 {
     const auto& sample_infos = dy::Sample::GetInfos();
     for (const auto& sample_info : sample_infos)
     {
         std::cout << "[CreatePlotsFromBabies] create histograms for " << sample_info.name << "\n";
-        CreatePlots(sample_info, label);
+        CreatePlots(sample_info, label, apply_sf);
     }
 }
