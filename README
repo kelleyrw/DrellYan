@@ -9,6 +9,8 @@ cd CMSSW_6_1_2_drellyan/src
 cmsenv
 
 git clone https://github.com/kelleyrw/DrellYan.git Analysis/DrellYan
+source Analysis/DrellYan/scripts/setup.sh
+
 git clone https://github.com/kelleyrw/AnalysisTools.git 
 git checkout -t dy_V00-00-01 
 git clone https://github.com/cmstas/Dictionaries.git CMS2/Dictionaries
