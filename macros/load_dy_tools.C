@@ -2,6 +2,8 @@
     // load the AnalysisTools for interactive use 
     const TString cmssw_base = gSystem->Getenv("CMSSW_BASE");
     const bool cmssw = cmssw_base.Length() > 0;
+    load_cmssw();
+    gROOT->ProcessLine(".x $CMSSW_BASE/src/AnalysisTools/utils/load_analysis_tools.C");
     if (cmssw)
     {
         std::cout << "Loading DY tools" << std::endl;

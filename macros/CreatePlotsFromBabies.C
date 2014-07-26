@@ -28,7 +28,6 @@ void BookHists(rt::TH1Container& hc)
     hc.Add(new TH1D("h_gen_raw_notau_yield", "Yield raw count of gen level l^{+}l^{-} (no #taus)"               ,   4, -1,  3));
     hc.Add(new TH1D("h_gen_raw_tau_yield"  , "Yield raw count of gen level l^{+}l^{-} (#taus #rightarrow e/#mu)",   4, -1,  3));
 
-
     hc.Add(new TH1D("h_gen_mee", "Generator level dielectron mass;m_{ee} (GeV)" , 150, 0, 150));
     hc.Add(new TH1D("h_gen_mmm", "Generator level dilmuon mass;m_{#mu#mu} (GeV)", 150, 0, 150));
     hc.Add(new TH1D("h_gen_mll", "Generator level dilepton mass;m_{ll} (GeV)"   , 150, 0, 150));
@@ -46,9 +45,13 @@ void BookHists(rt::TH1Container& hc)
     hc.Add(new TH1D("h_reco_idiso_yield", "Id/ISO yield count of reco level l^{+}l^{-}",  4, -1,  3));
     hc.Add(new TH1D("h_reco_full_yield" , "Full yield count of reco level l^{+}l^{-}"  ,  4, -1,  3));
 
-    hc.Add(new TH1D("h_reco_full_mee"  , "Full dielectron mass;m_{ee} (GeV)"        , 150, 0, 150));
-    hc.Add(new TH1D("h_reco_full_mmm"  , "Full dilmuon mass;m_{#mu#mu} (GeV)"       , 150, 0, 150));
-    hc.Add(new TH1D("h_reco_full_mll"  , "Full dilepton mass;m_{ll} (GeV)"          , 150, 0, 150));
+    hc.Add(new TH1D("h_reco_full_mee"  , "Full dielectron mass;m_{ee} (GeV)" , 80, 40, 120));
+    hc.Add(new TH1D("h_reco_full_mmm"  , "Full dilmuon mass;m_{#mu#mu} (GeV)", 80, 40, 120));
+    hc.Add(new TH1D("h_reco_full_mll"  , "Full dilepton mass;m_{ll} (GeV)"   , 80, 40, 120));
+
+    hc.Add(new TH1D("h_reco_ossf_mee"  , "OSSF reco dielectron mass;m_{ee} (GeV)" , 80, 40, 120));
+    hc.Add(new TH1D("h_reco_ossf_mmm"  , "OSSF reco dilmuon mass;m_{#mu#mu} (GeV)", 80, 40, 120));
+    hc.Add(new TH1D("h_reco_ossf_mll"  , "OSSF reco dilepton mass;m_{ll} (GeV)"   , 80, 40, 120));
 
     // change axis labels
     SetYieldAxisLabel(hc["h_gen_yield"          ]);
@@ -71,15 +74,9 @@ void BookHists(rt::TH1Container& hc)
     hc.Sumw2();
 }
 
-TCut ApplyScale(const TCut& cut)
+TCut ApplyScale(const TCut& cut, const bool do_sf = false)
 {
-    const TCut result = Form("lumi*scale1fb*(%s)", cut.GetTitle());
-    return result;
-}
-
-TCut ApplyScaleWithTriggerSF(const TCut& cut)
-{
-    const double sf   = 0.95*0.95;
+    const double sf   = (do_sf ? 0.95*0.95 : 1.0);
     const TCut result = Form("lumi*scale1fb*%f*(%s)", sf, cut.GetTitle());
     return result;
 }
@@ -120,9 +117,13 @@ void CreatePlots
     const TCut is_mm                 = "is_mm";
     const TCut is_ll                 = "is_ll";
     const TCut gen_mwin              = "60 < gen_p4.mass() && gen_p4.mass() < 120";
-    const TCut gen_acc_den           = "is_gen_z";
-    const TCut gen_acc_num           = gen_acc_den && !is_gen_tt && "gen_lep1_p4.pt()>25 && fabs(gen_lep2_p4.eta())<2.5 && gen_lep2_p4.pt()>25 && fabs(gen_lep2_p4.eta())<2.5";
-    const TCut reco_acc_num          = gen_acc_num && ((is_gen_ee && is_ee) || (is_gen_mm && is_mm)) && "passes_full";
+    const TCut is_gen_z              = "is_gen_z";
+    const TCut gen_acc_den           = "is_gen_acc_den";
+    const TCut gen_acc_num           = "is_gen_acc_num";
+    const TCut reco_acc_num          = gen_acc_den && ((is_gen_ee && is_ee) || (is_gen_mm && is_mm)) && "passes_full";
+
+    // decide whether to apply the scale factor
+    const float do_sf = (apply_sf && sample_info.sample != dy::Sample::data);
 
     // Fill hists
     // ----------------------------- // 
@@ -138,22 +139,22 @@ void CreatePlots
     chain.Draw("1>>+h_gen_raw_yield", is_gen_mm_includetau, "goff");
     chain.Draw("2>>+h_gen_raw_yield", is_gen_ee_includetau, "goff");
 
-    chain.Draw("gen_p4.mass()>>h_gen_mee", ApplyScale(is_gen_ee), "goff");
-    chain.Draw("gen_p4.mass()>>h_gen_mmm", ApplyScale(is_gen_mm), "goff");
     chain.Draw("gen_p4.mass()>>h_gen_mll", ApplyScale(is_gen_ll), "goff");
+    chain.Draw("gen_p4.mass()>>h_gen_mmm", ApplyScale(is_gen_mm), "goff");
+    chain.Draw("gen_p4.mass()>>h_gen_mee", ApplyScale(is_gen_ee), "goff");
 
     // acceptance
-    chain.Draw("0>> h_acc_gen_den", ApplyScale(gen_acc_den && is_gen_ee_includetau), "goff");
-    chain.Draw("1>>+h_acc_gen_den", ApplyScale(gen_acc_den && is_gen_mm_includetau), "goff");
-    chain.Draw("2>>+h_acc_gen_den", ApplyScale(gen_acc_den && is_gen_ll_includetau), "goff");
+    chain.Draw("0>> h_acc_gen_den", ApplyScale(gen_acc_den && is_gen_ll), "goff");
+    chain.Draw("1>>+h_acc_gen_den", ApplyScale(gen_acc_den && is_gen_mm), "goff");
+    chain.Draw("2>>+h_acc_gen_den", ApplyScale(gen_acc_den && is_gen_ee), "goff");
 
-    chain.Draw("0>> h_acc_gen_num", ApplyScale(gen_acc_num && is_gen_ee_includetau), "goff");
-    chain.Draw("1>>+h_acc_gen_num", ApplyScale(gen_acc_num && is_gen_mm_includetau), "goff");
-    chain.Draw("2>>+h_acc_gen_num", ApplyScale(gen_acc_num && is_gen_ll_includetau), "goff");
+    chain.Draw("0>> h_acc_gen_num", ApplyScale(gen_acc_num && is_gen_ll), "goff");
+    chain.Draw("1>>+h_acc_gen_num", ApplyScale(gen_acc_num && is_gen_mm), "goff");
+    chain.Draw("2>>+h_acc_gen_num", ApplyScale(gen_acc_num && is_gen_ee), "goff");
 
-    chain.Draw("0>> h_acc_rec_num", ApplyScale(reco_acc_num && is_gen_ee_includetau), "goff");
-    chain.Draw("1>>+h_acc_rec_num", ApplyScale(reco_acc_num && is_gen_mm_includetau), "goff");
-    chain.Draw("2>>+h_acc_rec_num", ApplyScale(reco_acc_num && is_gen_ll_includetau), "goff");
+    chain.Draw("0>> h_acc_rec_num", ApplyScale(reco_acc_num && is_gen_ll), "goff");
+    chain.Draw("1>>+h_acc_rec_num", ApplyScale(reco_acc_num && is_gen_mm), "goff");
+    chain.Draw("2>>+h_acc_rec_num", ApplyScale(reco_acc_num && is_gen_ee), "goff");
 
     // gen yields not including taus
     chain.Draw("0>> h_gen_notau_yield", ApplyScale(is_gen_ll), "goff");
@@ -172,43 +173,37 @@ void CreatePlots
     chain.Draw("2>>+h_gen_raw_tau_yield", is_gen_ee_onlytau, "goff");
 
     // raw full yields
-    chain.Draw("0>> h_reco_ossf_yield" , ApplyScale(is_ll && "passes_ossf"), "goff");
-    chain.Draw("1>>+h_reco_ossf_yield" , ApplyScale(is_mm && "passes_ossf"), "goff");
-    chain.Draw("2>>+h_reco_ossf_yield" , ApplyScale(is_ee && "passes_ossf"), "goff");
+    chain.Draw("0>> h_reco_ossf_yield" , ApplyScale(is_ll && "passes_ossf", do_sf), "goff");
+    chain.Draw("1>>+h_reco_ossf_yield" , ApplyScale(is_mm && "passes_ossf", do_sf), "goff");
+    chain.Draw("2>>+h_reco_ossf_yield" , ApplyScale(is_ee && "passes_ossf", do_sf), "goff");
                                                                        
-    chain.Draw("0>> h_reco_mwin_yield" , ApplyScale(is_ll && "passes_mwin"), "goff");
-    chain.Draw("1>>+h_reco_mwin_yield" , ApplyScale(is_mm && "passes_mwin"), "goff");
-    chain.Draw("2>>+h_reco_mwin_yield" , ApplyScale(is_ee && "passes_mwin"), "goff");
+    chain.Draw("0>> h_reco_mwin_yield" , ApplyScale(is_ll && "passes_mwin", do_sf), "goff");
+    chain.Draw("1>>+h_reco_mwin_yield" , ApplyScale(is_mm && "passes_mwin", do_sf), "goff");
+    chain.Draw("2>>+h_reco_mwin_yield" , ApplyScale(is_ee && "passes_mwin", do_sf), "goff");
                                                                        
-    chain.Draw("0>> h_reco_svtx_yield" , ApplyScale(is_ll && "passes_svtx"), "goff");
-    chain.Draw("1>>+h_reco_svtx_yield" , ApplyScale(is_mm && "passes_svtx"), "goff");
-    chain.Draw("2>>+h_reco_svtx_yield" , ApplyScale(is_ee && "passes_svtx"), "goff");
+    chain.Draw("0>> h_reco_svtx_yield" , ApplyScale(is_ll && "passes_svtx", do_sf), "goff");
+    chain.Draw("1>>+h_reco_svtx_yield" , ApplyScale(is_mm && "passes_svtx", do_sf), "goff");
+    chain.Draw("2>>+h_reco_svtx_yield" , ApplyScale(is_ee && "passes_svtx", do_sf), "goff");
                                                                        
-    chain.Draw("0>> h_reco_trig_yield" , ApplyScale(is_ll && "passes_trig"), "goff");
-    chain.Draw("1>>+h_reco_trig_yield" , ApplyScale(is_mm && "passes_trig"), "goff");
-    chain.Draw("2>>+h_reco_trig_yield" , ApplyScale(is_ee && "passes_trig"), "goff");
+    chain.Draw("0>> h_reco_trig_yield" , ApplyScale(is_ll && "passes_trig", do_sf), "goff");
+    chain.Draw("1>>+h_reco_trig_yield" , ApplyScale(is_mm && "passes_trig", do_sf), "goff");
+    chain.Draw("2>>+h_reco_trig_yield" , ApplyScale(is_ee && "passes_trig", do_sf), "goff");
                                                                         
-    chain.Draw("0>> h_reco_idiso_yield", ApplyScale(is_ll && "passes_idiso"), "goff");
-    chain.Draw("1>>+h_reco_idiso_yield", ApplyScale(is_mm && "passes_idiso"), "goff");
-    chain.Draw("2>>+h_reco_idiso_yield", ApplyScale(is_ee && "passes_idiso"), "goff");
-                                                                        
-    if (sample_info.sample != dy::Sample::data && apply_sf)
-    {
-        chain.Draw("0>> h_reco_full_yield" , ApplyScaleWithTriggerSF(is_ll && "passes_full"), "goff");
-        chain.Draw("1>>+h_reco_full_yield" , ApplyScaleWithTriggerSF(is_mm && "passes_full"), "goff");
-        chain.Draw("2>>+h_reco_full_yield" , ApplyScaleWithTriggerSF(is_ee && "passes_full"), "goff");
-    }
-    else
-    {
-        chain.Draw("0>> h_reco_full_yield" , ApplyScale(is_ll && "passes_full"), "goff");
-        chain.Draw("1>>+h_reco_full_yield" , ApplyScale(is_mm && "passes_full"), "goff");
-        chain.Draw("2>>+h_reco_full_yield" , ApplyScale(is_ee && "passes_full"), "goff");
-    }
+    chain.Draw("0>> h_reco_idiso_yield", ApplyScale(is_ll && "passes_idiso", do_sf), "goff");
+    chain.Draw("1>>+h_reco_idiso_yield", ApplyScale(is_mm && "passes_idiso", do_sf), "goff");
+    chain.Draw("2>>+h_reco_idiso_yield", ApplyScale(is_ee && "passes_idiso", do_sf), "goff");
 
-    chain.Draw("hyp_p4.mass()>>h_reco_full_mee", ApplyScale(is_ll && "passes_full"), "goff");
-    chain.Draw("hyp_p4.mass()>>h_reco_full_mmm", ApplyScale(is_mm && "passes_full"), "goff");
-    chain.Draw("hyp_p4.mass()>>h_reco_full_mll", ApplyScale(is_ee && "passes_full"), "goff");
+    chain.Draw("0>> h_reco_full_yield" , ApplyScale(is_ll && "passes_full", do_sf), "goff");
+    chain.Draw("1>>+h_reco_full_yield" , ApplyScale(is_mm && "passes_full", do_sf), "goff");
+    chain.Draw("2>>+h_reco_full_yield" , ApplyScale(is_ee && "passes_full", do_sf), "goff");
 
+    chain.Draw("hyp_p4.mass()>>h_reco_full_mee", ApplyScale(is_ll && "passes_full", do_sf), "goff");
+    chain.Draw("hyp_p4.mass()>>h_reco_full_mmm", ApplyScale(is_mm && "passes_full", do_sf), "goff");
+    chain.Draw("hyp_p4.mass()>>h_reco_full_mll", ApplyScale(is_ee && "passes_full", do_sf), "goff");
+
+    chain.Draw("hyp_p4.mass()>>h_reco_ossf_mee", ApplyScale(is_ll && "passes_ossf", do_sf), "goff");
+    chain.Draw("hyp_p4.mass()>>h_reco_ossf_mmm", ApplyScale(is_mm && "passes_ossf", do_sf), "goff");
+    chain.Draw("hyp_p4.mass()>>h_reco_ossf_mll", ApplyScale(is_ee && "passes_ossf", do_sf), "goff");
 
     hc.SetDirectory(NULL);
 
@@ -226,12 +221,12 @@ void CreatePlots
     hc.Write(Form("plots/%s/%s_plots.root", label.c_str(), sample_info.name.c_str()));
 }
 
-void CreatePlotsFromBabies(const std::string& label)
+void CreatePlotsFromBabies(const std::string& label, const bool apply_sf = false)
 {
     const auto& sample_infos = dy::Sample::GetInfos();
     for (const auto& sample_info : sample_infos)
     {
         std::cout << "[CreatePlotsFromBabies] create histograms for " << sample_info.name << "\n";
-        CreatePlots(sample_info, label);
+        CreatePlots(sample_info, label, apply_sf);
     }
 }

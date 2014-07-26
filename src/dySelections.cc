@@ -118,9 +118,9 @@ bool dy::isGoodLepton(const int lep_id, const int lep_idx)
         if (els_p4().at(lep_idx).Et() < 25/*GeV*/) {return false;} // E_T > 2.5 GeV
         if (1.4442 < aeta_sc and aeta_sc < 1.566)  {return false;} // reject crack electons defined by 1.4442 < |eta_{sc}| < 1.566
         if (aeta_sc > 2.5)                         {return false;} // |eta_{sc}| < 2.5
-        if (fabs(d0) > 0.02/*cm*/)                 {return false;} // Its tracker track has transverse impact parameter dxy < 200 µm w.r.t. the primary vertex
-        if (fabs(dz) > 0.1/*cm*/)                  {return false;} // The longitudinal distance of the tracker track wrt. the primary vertex is dz < 1 mm
-        if (els_exp_innerlayers().at(lep_idx) > 1) {return false;} // # missing hits on the track < 1
+        if (fabs(d0) > 0.02/*cm*/)                 {return false;} // Its tracker track has transverse impact parameter |d0| < 200 µm w.r.t. the primary vertex
+        if (fabs(dz) > 0.1/*cm*/)                  {return false;} // The longitudinal distance of the tracker track wrt. the primary vertex is |dz| < 1 mm
+        if (els_exp_innerlayers().at(lep_idx) > 1) {return false;} // # missing hits on the track <= 1
         if (vtx_fit_conversion)                    {return false;} // reject conversions
 
         // |1/E - 1/p|
@@ -165,8 +165,8 @@ bool dy::isGoodLepton(const int lep_id, const int lep_idx)
         if (chi2ndof >= 10)                                 {return false;} // χ2/ndof of the global-muon track fit < 10
         if (mus_numberOfMatchedStations().at(lep_idx) <= 1) {return false;} // Muon segments in at least two muon stations
         if (mus_gfit_validSTAHits().at(lep_idx) <= 0)       {return false;} // At least one muon chamber hit included in the global-muon track fit 
-        if (fabs(d0) > 0.02/*cm*/)                          {return false;} // Its tracker track has transverse impact parameter dxy < 200 µm w.r.t. the primary vertex
-        if (fabs(dz) > 0.5/*cm*/)                           {return false;} // The longitudinal distance of the tracker track wrt. the primary vertex is dz < 5 mm
+        if (fabs(d0) > 0.02/*cm*/)                          {return false;} // Its tracker track has transverse impact parameter |d0| < 200 µm w.r.t. the primary vertex
+        if (fabs(dz) > 0.5/*cm*/)                           {return false;} // The longitudinal distance of the tracker track wrt. the primary vertex is |dz| < 5 mm
         if (trks_valid_pixelhits().at(trk_idx) <= 0)        {return false;} // Number of pixel hits > 0
         if (trks_nlayers().at(trk_idx) <= 5)                {return false;} // Cut on number of tracker layers with hits > 5
 
