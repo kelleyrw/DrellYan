@@ -64,9 +64,9 @@ namespace dy
     {
         Yield result =
         {
-            {y1.ee.value * y2.ee.value, sqrt((y1.ee.error*y1.ee.error)/(y1.ee.value*y2.ee.value) + (y2.ee.error*y2.ee.error)/(y1.ee.value*y2.ee.value))}, 
-            {y1.mm.value * y2.mm.value, sqrt((y1.mm.error*y1.mm.error)/(y1.mm.value*y2.mm.value) + (y2.mm.error*y2.mm.error)/(y1.mm.value*y2.mm.value))}, 
-            {y1.ll.value * y2.ll.value, sqrt((y1.ll.error*y1.ll.error)/(y1.ll.value*y2.ll.value) + (y2.ll.error*y2.ll.error)/(y1.ll.value*y2.ll.value))}
+            {y1.ee.value * y2.ee.value, y1.ee.value * y2.ee.value * (sqrt((y1.ee.error*y1.ee.error)/(y1.ee.value*y2.ee.value) + (y2.ee.error*y2.ee.error)/(y1.ee.value*y2.ee.value)))}, 
+            {y1.mm.value * y2.mm.value, y1.mm.value * y2.mm.value * (sqrt((y1.mm.error*y1.mm.error)/(y1.mm.value*y2.mm.value) + (y2.mm.error*y2.mm.error)/(y1.mm.value*y2.mm.value)))}, 
+            {y1.ll.value * y2.ll.value, y1.ll.value * y2.ll.value * (sqrt((y1.ll.error*y1.ll.error)/(y1.ll.value*y2.ll.value) + (y2.ll.error*y2.ll.error)/(y1.ll.value*y2.ll.value)))}
         };
         return result; 
     }
@@ -76,17 +76,17 @@ namespace dy
         Yield::value_t ee =
         {
             lt::is_zero(y2.ee.value) ? 0.0 : y1.ee.value / y2.ee.value, 
-            lt::is_zero(y2.ee.value) ? 0.0 : sqrt((y1.ee.error*y1.ee.error)/(y1.ee.value * y2.ee.value) + (y2.ee.error*y2.ee.error)/(y1.ee.value * y2.ee.value))
+            lt::is_zero(y2.ee.value) ? 0.0 : (y1.ee.value / y2.ee.value) * (sqrt((y1.ee.error*y1.ee.error)/(y1.ee.value * y1.ee.value) + (y2.ee.error*y2.ee.error)/(y2.ee.value * y2.ee.value)))
         }; 
         Yield::value_t mm =
         {
             lt::is_zero(y2.mm.value) ? 0.0 : y1.mm.value / y2.mm.value, 
-            lt::is_zero(y2.mm.value) ? 0.0 : sqrt((y1.mm.error*y1.mm.error)/(y1.mm.value * y2.mm.value) + (y2.mm.error*y2.mm.error)/(y1.mm.value * y2.mm.value))
+            lt::is_zero(y2.mm.value) ? 0.0 : (y1.mm.value / y2.mm.value) * (sqrt((y1.mm.error*y1.mm.error)/(y1.mm.value * y1.mm.value) + (y2.mm.error*y2.mm.error)/(y2.mm.value * y2.mm.value)))
         }; 
         Yield::value_t ll =
         {
             lt::is_zero(y2.ll.value) ? 0.0 : y1.ll.value / y2.ll.value, 
-            lt::is_zero(y2.ll.value) ? 0.0 : sqrt((y1.ll.error*y1.ll.error)/(y1.ll.value * y2.ll.value) + (y2.ll.error*y2.ll.error)/(y1.ll.value * y2.ll.value))
+            lt::is_zero(y2.ll.value) ? 0.0 : (y1.ll.value / y2.ll.value) * (sqrt((y1.ll.error*y1.ll.error)/(y1.ll.value * y1.ll.value) + (y2.ll.error*y2.ll.error)/(y2.ll.value * y2.ll.value)))
         }; 
         Yield result = {ee, mm, ll};
         return result; 
