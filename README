@@ -176,19 +176,17 @@ root [1] CreatePlotsFromBabies("full_sf", /*apply_sf=*/true)
 root [2] .L macros/CreateCrossSectionTable.C+
 void CreateCrossSectionTable(const string& label, const string& hist_name = "h_reco_full_yield", const string& output_file = "", bool print_latex = false)
 root [3] CreateCrossSectionTable("full_sf")
-+-----------------------------------------------------------+
-| Cross-Sectoin for Drell-Yan Exercise                      |
-+-----------------------------------------------------------+
++---------------------------------------------------+
+| Cross-Sectoin for Drell-Yan Exercise              |
++---------------------------------------------------+
 
-            |                    ee |                    mm | 
- N_obs      | 18729 +/-  137        | 22184 +/-  149        | 
- N_mc       | 18718.5 +/- 84.1      | 22031.6 +/- 91.1      | 
- N_dyll     | 18624.1 +/- 83.9      | 21936.5 +/- 91.1      | 
- N_bkgd     | 94.4 +/-  6.2         | 95.1 +/-  2.6         | 
- N_sig      | 18634.6 +/- 137.0     | 22088.9 +/- 149.0     | 
- Num Acc    | 20585.856 +/- 92.861  | 24263.697 +/- 100.816 | 
- Den Acc    | 93056.916 +/- 197.435 | 92927.899 +/- 197.298 | 
- Acc        | 0.221 +/- 0.001       | 0.261 +/- 0.001       | 
- Sigma (nb) | 1.027 +/- 0.000       | 1.032 +/- 0.000       | 
+            |                ee |                mm | 
+ N_obs      | 18729 +/-  137    | 22184 +/-  149    | 
+ N_mc       | 20740.7 +/- 93.2  | 24411.8 +/- 100.9 | 
+ N_dyll     | 20636.1 +/- 93.0  | 24306.4 +/- 100.9 | 
+ N_bkgd     | 104.6 +/-  6.9    | 105.4 +/-  2.9    | 
+ N_sig      | 18624.4 +/- 137.0 | 22078.6 +/- 149.0 | 
+ Acc        | 0.221 +/- 0.001   | 0.261 +/- 0.001   | 
+ Sigma (nb) | 1.027 +/- 0.009   | 1.031 +/- 0.008   | 
 
 [1] http://www.t2.ucsd.edu/twiki2/pub/UCSDTier2/AnalysisTutorial/AN2012_067_v6.pdf 
